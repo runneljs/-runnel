@@ -3,10 +3,14 @@
   "module": "index.ts",
   "type": "module",
   "scripts": {
-    "build": "bun build ./src/index.ts --outdir ./dist",
+    "build": "bun build ./src/index.ts --outdir ./dist && bun run build:declaration",
+    "build:declaration": "tsc --project tsconfig.type.json --outdir ./dist",
     "format": "prettier --write .",
     "test": "bun test"
   },
+  "files": [
+    "dist"
+  ],
   "devDependencies": {
     "@types/bun": "latest",
     "@types/lodash.isequal": "^4.5.8",
