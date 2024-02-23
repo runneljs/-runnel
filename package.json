@@ -1,0 +1,10 @@
+{
+  "private": true,
+  "workspaces": [
+    "eventbus",
+    "examples/*"
+  ],
+  "scripts": {
+    "format": "prettier --write ."
+  }
+}
