@@ -10,7 +10,7 @@ import {
 import isEqual from "lodash.isequal";
 import { z } from "zod";
 import { zodToJsonSchema } from "zod-to-json-schema";
-import { createEventBus } from ".";
+import { createEventBus } from "./index";
 
 const testSchema = z.object({
   name: z.string(),

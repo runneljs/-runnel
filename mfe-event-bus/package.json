@@ -1,16 +1,32 @@
 {
-  "name": "mfe-eventbus",
-  "module": "index.ts",
+  "name": "mfe-event-bus",
+  "version": "1.0.0",
+  "license": "MIT",
+  "main": "dist/index.js",
+  "module": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "files": [
+    "dist/"
+  ],
   "type": "module",
+  "keywords": [
+    "event bus",
+    "message bus",
+    "pubsub",
+    "channel",
+    "communication",
+    "microservices",
+    "microfrontends",
+    "microfrontend",
+    "micro frontends",
+    "micro frontend"
+  ],
   "scripts": {
     "build": "bun build ./src/index.ts --outdir ./dist && bun run build:declaration",
     "build:declaration": "tsc --project tsconfig.type.json --outdir ./dist",
     "format": "prettier --write .",
     "test": "bun test"
   },
-  "files": [
-    "dist"
-  ],
   "devDependencies": {
     "@types/bun": "latest",
     "@types/lodash.isequal": "^4.5.8",

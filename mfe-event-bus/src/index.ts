@@ -8,7 +8,7 @@ export function createEventBus(
   function eventBus() {
     const subscriptionMap = new Map<
       TopicName,
-      { schema: JsonSchema; subscribers: Map<UUID, <P>(payload: P) => void> }
+      { schema: JsonSchema; subscribers: Map<UUID, (payload: any) => void> }
     >();
 
     type SchemaInfo<T> = {
@@ -31,7 +31,7 @@ export function createEventBus(
       subscriptionMap.set(topicName, { schema, subscribers });
 
       return {
-        subscribe: (callback: <P = T>(payload: P) => void) => {
+        subscribe: (callback: (payload: T) => void) => {
           const { schema, subscribers } = subscriptionMap.get(topicName)!;
           const uuid = crypto.randomUUID();
           subscribers.set(uuid, callback);
@@ -52,9 +52,11 @@ export function createEventBus(
           if (!payloadValidator(payload)) {
             throw new Error("Invalid data: The published data is not valid.");
           }
-          subscriptionMap.get(topicName)?.subscribers.forEach((callback) => {
-            callback(payload);
-          });
+          subscriptionMap
+            .get(topicName)
+            ?.subscribers.forEach((callback: (payload: T) => void) => {
+              callback(payload);
+            });
         },
       };
     }
