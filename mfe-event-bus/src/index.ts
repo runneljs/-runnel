@@ -18,9 +18,7 @@ export function createEventBus(
         subscribers: new Map<UUID, <T>(payload: T) => void>(),
       };
       if (!deepEqual(jsonSchema, schema)) {
-        throw new Error(
-          "Invalid schema. The provided schema is not valid. Please make sure you gave the same schema as other subscribers'.",
-        );
+        throw new SchemaMismatchError(topicName, schema, jsonSchema);
       }
       subscriptionMap.set(topicName, { schema, subscribers });
 
@@ -44,7 +42,7 @@ export function createEventBus(
         },
         publish: (payload: T) => {
           if (!payloadValidator(schema)(payload)) {
-            throw new Error("Invalid data: The published data is not valid.");
+            throw new PayloadMismatchError(topicName, schema, payload);
           }
           subscriptionMap
             .get(topicName)
@@ -78,6 +76,46 @@ function getGlobal() {
     return global;
   }
   throw new Error("No global object found. Please create a PR to support it.");
+}
+
+export class PayloadMismatchError extends Error {
+  constructor(
+    public topicName: string,
+    public jsonSchema: unknown,
+    public payload: unknown,
+  ) {
+    super(
+      [
+        `Invalid payload for the topic [${topicName}].`,
+        `Please make sure the payload matches the schema.`,
+        `JSON Schema:${JSON.stringify(jsonSchema)}`,
+      ].join("\n"),
+    );
+    if (Error.captureStackTrace) {
+      Error.captureStackTrace(this, PayloadMismatchError);
+    }
+    this.name = PayloadMismatchError.name;
+  }
+}
+
+export class SchemaMismatchError extends Error {
+  constructor(
+    public topicName: string,
+    public jsonSchema: unknown,
+    public incomingJsonSchema: unknown,
+  ) {
+    super(
+      [
+        `The topic [${topicName}] has been registered with a different schema.`,
+        `Expected:${JSON.stringify(jsonSchema)},`,
+        `Received:${JSON.stringify(incomingJsonSchema)}`,
+      ].join("\n"),
+    );
+    if (Error.captureStackTrace) {
+      Error.captureStackTrace(this, SchemaMismatchError);
+    }
+    this.name = SchemaMismatchError.name;
+  }
 }
 
 export default createEventBus;

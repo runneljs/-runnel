@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import isEqual from "lodash.isequal";
-import { createEventBus } from "mfe-event-bus";
+import { SchemaMismatchError, createEventBus } from "mfe-event-bus";
 import { z } from "zod";
 import { zodToJsonSchema } from "zod-to-json-schema";
 import Ajv from "ajv";
@@ -27,6 +27,20 @@ const { registerTopic } = createEventBus(isEqual, payloadValidator);
 const countTopic = registerTopic<number>("count", {
   type: "number",
 });
+
+try {
+  /**
+   * Intentionally registering a topic with an incorrect schema.
+   */
+  registerTopic("oops", { type: "string" });
+} catch (e) {
+  console.warn(e);
+  const { topicName, jsonSchema, incomingJsonSchema } =
+    e as unknown as SchemaMismatchError;
+  console.warn({ topicName });
+  console.warn({ jsonSchema: JSON.stringify(jsonSchema) });
+  console.warn({ incomingJsonSchema: JSON.stringify(incomingJsonSchema) });
+}
 
 const fullNameSchema = z.object({
   firstName: z.string(),

@@ -1,7 +1,11 @@
 import { useEffect, useState } from "react";
 import { Validator } from "@cfworker/json-schema";
 import deepEqual from "deep-equal";
-import { createEventBus } from "mfe-event-bus";
+import {
+  PayloadMismatchError,
+  SchemaMismatchError,
+  createEventBus,
+} from "mfe-event-bus";
 import { z } from "zod";
 import { zodToJsonSchema } from "zod-to-json-schema";
 import "./App.css";
@@ -28,6 +32,36 @@ const { registerTopic } = createEventBus(deepEqual, payloadValidator);
 const countTopic = registerTopic<number>("count", {
   type: "number",
 });
+
+try {
+  /**
+   * Intentionally publishing a topic with an incorrect payload.
+   */
+  // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+  // @ts-expect-error
+  countTopic.publish("oops");
+} catch (e) {
+  console.warn(e);
+  const { topicName, jsonSchema, payload } =
+    e as unknown as PayloadMismatchError;
+  console.warn({ topicName });
+  console.warn({ jsonSchema: JSON.stringify(jsonSchema) });
+  console.warn({ payload: JSON.stringify(payload) });
+}
+
+try {
+  /**
+   * Intentionally registering a topic with an incorrect schema.
+   */
+  registerTopic("oops", { type: "number" });
+} catch (e) {
+  console.warn(e);
+  const { topicName, jsonSchema, incomingJsonSchema } =
+    e as unknown as SchemaMismatchError;
+  console.warn({ topicName });
+  console.warn({ jsonSchema: JSON.stringify(jsonSchema) });
+  console.warn({ incomingJsonSchema: JSON.stringify(incomingJsonSchema) });
+}
 
 const fullNameSchema = z.object({
   firstName: z.string(),
