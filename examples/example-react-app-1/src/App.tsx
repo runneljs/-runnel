@@ -1,16 +1,24 @@
 import { useEffect, useState } from "react";
+import { Validator } from "@cfworker/json-schema";
 import deepEqual from "deep-equal";
 import { createEventBus } from "mfe-event-bus";
 import { z } from "zod";
 import { zodToJsonSchema } from "zod-to-json-schema";
 import "./App.css";
 
+function payloadValidator(jsonSchema: object) {
+  const validator = new Validator(jsonSchema);
+  return function (payload: unknown) {
+    return validator.validate(payload).valid;
+  };
+}
 /**
- * App 1 uses `deep-equal`. App 2 uses `lodash.isequal`.
- * Whichever attached to the window object first will be used.
- * The point is that `deepEqual` is replaceable.
+ * The parameters `deepEqual` and `payloadValidator` are replaceable.
+ * - deepEqual: App 1 uses `deep-equal`. App 2 uses `lodash.isequal`.
+ * - payloadValidator: App 1 uses `@cfworker/json-schema`. App 2 uses `ajv`.
+ * Whichever the eventBus attached to the window object first will be used.
  */
-const { registerTopic } = createEventBus(deepEqual);
+const { registerTopic } = createEventBus(deepEqual, payloadValidator);
 
 /**
  * The lines creating topics below will be identical in both apps.
@@ -18,22 +26,18 @@ const { registerTopic } = createEventBus(deepEqual);
  * they should not share the same codebase.
  */
 const countTopic = registerTopic<number>("count", {
-  payloadValidator: (payload: number) => typeof payload === "number",
-  jsonSchema: {
-    type: "number",
-  },
+  type: "number",
 });
 
 const fullNameSchema = z.object({
   firstName: z.string(),
   lastName: z.string(),
 });
-const schemaInfo = {
-  payloadValidator: (value: unknown) => fullNameSchema.safeParse(value).success,
-  jsonSchema: zodToJsonSchema(fullNameSchema),
-};
 type FullNameSchema = z.infer<typeof fullNameSchema>;
-const fullNameTopic = registerTopic<FullNameSchema>("fullName", schemaInfo);
+const fullNameTopic = registerTopic<FullNameSchema>(
+  "fullName",
+  zodToJsonSchema(fullNameSchema),
+);
 
 function App() {
   const [fullName, setFullName] = useState({

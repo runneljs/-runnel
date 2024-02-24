@@ -3,14 +3,21 @@ import isEqual from "lodash.isequal";
 import { createEventBus } from "mfe-event-bus";
 import { z } from "zod";
 import { zodToJsonSchema } from "zod-to-json-schema";
+import Ajv from "ajv";
 import "./App.css";
 
+const ajv = new Ajv();
+function payloadValidator(jsonSchema: object) {
+  return ajv.compile(jsonSchema);
+}
+
 /**
- * App 1 uses `deep-equal`. App 2 uses `lodash.isequal`.
- * Whichever attached to the window object first will be used.
- * The point is that `deepEqual` is replaceable.
+ * The parameters `deepEqual` and `payloadValidator` are replaceable.
+ * - deepEqual: App 1 uses `deep-equal`. App 2 uses `lodash.isequal`.
+ * - payloadValidator: App 1 uses `@cfworker/json-schema`. App 2 uses `ajv`.
+ * Whichever the eventBus attached to the window object first will be used.
  */
-const { registerTopic } = createEventBus(isEqual);
+const { registerTopic } = createEventBus(isEqual, payloadValidator);
 
 /**
  * The lines creating topics below will be identical in both apps.
@@ -18,22 +25,18 @@ const { registerTopic } = createEventBus(isEqual);
  * they should not share the same codebase.
  */
 const countTopic = registerTopic<number>("count", {
-  payloadValidator: (payload: number) => typeof payload === "number",
-  jsonSchema: {
-    type: "number",
-  },
+  type: "number",
 });
 
 const fullNameSchema = z.object({
   firstName: z.string(),
   lastName: z.string(),
 });
-const schemaInfo = {
-  payloadValidator: (value: unknown) => fullNameSchema.safeParse(value).success,
-  jsonSchema: zodToJsonSchema(fullNameSchema),
-};
 type FullNameSchema = z.infer<typeof fullNameSchema>;
-const fullNameTopic = registerTopic<FullNameSchema>("fullName", schemaInfo);
+const fullNameTopic = registerTopic<FullNameSchema>(
+  "fullName",
+  zodToJsonSchema(fullNameSchema),
+);
 
 function App() {
   const [fullName, setFullName] = useState({

@@ -11,6 +11,7 @@
     "preview": "bunx --bun vite preview"
   },
   "dependencies": {
+    "@cfworker/json-schema": "^1.12.8",
     "deep-equal": "^2.2.3",
     "mfe-event-bus": "workspace:*",
     "react": "^18.2.0",

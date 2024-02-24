@@ -79,3 +79,5 @@ function getGlobal() {
   }
   throw new Error("No global object found. Please create a PR to support it.");
 }
+
+export default createEventBus;

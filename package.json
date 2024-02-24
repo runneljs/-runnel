@@ -8,10 +8,10 @@
   "scripts": {
     "format": "prettier --write .",
     "clean:app-shell": "rimraf ./examples/example-app-shell/public/*.js",
-    "build:example-app1": "cd ./examples/example-react-app-1 && bun run build:cp && cd ../../",
-    "build:example-app2": "cd ./examples/example-react-app-2 && bun run build:cp && cd ../../",
+    "build:example-app1": "cd ./examples/example-react-app-1 && bun run build:cp",
+    "build:example-app2": "cd ./examples/example-react-app-2 && bun run build:cp",
     "build:example": "bun run clean:app-shell && bun run build:example-app1 && bun run build:example-app2",
-    "run:example": "bun run build:example && cd ./examples/example-app-shell && bun run dev"
+    "run:example": "cd ./examples/example-app-shell && bun run dev"
   },
   "devDependencies": {
     "prettier": "^3.2.5",
