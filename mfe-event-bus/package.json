@@ -4,9 +4,9 @@
   "main": "dist/index.js",
   "module": "dist/index.js",
   "devDependencies": {
+    "@cfworker/json-schema": "^1.12.8",
     "@types/bun": "latest",
     "@types/lodash.isequal": "^4.5.8",
-    "json-schema-to-zod": "^2.0.14",
     "lodash.isequal": "^4.5.0",
     "prettier": "^3.2.5",
     "typescript": "^5.3.3",

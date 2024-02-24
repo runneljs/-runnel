@@ -1,3 +1,4 @@
+import { Validator } from "@cfworker/json-schema";
 import {
   afterEach,
   beforeAll,
@@ -7,7 +8,6 @@ import {
   jest,
   test,
 } from "bun:test";
-import { jsonSchemaToZod } from "json-schema-to-zod";
 import isEqual from "lodash.isequal";
 import { z } from "zod";
 import { zodToJsonSchema } from "zod-to-json-schema";
@@ -21,8 +21,9 @@ type TestSchema = z.infer<typeof testSchema>;
 const jsonSchema = zodToJsonSchema(testSchema);
 
 function payloadValidator(jsonSchema: object) {
+  const validator = new Validator(jsonSchema);
   return function (payload: unknown) {
-    return eval(jsonSchemaToZod(jsonSchema)).safeParse(payload).success;
+    return validator.validate(payload).valid;
   };
 }
 
