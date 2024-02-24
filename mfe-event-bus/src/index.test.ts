@@ -9,16 +9,26 @@ import {
   test,
 } from "bun:test";
 import isEqual from "lodash.isequal";
-import { z } from "zod";
-import { zodToJsonSchema } from "zod-to-json-schema";
 import { createEventBus } from "./index";
 
-const testSchema = z.object({
-  name: z.string(),
-  age: z.number().optional(),
-});
-type TestSchema = z.infer<typeof testSchema>;
-const jsonSchema = zodToJsonSchema(testSchema);
+type TestSchema = {
+  name: string;
+  age?: number | undefined;
+};
+const jsonSchema = {
+  type: "object",
+  properties: {
+    name: {
+      type: "string",
+    },
+    age: {
+      type: "number",
+    },
+  },
+  required: ["name"],
+  additionalProperties: false,
+  $schema: "http://json-schema.org/draft-07/schema#",
+};
 
 function payloadValidator(jsonSchema: object) {
   const validator = new Validator(jsonSchema);

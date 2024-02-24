@@ -80,8 +80,8 @@ function getGlobal() {
 
 export class PayloadMismatchError extends Error {
   constructor(
-    public topicName: string,
-    public jsonSchema: unknown,
+    public topicName: TopicName,
+    public jsonSchema: JsonSchema,
     public payload: unknown,
   ) {
     super(
@@ -89,6 +89,7 @@ export class PayloadMismatchError extends Error {
         `Invalid payload for the topic [${topicName}].`,
         `Please make sure the payload matches the schema.`,
         `JSON Schema:${JSON.stringify(jsonSchema)}`,
+        `Payload:${JSON.stringify(payload)}`,
       ].join("\n"),
     );
     if (Error.captureStackTrace) {
@@ -100,8 +101,8 @@ export class PayloadMismatchError extends Error {
 
 export class SchemaMismatchError extends Error {
   constructor(
-    public topicName: string,
-    public jsonSchema: unknown,
+    public topicName: TopicName,
+    public jsonSchema: JsonSchema,
     public incomingJsonSchema: unknown,
   ) {
     super(
