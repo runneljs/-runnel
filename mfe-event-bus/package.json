@@ -1,14 +1,21 @@
 {
   "name": "mfe-event-bus",
   "version": "1.0.0",
-  "license": "MIT",
   "main": "dist/index.js",
   "module": "dist/index.js",
-  "types": "dist/index.d.ts",
+  "devDependencies": {
+    "@types/bun": "latest",
+    "@types/lodash.isequal": "^4.5.8",
+    "json-schema-to-zod": "^2.0.14",
+    "lodash.isequal": "^4.5.0",
+    "prettier": "^3.2.5",
+    "typescript": "^5.3.3",
+    "zod": "^3.22.4",
+    "zod-to-json-schema": "^3.22.4"
+  },
   "files": [
     "dist/"
   ],
-  "type": "module",
   "keywords": [
     "event bus",
     "message bus",
@@ -21,19 +28,13 @@
     "micro frontends",
     "micro frontend"
   ],
+  "license": "MIT",
   "scripts": {
     "build": "bun build ./src/index.ts --outdir ./dist && bun run build:declaration",
     "build:declaration": "tsc --project tsconfig.type.json --outdir ./dist",
     "format": "prettier --write .",
     "test": "bun test"
   },
-  "devDependencies": {
-    "@types/bun": "latest",
-    "@types/lodash.isequal": "^4.5.8",
-    "lodash.isequal": "^4.5.0",
-    "prettier": "^3.2.5",
-    "typescript": "^5.3.3",
-    "zod": "^3.22.4",
-    "zod-to-json-schema": "^3.22.4"
-  }
+  "type": "module",
+  "types": "dist/index.d.ts"
 }

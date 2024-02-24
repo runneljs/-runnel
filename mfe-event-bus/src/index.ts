@@ -4,6 +4,7 @@ type TopicName = string;
 
 export function createEventBus(
   deepEqual: (value: JsonSchema, other: JsonSchema) => boolean,
+  payloadValidator: (jsonSchema: JsonSchema) => (payload: unknown) => boolean,
 ) {
   function eventBus() {
     const subscriptionMap = new Map<
@@ -11,14 +12,7 @@ export function createEventBus(
       { schema: JsonSchema; subscribers: Map<UUID, (payload: any) => void> }
     >();
 
-    type SchemaInfo<T> = {
-      payloadValidator: (payload: T) => boolean;
-      jsonSchema: JsonSchema;
-    };
-    function registerTopic<T>(
-      topicName: TopicName,
-      { payloadValidator, jsonSchema }: SchemaInfo<T>,
-    ) {
+    function registerTopic<T>(topicName: TopicName, jsonSchema: JsonSchema) {
       const { schema, subscribers } = subscriptionMap.get(topicName) || {
         schema: jsonSchema,
         subscribers: new Map<UUID, <T>(payload: T) => void>(),
@@ -49,7 +43,7 @@ export function createEventBus(
           };
         },
         publish: (payload: T) => {
-          if (!payloadValidator(payload)) {
+          if (!payloadValidator(schema)(payload)) {
             throw new Error("Invalid data: The published data is not valid.");
           }
           subscriptionMap

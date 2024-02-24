@@ -7,6 +7,7 @@ import {
   jest,
   test,
 } from "bun:test";
+import { jsonSchemaToZod } from "json-schema-to-zod";
 import isEqual from "lodash.isequal";
 import { z } from "zod";
 import { zodToJsonSchema } from "zod-to-json-schema";
@@ -17,10 +18,13 @@ const testSchema = z.object({
   age: z.number().optional(),
 });
 type TestSchema = z.infer<typeof testSchema>;
-const schemaInfo = {
-  payloadValidator: (value: unknown) => testSchema.safeParse(value).success,
-  jsonSchema: zodToJsonSchema(testSchema),
-};
+const jsonSchema = zodToJsonSchema(testSchema);
+
+function payloadValidator(jsonSchema: object) {
+  return function (payload: unknown) {
+    return eval(jsonSchemaToZod(jsonSchema)).safeParse(payload).success;
+  };
+}
 
 describe("EventBus", () => {
   describe("createEventBus", () => {
@@ -30,7 +34,7 @@ describe("EventBus", () => {
 
     let eventBus: ReturnType<typeof createEventBus>;
     beforeEach(() => {
-      eventBus = createEventBus(isEqual);
+      eventBus = createEventBus(isEqual, payloadValidator);
     });
 
     describe("createEventBus", () => {
@@ -48,7 +52,7 @@ describe("EventBus", () => {
     type EventBus = ReturnType<typeof createEventBus>;
     let eventBus: EventBus;
     beforeAll(() => {
-      eventBus = createEventBus(isEqual);
+      eventBus = createEventBus(isEqual, payloadValidator);
     });
 
     afterEach(() => {
@@ -60,7 +64,7 @@ describe("EventBus", () => {
         test("it creates a topic", () => {
           const testTopic = eventBus.registerTopic<TestSchema>(
             `test`,
-            schemaInfo,
+            jsonSchema,
           );
           expect(testTopic).toBeDefined();
         });
@@ -76,11 +80,11 @@ describe("EventBus", () => {
             test("it creates two topics", () => {
               const topic1 = eventBus.registerTopic<TestSchema>(
                 `test`,
-                schemaInfo,
+                jsonSchema,
               );
               const topic2 = eventBus.registerTopic<TestSchema>(
                 `test`,
-                schemaInfo,
+                jsonSchema,
               );
               expect(topic1).toBeDefined();
               expect(topic2).toBeDefined();
@@ -92,11 +96,11 @@ describe("EventBus", () => {
             test("it creates two topics", () => {
               const topic1 = eventBus.registerTopic<TestSchema>(
                 `test`,
-                schemaInfo,
+                jsonSchema,
               );
               const topic2 = eventBus.registerTopic<TestSchema>(
                 `test2`,
-                schemaInfo,
+                jsonSchema,
               );
               expect(topic1).toBeDefined();
               expect(topic2).toBeDefined();
@@ -114,20 +118,14 @@ describe("EventBus", () => {
           test("it throws an error", () => {
             // First
             eventBus.registerTopic<TestSchema>(`test`, {
-              ...schemaInfo,
-              jsonSchema: {
-                ...schemaInfo.jsonSchema,
-                additionalProperties: false,
-              },
+              ...jsonSchema,
+              additionalProperties: false,
             });
             // Second - wrong schema!
             expect(() =>
               eventBus.registerTopic<TestSchema>(`test`, {
-                ...schemaInfo,
-                jsonSchema: {
-                  ...schemaInfo.jsonSchema,
-                  additionalProperties: true,
-                },
+                ...jsonSchema,
+                additionalProperties: true,
               }),
             ).toThrow();
           });
@@ -138,7 +136,7 @@ describe("EventBus", () => {
     describe("unregisterTopic", () => {
       describe("When unregistering a topic", () => {
         test("it removes the topic but you can keep sending a message", () => {
-          const topic = eventBus.registerTopic(`test`, schemaInfo);
+          const topic = eventBus.registerTopic(`test`, jsonSchema);
           eventBus.unregisterTopic(`test`);
           expect(() => topic.publish({ name: "test" })).not.toThrow();
         });
@@ -150,7 +148,7 @@ describe("EventBus", () => {
     type EventBus = ReturnType<typeof createEventBus>;
     let eventBus: EventBus;
     beforeEach(() => {
-      eventBus = createEventBus(isEqual);
+      eventBus = createEventBus(isEqual, payloadValidator);
     });
 
     afterEach(() => {
@@ -160,7 +158,7 @@ describe("EventBus", () => {
     describe("When there is one topic", () => {
       let testTopic: ReturnType<typeof eventBus.registerTopic<TestSchema>>;
       beforeEach(() => {
-        testTopic = eventBus.registerTopic<TestSchema>(`test`, schemaInfo);
+        testTopic = eventBus.registerTopic<TestSchema>(`test`, jsonSchema);
       });
 
       describe("AND it has no subscribers", () => {
