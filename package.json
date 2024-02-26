@@ -3,7 +3,7 @@
   "private": true,
   "workspaces": [
     "examples/*",
-    "mfe-event-bus"
+    "packages/*"
   ],
   "scripts": {
     "format": "prettier --write .",
@@ -16,6 +16,7 @@
   },
   "devDependencies": {
     "husky": "^9.0.11",
+    "lint-staged": "^15.2.2",
     "prettier": "^3.2.5",
     "rimraf": "^5.0.5"
   }
