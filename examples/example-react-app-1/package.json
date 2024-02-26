@@ -11,13 +11,13 @@
     "preview": "bunx --bun vite preview"
   },
   "dependencies": {
-    "@cfworker/json-schema": "^1.12.8",
     "deep-equal": "^2.2.3",
+    "mfe-event-bus": "workspace:*",
+    "mfe-event-bus-validator": "workspace:*",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "zod": "^3.22.4",
-    "zod-to-json-schema": "^3.22.4",
-    "mfe-event-bus": "workspace:*"
+    "zod-to-json-schema": "^3.22.4"
   },
   "devDependencies": {
     "@types/deep-equal": "^1.0.4",

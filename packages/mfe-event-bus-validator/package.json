@@ -1,0 +1,37 @@
+{
+  "name": "mfe-event-bus-validator",
+  "version": "1.0.0",
+  "main": "dist/index.js",
+  "module": "dist/index.js",
+  "dependencies": {
+    "@cfworker/json-schema": "^1.12.8"
+  },
+  "devDependencies": {
+    "@types/bun": "latest"
+  },
+  "files": [
+    "dist/"
+  ],
+  "keywords": [
+    "event bus",
+    "message bus",
+    "pubsub",
+    "channel",
+    "communication",
+    "contract",
+    "microfrontends",
+    "microfrontend",
+    "micro frontends",
+    "micro frontend",
+    "microservices",
+    "validator"
+  ],
+  "license": "MIT",
+  "scripts": {
+    "build": "bun build ./src/index.ts --outdir ./dist && bun run build:declaration",
+    "build:declaration": "tsc --project tsconfig.type.json --outdir ./dist",
+    "test": "bun test"
+  },
+  "type": "module",
+  "types": "dist/index.d.ts"
+}

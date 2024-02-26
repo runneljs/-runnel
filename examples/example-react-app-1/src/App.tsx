@@ -1,5 +1,4 @@
 import { useEffect, useState } from "react";
-import { Validator } from "@cfworker/json-schema";
 import deepEqual from "deep-equal";
 import {
   PayloadMismatchError,
@@ -9,20 +8,15 @@ import {
 import { z } from "zod";
 import { zodToJsonSchema } from "zod-to-json-schema";
 import "./App.css";
+import { validator } from "mfe-event-bus-validator";
 
-function payloadValidator(jsonSchema: object) {
-  const validator = new Validator(jsonSchema);
-  return function (payload: unknown) {
-    return validator.validate(payload).valid;
-  };
-}
 /**
  * The parameters `deepEqual` and `payloadValidator` are replaceable.
  * - deepEqual: App 1 uses `deep-equal`. App 2 uses `lodash.isequal`.
  * - payloadValidator: App 1 uses `@cfworker/json-schema`. App 2 uses `ajv`.
  * Whichever the eventBus attached to the window object first will be used.
  */
-const { registerTopic } = createEventBus(deepEqual, payloadValidator);
+const { registerTopic } = createEventBus(deepEqual, validator);
 
 /**
  * The lines creating topics below will be identical in both apps.
