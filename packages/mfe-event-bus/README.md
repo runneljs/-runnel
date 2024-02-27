@@ -1,5 +1,7 @@
 # MFE Event Bus
 
+TODO: The case with iframes
+
 An Event Bus library designed for building Micro-Frontend Applications.
 
 > Hugely Inspired by [@trutoo/event-bus](https://www.npmjs.com/package/@trutoo/event-bus)

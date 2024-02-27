@@ -250,20 +250,23 @@ describe("EventBus", () => {
           { length: number; schema: object }
         > = {};
         const publishStats: Record<string, number> = {};
+
         return {
-          afterSubscribe: (topicId: string, subscription: Subscription) => {
+          onSubscribe: (topicId: string, subscription: Subscription) => {
             // This will have the latest info.
             subscribeStats[topicId] = {
               length: subscription.subscribers.size,
               schema: subscription.schema,
             };
           },
-          afterPublish: (topicId: string) => {
+          onPublish: (topicId: string) => {
             publishStats[topicId]
               ? publishStats[topicId]++
               : (publishStats[topicId] = 1);
           },
-          afterUnregisterAllTopics: () => mock([subscribeStats, publishStats]),
+          onUnregisterAllTopics: () => {
+            mock([subscribeStats, publishStats]);
+          },
         };
       };
 
@@ -281,7 +284,7 @@ describe("EventBus", () => {
     describe("When there is one topic", () => {
       let testTopic: ReturnType<typeof eventBus.registerTopic<TestSchema>>;
       beforeEach(() => {
-        testTopic = eventBus.registerTopic<TestSchema>(`test`, jsonSchema);
+        testTopic = eventBus.registerTopic<TestSchema>(`skywalker`, jsonSchema);
       });
 
       describe("When a plugin gets registered", () => {
@@ -295,8 +298,10 @@ describe("EventBus", () => {
           eventBus.unregisterAllTopics();
           // Yay! It has the metrics!
           expect(mock).toHaveBeenCalledWith([
-            { test: { length: 2, schema: jsonSchema } },
-            { test: 3 },
+            {
+              skywalker: { length: 2, schema: jsonSchema },
+            },
+            { skywalker: 3 },
           ]);
         });
       });

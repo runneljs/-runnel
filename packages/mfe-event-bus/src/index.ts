@@ -7,12 +7,12 @@ export type Subscription = {
   subscribers: Map<UUID, (payload: any) => void>;
 };
 type DeepEqual = (value: JsonSchema, other: JsonSchema) => boolean;
-
 type Validator = (jsonSchema: JsonSchema) => (payload: unknown) => boolean;
 type InitPlugIn = () => {
-  afterSubscribe?: (topicId: TopicId, subscription: Subscription) => void;
-  afterPublish?: (topicId: TopicId, subscription: Subscription) => void;
-  afterUnregisterAllTopics?: () => void;
+  onSubscribe?: (topicId: TopicId, subscription: Subscription) => void;
+  onUnsubscribe?: (topicId: TopicId, subscription: Subscription) => void;
+  onPublish?: (topicId: TopicId, subscription: Subscription) => void;
+  onUnregisterAllTopics?: () => void;
 };
 
 export function createEventBus({
@@ -29,16 +29,13 @@ export function createEventBus({
   const _global = space || (getGlobal() as any);
   _global.mfeEventBusSubscriptionStore ??= initSubscriptionStore();
   const subscriptionStore = _global.mfeEventBusSubscriptionStore;
-  _global.mfeEventBusPluginStore ??= initPluginStore({ subscriptionStore });
-  Object.entries(plugins).forEach(([id, plugin]) => {
-    _global.mfeEventBusPluginStore.add(id, plugin);
-  });
+  const pluginStore = initPluginStore({ subscriptionStore, plugins });
 
   return eventBus({
     deepEqual,
     payloadValidator,
     subscriptionStore,
-    pluginStore: _global.mfeEventBusPluginStore,
+    pluginStore,
   });
 }
 
@@ -91,12 +88,15 @@ function eventBus({
     return {
       subscribe: (callback: (payload: T) => void) => {
         const unsubscribe = subscribe(callback);
-        pluginStore?.run("afterSubscribe", topicId);
-        return unsubscribe;
+        pluginStore?.run("onSubscribe", topicId);
+        return () => {
+          unsubscribe();
+          pluginStore?.run("onUnsubscribe", topicId);
+        };
       },
       publish: (payload: T) => {
         publish(payload);
-        pluginStore?.run("afterPublish", topicId);
+        pluginStore?.run("onPublish", topicId);
       },
     };
   }
@@ -107,7 +107,7 @@ function eventBus({
   }
 
   function unregisterAllTopics() {
-    pluginStore?.run("afterUnregisterAllTopics");
+    pluginStore?.run("onUnregisterAllTopics");
     subscriptionStore.clear();
   }
 
@@ -121,21 +121,30 @@ function topicNameToId(topicName: TopicName, version?: string) {
 type PlugInStore = ReturnType<typeof initPluginStore>;
 function initPluginStore({
   subscriptionStore,
+  plugins: _plugins,
 }: {
   subscriptionStore: SubscriptionStore;
+  plugins: Record<string, InitPlugIn>;
 }) {
   type PlugIn = ReturnType<InitPlugIn>;
-  const plugins: Map<string, PlugIn> = new Map();
+  const plugins: Map<string, PlugIn> = new Map(
+    Object.entries(
+      Object.entries(_plugins).reduce<Record<string, PlugIn>>(
+        (acc, [name, init]) => {
+          acc[name] = init();
+          return acc;
+        },
+        {},
+      ),
+    ),
+  );
 
   return {
-    add: (pluginId: string, plugin: InitPlugIn): void => {
-      plugins.get(pluginId) ?? plugins.set(pluginId, plugin());
-    },
-    run: (name: keyof PlugIn, topicId?: TopicId): void => {
+    run: (eventName: keyof PlugIn, topicId?: TopicId): void => {
       plugins.forEach((plugin) => {
-        name === "afterUnregisterAllTopics"
-          ? plugin[name]?.()
-          : plugin[name]?.(topicId!, subscriptionStore.get(topicId!)!);
+        eventName === "onUnregisterAllTopics"
+          ? plugin[eventName]?.()
+          : plugin[eventName]?.(topicId!, subscriptionStore.get(topicId!)!);
       });
     },
   };
