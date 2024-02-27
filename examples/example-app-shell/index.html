@@ -7,8 +7,19 @@
     <title>Vite + TS</title>
   </head>
   <body>
-    <div id="app-1"></div>
-    <div id="app-2"></div>
+    <div style="display: flex; align-items: flex-start">
+      <div id="app-1"></div>
+      <div id="app-2"></div>
+      <div style="display: flex; flex-grow: initial; flex-direction: column">
+        <iframe
+          src="./app3.html"
+          frameborder="0"
+          width="390px"
+          height="600px"
+        ></iframe>
+        <p>This ^ is rendered in an iFrame</p>
+      </div>
+    </div>
     <script type="module" src="/app1.js"></script>
     <script type="module" src="/app2.js"></script>
   </body>

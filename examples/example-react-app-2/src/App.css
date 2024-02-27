@@ -1,8 +1,14 @@
+#app-2 {
+  width: 340px;
+  border: 1px solid #c88;
+  margin: 1em;
+  padding: 1em;
+}
 #app-2 h1 {
   color: #c88;
 }
 #app-2 .card {
   padding: 2em;
-  margin: 1em;
-  border: 1px solid #c88;
+  border: 1px dotted #c88;
+  border-radius: 4px;
 }

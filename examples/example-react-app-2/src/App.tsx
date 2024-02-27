@@ -17,7 +17,10 @@ function payloadValidator(jsonSchema: object) {
  * - payloadValidator: App 1 uses `@cfworker/json-schema`. App 2 uses `ajv`.
  * Whichever the eventBus attached to the window object first will be used.
  */
-const { registerTopic } = createEventBus(isEqual, payloadValidator);
+const { registerTopic } = createEventBus({
+  deepEqual: isEqual,
+  payloadValidator,
+});
 
 /**
  * The lines creating topics below will be identical in both apps.
@@ -59,9 +62,10 @@ function App() {
   });
   const [count, setCount] = useState(0);
   useEffect(() => {
-    countTopic.subscribe((payload) => {
+    const unsubscribe = countTopic.subscribe((payload) => {
       setCount(payload);
     });
+    return () => unsubscribe();
   }, []);
 
   const buttonOnClick = (e: React.FormEvent<HTMLButtonElement>) => {

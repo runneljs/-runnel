@@ -8,9 +8,10 @@
   "scripts": {
     "format": "prettier --write .",
     "clean:app-shell": "rimraf ./examples/example-app-shell/public/*.js",
-    "build:example-app1": "cd ./examples/example-react-app-1 && bun run build:cp",
-    "build:example-app2": "cd ./examples/example-react-app-2 && bun run build:cp",
-    "build:example": "bun run clean:app-shell && bun run build:example-app1 && bun run build:example-app2",
+    "build:example-app1": "cd ./examples/example-react-app-1 && bun i && bun run build:cp",
+    "build:example-app2": "cd ./examples/example-react-app-2 && bun i && bun run build:cp",
+    "build:example-app3": "cd ./examples/example-react-app-3-iframe && bun i && bun run build:cp",
+    "build:example": "bun run clean:app-shell && bun run build:example-app1 && bun run build:example-app2 && bun run build:example-app3",
     "run:example": "cd ./examples/example-app-shell && bun run dev",
     "prepare": "husky"
   },

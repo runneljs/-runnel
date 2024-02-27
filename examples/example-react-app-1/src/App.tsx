@@ -16,7 +16,10 @@ import { validator } from "mfe-event-bus-validator";
  * - payloadValidator: App 1 uses `@cfworker/json-schema`. App 2 uses `ajv`.
  * Whichever the eventBus attached to the window object first will be used.
  */
-const { registerTopic } = createEventBus(deepEqual, validator);
+const { registerTopic } = createEventBus({
+  deepEqual,
+  payloadValidator: validator,
+});
 
 /**
  * The lines creating topics below will be identical in both apps.
@@ -74,10 +77,11 @@ function App() {
   });
   const [count, setCount] = useState(0);
   useEffect(() => {
-    fullNameTopic.subscribe((payload) => {
+    const unsubscribe = fullNameTopic.subscribe((payload) => {
       setFullName(payload);
     });
-  });
+    return () => unsubscribe();
+  }, []);
   const clickHandler = () => {
     countTopic.publish(count + 1);
     setCount((count) => count + 1);
