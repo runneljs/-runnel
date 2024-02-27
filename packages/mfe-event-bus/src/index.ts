@@ -2,33 +2,56 @@ type JsonSchema = object;
 type UUID = string;
 type TopicId = string;
 type TopicName = string;
+export type Subscription = {
+  schema: JsonSchema;
+  subscribers: Map<UUID, (payload: any) => void>;
+};
 type DeepEqual = (value: JsonSchema, other: JsonSchema) => boolean;
+
 type Validator = (jsonSchema: JsonSchema) => (payload: unknown) => boolean;
+type InitPlugIn = () => {
+  afterSubscribe: (topicId: TopicId, subscription: Subscription) => void;
+  afterPublish: (topicId: TopicId, subscription: Subscription) => void;
+  afterUnregisterAllTopics: () => void;
+};
 
 export function createEventBus({
   deepEqual,
   payloadValidator,
+  space = getGlobal(),
+  plugins = [],
 }: {
   deepEqual: DeepEqual;
   payloadValidator: Validator;
+  space?: any;
+  plugins?: InitPlugIn[];
 }): ReturnType<typeof eventBus> {
-  const _global = getGlobal() as any;
-  _global.mfeEventBusStore ??= initMutableStore();
+  const _global = space || (getGlobal() as any);
+  _global.mfeEventBusSubscriptionStore ??= initSubscriptionStore();
+  const subscriptionStore = _global.mfeEventBusSubscriptionStore;
+  _global.mfeEventBusPluginStore ??= initPluginStore({ subscriptionStore });
+  plugins.forEach((plugin) => {
+    _global.mfeEventBusPluginStore.add(plugin);
+  });
+
   return eventBus({
     deepEqual,
     payloadValidator,
-    mutableStore: _global.mfeEventBusStore,
+    subscriptionStore,
+    pluginStore: _global.mfeEventBusPluginStore,
   });
 }
 
 function eventBus({
   deepEqual,
   payloadValidator,
-  mutableStore,
+  subscriptionStore,
+  pluginStore,
 }: {
   deepEqual: DeepEqual;
   payloadValidator: Validator;
-  mutableStore: MutableStore;
+  subscriptionStore: SubscriptionStore;
+  pluginStore?: PlugInStore;
 }) {
   function registerTopic<T>(
     topicName: TopicName,
@@ -37,20 +60,20 @@ function eventBus({
   ) {
     const { version } = options ?? {};
     const topicId = topicNameToId(topicName, version);
-    const { schema, subscribers } = mutableStore.get(topicId) || {
+    const { schema, subscribers } = subscriptionStore.get(topicId) || {
       schema: jsonSchema,
       subscribers: new Map<UUID, <T>(payload: T) => void>(),
     };
     if (!deepEqual(jsonSchema, schema)) {
       throw new SchemaMismatchError(topicId, schema, jsonSchema);
     }
-    mutableStore.set(topicId, { schema, subscribers });
+    subscriptionStore.set(topicId, { schema, subscribers });
 
     const subscribe = (callback: (payload: T) => void) => {
       const uuid = crypto.randomUUID();
-      mutableStore.update(topicId, uuid, callback);
+      subscriptionStore.update(topicId, uuid, callback);
       return function unsubscribe() {
-        mutableStore.update(topicId, uuid);
+        subscriptionStore.update(topicId, uuid);
       };
     };
 
@@ -58,23 +81,34 @@ function eventBus({
       if (!payloadValidator(schema)(payload)) {
         throw new PayloadMismatchError(topicId, schema, payload);
       }
-      mutableStore
+      subscriptionStore
         .get(topicId)
         ?.subscribers.forEach((callback: (payload: T) => void) => {
           callback(payload);
         });
     };
 
-    return { subscribe, publish };
+    return {
+      subscribe: (callback: (payload: T) => void) => {
+        const unsubscribe = subscribe(callback);
+        pluginStore?.run("afterSubscribe", topicId);
+        return unsubscribe;
+      },
+      publish: (payload: T) => {
+        publish(payload);
+        pluginStore?.run("afterPublish", topicId);
+      },
+    };
   }
 
   function unregisterTopic(topicName: TopicName, options?: { version?: "1" }) {
     const { version } = options ?? {};
-    mutableStore.delete(topicNameToId(topicName, version));
+    subscriptionStore.delete(topicNameToId(topicName, version));
   }
 
   function unregisterAllTopics() {
-    mutableStore.clear();
+    pluginStore?.run("afterUnregisterAllTopics");
+    subscriptionStore.clear();
   }
 
   return { registerTopic, unregisterTopic, unregisterAllTopics };
@@ -84,34 +118,56 @@ function topicNameToId(topicName: TopicName, version?: string) {
   return `${topicName}${typeof version === "string" && version.length > 0 ? `@${version}` : ""}`;
 }
 
-type MutableStore = ReturnType<typeof initMutableStore>;
-function initMutableStore() {
-  type Subscription = {
-    schema: JsonSchema;
-    subscribers: Map<UUID, (payload: any) => void>;
+type PlugInStore = ReturnType<typeof initPluginStore>;
+function initPluginStore({
+  subscriptionStore,
+}: {
+  subscriptionStore: SubscriptionStore;
+}) {
+  type PlugIn = ReturnType<InitPlugIn>;
+  const plugins: PlugIn[] = [];
+
+  return {
+    add: (plugin: InitPlugIn): void => {
+      plugins.push(plugin());
+    },
+    run: (name: keyof PlugIn, topicId?: TopicId): void => {
+      plugins.forEach((plugin) => {
+        name === "afterUnregisterAllTopics"
+          ? plugin[name]()
+          : plugin[name](topicId!, subscriptionStore.get(topicId!)!);
+      });
+    },
+    clear: (): void => {
+      plugins.length = 0;
+    },
   };
-  const subscriptionMap = new Map<TopicId, Subscription>();
+}
+
+type SubscriptionStore = ReturnType<typeof initSubscriptionStore>;
+function initSubscriptionStore() {
+  const subscriptionStore = new Map<TopicId, Subscription>();
 
   return {
     get: (topicId: TopicId): Subscription | undefined =>
-      subscriptionMap.get(topicId),
+      subscriptionStore.get(topicId),
     set: (topicId: TopicId, subscription: Subscription): void => {
-      subscriptionMap.set(topicId, subscription);
+      subscriptionStore.set(topicId, subscription);
     },
     delete: (topicId: TopicId): void => {
-      subscriptionMap.delete(topicId);
+      subscriptionStore.delete(topicId);
     },
     clear: (): void => {
-      subscriptionMap.clear();
+      subscriptionStore.clear();
     },
     update: (
       topicId: TopicId,
       uuid: UUID,
       subscriber?: (payload: any) => void,
     ) => {
-      const { subscribers, ...rest } = subscriptionMap.get(topicId)!;
+      const { subscribers, ...rest } = subscriptionStore.get(topicId)!;
       subscriber ? subscribers.set(uuid, subscriber) : subscribers.delete(uuid);
-      subscriptionMap.set(topicId, {
+      subscriptionStore.set(topicId, {
         ...rest,
         subscribers,
       });

@@ -9,7 +9,7 @@ import {
   test,
 } from "bun:test";
 import isEqual from "lodash.isequal";
-import { createEventBus } from "./index";
+import { createEventBus, type Subscription } from "./index";
 
 type TestSchema = {
   name: string;
@@ -40,7 +40,7 @@ function payloadValidator(jsonSchema: object) {
 describe("EventBus", () => {
   describe("createEventBus", () => {
     beforeAll(() => {
-      (global as any).mfeEventBusStore = undefined;
+      (global as any).mfeEventBusSubscriptionStore = undefined;
     });
 
     let eventBus: ReturnType<typeof createEventBus>;
@@ -54,7 +54,7 @@ describe("EventBus", () => {
       });
 
       test("it attaches the eventBus store to the global object", () => {
-        expect((global as any).mfeEventBusStore).toBeDefined();
+        expect((global as any).mfeEventBusSubscriptionStore).toBeDefined();
       });
     });
   });
@@ -232,6 +232,72 @@ describe("EventBus", () => {
           unsubscribe();
           testTopic.publish({ name: "test" });
           expect(callback).not.toHaveBeenCalled();
+        });
+      });
+    });
+  });
+
+  describe("plugin", () => {
+    let mock: jest.Mock;
+
+    type EventBus = ReturnType<typeof createEventBus>;
+    let eventBus: EventBus;
+    beforeEach(() => {
+      mock = jest.fn();
+      const metricPlugin = () => {
+        const subscribeStats: Record<
+          string,
+          { length: number; schema: object }
+        > = {};
+        const publishStats: Record<string, number> = {};
+        return {
+          afterSubscribe: (topicId: string, subscription: Subscription) => {
+            // This will have the latest info.
+            subscribeStats[topicId] = {
+              length: subscription.subscribers.size,
+              schema: subscription.schema,
+            };
+          },
+          afterPublish: (topicId: string) => {
+            publishStats[topicId]
+              ? publishStats[topicId]++
+              : (publishStats[topicId] = 1);
+          },
+          afterUnregisterAllTopics: () => mock([subscribeStats, publishStats]),
+        };
+      };
+
+      eventBus = createEventBus({
+        deepEqual: isEqual,
+        payloadValidator,
+        plugins: [metricPlugin],
+      });
+    });
+
+    afterEach(() => {
+      jest.restoreAllMocks();
+    });
+
+    describe("When there is one topic", () => {
+      let testTopic: ReturnType<typeof eventBus.registerTopic<TestSchema>>;
+      beforeEach(() => {
+        testTopic = eventBus.registerTopic<TestSchema>(`test`, jsonSchema);
+      });
+
+      describe("When a plugin gets registered", () => {
+        test("it runs the plugin", () => {
+          const callback = jest.fn();
+          testTopic.subscribe(callback);
+          testTopic.subscribe(callback);
+          testTopic.publish({ name: "Anakin" });
+          testTopic.publish({ name: "Luke" });
+          testTopic.publish({ name: "Leia" });
+          eventBus.unregisterAllTopics();
+          // Yay! It has the metrics!
+          expect(mock).toHaveBeenCalledWith([
+            { test: { length: 2, schema: jsonSchema } },
+            { test: 3 },
+          ]);
         });
       });
     });
