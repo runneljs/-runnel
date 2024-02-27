@@ -40,12 +40,12 @@ function payloadValidator(jsonSchema: object) {
 describe("EventBus", () => {
   describe("createEventBus", () => {
     beforeAll(() => {
-      (global as any).mfeEventBus = undefined;
+      (global as any).mfeEventBusStore = undefined;
     });
 
     let eventBus: ReturnType<typeof createEventBus>;
     beforeEach(() => {
-      eventBus = createEventBus(isEqual, payloadValidator);
+      eventBus = createEventBus({ deepEqual: isEqual, payloadValidator });
     });
 
     describe("createEventBus", () => {
@@ -53,8 +53,8 @@ describe("EventBus", () => {
         expect(eventBus).toBeDefined();
       });
 
-      test("it attaches the eventBus to the global object", () => {
-        expect((global as any).mfeEventBus).toBe(eventBus);
+      test("it attaches the eventBus store to the global object", () => {
+        expect((global as any).mfeEventBusStore).toBeDefined();
       });
     });
   });
@@ -63,7 +63,7 @@ describe("EventBus", () => {
     type EventBus = ReturnType<typeof createEventBus>;
     let eventBus: EventBus;
     beforeAll(() => {
-      eventBus = createEventBus(isEqual, payloadValidator);
+      eventBus = createEventBus({ deepEqual: isEqual, payloadValidator });
     });
 
     afterEach(() => {
@@ -159,7 +159,7 @@ describe("EventBus", () => {
     type EventBus = ReturnType<typeof createEventBus>;
     let eventBus: EventBus;
     beforeEach(() => {
-      eventBus = createEventBus(isEqual, payloadValidator);
+      eventBus = createEventBus({ deepEqual: isEqual, payloadValidator });
     });
 
     afterEach(() => {
