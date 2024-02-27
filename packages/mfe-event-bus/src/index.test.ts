@@ -270,7 +270,7 @@ describe("EventBus", () => {
       eventBus = createEventBus({
         deepEqual: isEqual,
         payloadValidator,
-        plugins: [metricPlugin],
+        plugins: { metricPlugin },
       });
     });
 

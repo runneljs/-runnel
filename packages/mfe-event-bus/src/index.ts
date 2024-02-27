@@ -10,28 +10,28 @@ type DeepEqual = (value: JsonSchema, other: JsonSchema) => boolean;
 
 type Validator = (jsonSchema: JsonSchema) => (payload: unknown) => boolean;
 type InitPlugIn = () => {
-  afterSubscribe: (topicId: TopicId, subscription: Subscription) => void;
-  afterPublish: (topicId: TopicId, subscription: Subscription) => void;
-  afterUnregisterAllTopics: () => void;
+  afterSubscribe?: (topicId: TopicId, subscription: Subscription) => void;
+  afterPublish?: (topicId: TopicId, subscription: Subscription) => void;
+  afterUnregisterAllTopics?: () => void;
 };
 
 export function createEventBus({
   deepEqual,
   payloadValidator,
   space = getGlobal(),
-  plugins = [],
+  plugins = {},
 }: {
   deepEqual: DeepEqual;
   payloadValidator: Validator;
   space?: any;
-  plugins?: InitPlugIn[];
+  plugins?: Record<string, InitPlugIn>;
 }): ReturnType<typeof eventBus> {
   const _global = space || (getGlobal() as any);
   _global.mfeEventBusSubscriptionStore ??= initSubscriptionStore();
   const subscriptionStore = _global.mfeEventBusSubscriptionStore;
   _global.mfeEventBusPluginStore ??= initPluginStore({ subscriptionStore });
-  plugins.forEach((plugin) => {
-    _global.mfeEventBusPluginStore.add(plugin);
+  Object.entries(plugins).forEach(([id, plugin]) => {
+    _global.mfeEventBusPluginStore.add(id, plugin);
   });
 
   return eventBus({
@@ -125,21 +125,18 @@ function initPluginStore({
   subscriptionStore: SubscriptionStore;
 }) {
   type PlugIn = ReturnType<InitPlugIn>;
-  const plugins: PlugIn[] = [];
+  const plugins: Map<string, PlugIn> = new Map();
 
   return {
-    add: (plugin: InitPlugIn): void => {
-      plugins.push(plugin());
+    add: (pluginId: string, plugin: InitPlugIn): void => {
+      plugins.get(pluginId) ?? plugins.set(pluginId, plugin());
     },
     run: (name: keyof PlugIn, topicId?: TopicId): void => {
       plugins.forEach((plugin) => {
         name === "afterUnregisterAllTopics"
-          ? plugin[name]()
-          : plugin[name](topicId!, subscriptionStore.get(topicId!)!);
+          ? plugin[name]?.()
+          : plugin[name]?.(topicId!, subscriptionStore.get(topicId!)!);
       });
-    },
-    clear: (): void => {
-      plugins.length = 0;
     },
   };
 }
