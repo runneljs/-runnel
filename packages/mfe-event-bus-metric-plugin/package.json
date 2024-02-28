@@ -1,14 +1,12 @@
 {
-  "name": "mfe-event-bus",
-  "version": "0.1.0",
+  "name": "mfe-event-bus-metric-plugin",
+  "version": "1.0.0",
   "main": "dist/index.js",
   "module": "dist/index.js",
   "devDependencies": {
-    "@cfworker/json-schema": "^1.12.8",
     "@types/bun": "latest",
-    "@types/lodash.isequal": "^4.5.8",
-    "lodash.isequal": "^4.5.0",
-    "typescript": "^5.3.3"
+    "deep-equal": "^2.2.3",
+    "mfe-event-bus": "workspace:*"
   },
   "files": [
     "dist/"
@@ -24,7 +22,8 @@
     "microfrontend",
     "micro frontends",
     "micro frontend",
-    "microservices"
+    "microservices",
+    "plugin"
   ],
   "license": "MIT",
   "scripts": {
