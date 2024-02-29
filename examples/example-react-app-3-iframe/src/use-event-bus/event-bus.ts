@@ -7,10 +7,9 @@ const { plugin, observer } = createPlugin(deepEqual);
 const eventBus = createEventBus({
   deepEqual,
   payloadValidator: validator,
-  space: window.parent, // Use the parent window as the space.
-  plugins: {
-    metricPlugin: plugin,
-  },
+  scope: window.parent, // Use the parent window as the space.
+  plugins: [[window.parent, [plugin]]],
+  // plugins: [plugin], // When you want to observe the current event bus only.
 });
 
 export { eventBus, observer as metricsObserver, type Metrics };

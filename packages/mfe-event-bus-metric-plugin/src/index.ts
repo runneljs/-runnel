@@ -7,8 +7,5 @@ export function createPlugin(deepEqual: (a: any, b: any) => boolean) {
   const plugin = createEventBusMetricPlugin(deepEqual, (metrics: Metrics) => {
     observer.notify(metrics);
   });
-  const subscribe = (callback: (val: Metrics) => void) =>
-    observer.subscribe(callback);
-
   return { plugin, observer };
 }

@@ -1,5 +1,5 @@
 import { PayloadMismatchError, SchemaMismatchError } from "./errors";
-import type { PlugInStore } from "./plugin-store";
+import type { PlugIn } from "./plugin-store";
 import type { JsonSchema, UUID } from "./primitive-types";
 import type { SubscriptionStore } from "./subscription-store";
 
@@ -14,12 +14,12 @@ export function eventBus({
   deepEqual,
   payloadValidator,
   subscriptionStore,
-  pluginStore,
+  runPlugins,
 }: {
   deepEqual: DeepEqual;
   payloadValidator: Validator;
   subscriptionStore: SubscriptionStore;
-  pluginStore?: PlugInStore;
+  runPlugins: (eventName: keyof PlugIn, topicId?: string) => void;
 }) {
   function registerTopic<T>(
     topicName: TopicName,
@@ -59,15 +59,16 @@ export function eventBus({
     return {
       subscribe: (callback: (payload: T) => void) => {
         const unsubscribe = subscribe(callback);
-        pluginStore?.run("onSubscribe", topicId);
+        runPlugins("onSubscribe", topicId);
+
         return () => {
           unsubscribe();
-          pluginStore?.run("onUnsubscribe", topicId);
+          runPlugins("onUnsubscribe", topicId);
         };
       },
       publish: (payload: T) => {
         publish(payload);
-        pluginStore?.run("onPublish", topicId);
+        runPlugins("onPublish", topicId);
       },
     };
   }
@@ -78,7 +79,7 @@ export function eventBus({
   }
 
   function unregisterAllTopics() {
-    pluginStore?.run("onUnregisterAllTopics");
+    runPlugins("onUnregisterAllTopics");
     subscriptionStore.clear();
   }
 

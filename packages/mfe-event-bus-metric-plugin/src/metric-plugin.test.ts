@@ -3,24 +3,18 @@ import deepEqual from "deep-equal";
 import { createEventBusMetricPlugin } from "./metric-plugin";
 
 describe("createEventBusMetricPlugin", () => {
-  test("should return a function", () => {
-    const callback = () => {};
-    expect(createEventBusMetricPlugin(deepEqual, callback)).toBeFunction();
-  });
-
-  describe("returned function", () => {
+  describe("plugin", () => {
     let callback: jest.Mock;
-    let instance: ReturnType<ReturnType<typeof createEventBusMetricPlugin>>;
+    let plugin: ReturnType<typeof createEventBusMetricPlugin>;
 
     beforeAll(() => {
       callback = jest.fn();
-      const plugin = createEventBusMetricPlugin(deepEqual, callback);
-      instance = plugin();
+      plugin = createEventBusMetricPlugin(deepEqual, callback);
     });
 
     describe("subscribe -> publish", () => {
       test("should call callback with metrics on subscribe", () => {
-        instance.onSubscribe("topic1", {
+        plugin.onSubscribe("topic1", {
           schema: { type: "number" },
           subscribers: new Map(),
         });
@@ -30,7 +24,7 @@ describe("createEventBusMetricPlugin", () => {
       });
 
       test("should call callback with metrics on publish", () => {
-        instance.onPublish("topic1", {
+        plugin.onPublish("topic1", {
           schema: { type: "number" },
           subscribers: new Map(),
         });
@@ -42,7 +36,7 @@ describe("createEventBusMetricPlugin", () => {
 
     describe("publish -> subscribe", () => {
       test("should call callback with metrics on publish", () => {
-        instance.onPublish("topic2", {
+        plugin.onPublish("topic2", {
           schema: { type: "string" },
           subscribers: new Map(),
         });
@@ -53,7 +47,7 @@ describe("createEventBusMetricPlugin", () => {
       });
 
       test("should call callback with metrics on subscribe", () => {
-        instance.onSubscribe("topic2", {
+        plugin.onSubscribe("topic2", {
           schema: { type: "string" },
           subscribers: new Map(),
         });

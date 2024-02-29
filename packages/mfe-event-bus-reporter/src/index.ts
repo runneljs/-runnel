@@ -28,7 +28,7 @@ export function createReporter(currentFileUrl: string) {
       console.warn("No report data to write.");
       return;
     }
-    const reportFileName = `${relativePath.replace(/[\/]/g, "$")}.json`;
+    const reportFileName = `${relativePath.replace(/[\/|\.]/g, "_")}.json`;
     fs.writeFileSync(
       [REPORT_DIR, reportFileName].join("/"),
       JSON.stringify({ [relativePath]: report.get(relativePath) }),

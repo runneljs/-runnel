@@ -39,9 +39,8 @@ try {
   countTopic.publish("oops");
 } catch (e) {
   console.warn(e);
-  const { topicName, jsonSchema, payload } =
-    e as unknown as PayloadMismatchError;
-  console.warn({ topicName });
+  const { topicId, jsonSchema, payload } = e as unknown as PayloadMismatchError;
+  console.warn({ topicName: topicId });
   console.warn({ jsonSchema: JSON.stringify(jsonSchema) });
   console.warn({ payload: JSON.stringify(payload) });
 }
@@ -53,9 +52,9 @@ try {
   registerTopic("oops", { type: "number" });
 } catch (e) {
   console.warn(e);
-  const { topicName, jsonSchema, incomingJsonSchema } =
+  const { topicId, jsonSchema, incomingJsonSchema } =
     e as unknown as SchemaMismatchError;
-  console.warn({ topicName });
+  console.warn({ topicName: topicId });
   console.warn({ jsonSchema: JSON.stringify(jsonSchema) });
   console.warn({ incomingJsonSchema: JSON.stringify(incomingJsonSchema) });
 }

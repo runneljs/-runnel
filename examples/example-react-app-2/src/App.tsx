@@ -38,9 +38,9 @@ try {
   registerTopic("oops", { type: "string" });
 } catch (e) {
   console.warn(e);
-  const { topicName, jsonSchema, incomingJsonSchema } =
+  const { topicId, jsonSchema, incomingJsonSchema } =
     e as unknown as SchemaMismatchError;
-  console.warn({ topicName });
+  console.warn({ topicName: topicId });
   console.warn({ jsonSchema: JSON.stringify(jsonSchema) });
   console.warn({ incomingJsonSchema: JSON.stringify(incomingJsonSchema) });
 }

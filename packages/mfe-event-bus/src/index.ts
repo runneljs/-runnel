@@ -1,31 +1,35 @@
 import { PayloadMismatchError, SchemaMismatchError } from "./errors";
 import { eventBus, type DeepEqual, type Validator } from "./event-bus";
-import { initPluginStore, type InitPlugIn } from "./plugin-store";
-import { initSubscriptionStore } from "./subscription-store";
+import { createRunPlugins, mapPlugIns, type PlugIn } from "./plugin-store";
+import { type Scope, type TopicId } from "./primitive-types";
+import { initSubscriptionStore, type Subscription } from "./subscription-store";
 
 export { PayloadMismatchError, SchemaMismatchError };
+export type { Subscription, TopicId };
 
 export function createEventBus({
   deepEqual,
   payloadValidator,
   scope = getGlobal(),
-  plugins = {},
+  plugins = [],
 }: {
   deepEqual: DeepEqual;
   payloadValidator: Validator;
-  scope?: any;
-  plugins?: Record<string, InitPlugIn>;
+  scope?: Scope;
+  plugins?: Array<PlugIn | [Scope, PlugIn[]]>;
 }): ReturnType<typeof eventBus> {
-  const _global = scope || (getGlobal() as any);
+  const _global = scope;
   _global.mfeEventBusSubscriptionStore ??= initSubscriptionStore();
   const subscriptionStore = _global.mfeEventBusSubscriptionStore;
-  const pluginStore = initPluginStore({ subscriptionStore, plugins });
 
   return eventBus({
     deepEqual,
     payloadValidator,
     subscriptionStore,
-    pluginStore,
+    runPlugins: createRunPlugins(
+      mapPlugIns(subscriptionStore, plugins),
+      _global,
+    ),
   });
 }
 
