@@ -7,6 +7,12 @@
   ],
   "scripts": {
     "format": "prettier --write .",
+    "test:bus": "cd ./packages/mfe-event-bus && bun test",
+    "test:reporter": "cd ./packages/mfe-event-bus-reporter && bun test",
+    "test:metric-plugin": "cd ./packages/mfe-event-bus-metric-plugin && bun test",
+    "test:validator": "cd ./packages/mfe-event-bus-validator && bun test",
+    "test:example-app-3": "cd ./examples/example-react-app-3-iframe && bun test",
+    "test:all": "bun run test:bus && bun run test:reporter && bun run test:metric-plugin && bun run test:validator && bun run test:example-app-3",
     "clean:app-shell": "rimraf ./examples/example-app-shell/public/*.js",
     "build:example-app1": "cd ./examples/example-react-app-1 && bun i && bun run build:cp",
     "build:example-app2": "cd ./examples/example-react-app-2 && bun i && bun run build:cp",
@@ -16,6 +22,7 @@
     "prepare": "husky"
   },
   "devDependencies": {
+    "@testing-library/react": "^14.2.1",
     "husky": "^9.0.11",
     "lint-staged": "^15.2.2",
     "prettier": "^3.2.5",

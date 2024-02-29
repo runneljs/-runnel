@@ -25,6 +25,7 @@ export function createReporter(currentFileUrl: string) {
       fs.mkdirSync(REPORT_DIR);
     }
     if (report.size === 0) {
+      console.warn("No report data to write.");
       return;
     }
     const reportFileName = `${relativePath.replace(/[\/]/g, "$")}.json`;

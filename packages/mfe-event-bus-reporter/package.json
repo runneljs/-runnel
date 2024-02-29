@@ -1,11 +1,11 @@
 {
   "name": "mfe-event-bus-reporter",
   "version": "1.0.0",
-  "main": "dist/index.js",
   "module": "dist/index.js",
   "devDependencies": {
+    "@types/bun": "latest",
     "mfe-event-bus": "workspace:*",
-    "@types/bun": "latest"
+    "typescript": "^5.3.3"
   },
   "files": [
     "dist/"
@@ -21,13 +21,12 @@
     "microfrontend",
     "micro frontends",
     "micro frontend",
-    "microservices",
-    "plugin"
+    "microservices"
   ],
   "license": "MIT",
   "scripts": {
-    "build": "bun build ./src/index.ts --outdir ./dist && bun run build:declaration",
-    "build:declaration": "tsc --project tsconfig.type.json --outdir ./dist",
+    "build:note": "echo 'use npm run build for generating ESM instead of bun run build'",
+    "build": "npm run build:note && tsc",
     "test": "bun test"
   },
   "type": "module",
