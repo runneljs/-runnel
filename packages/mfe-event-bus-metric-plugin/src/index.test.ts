@@ -12,16 +12,17 @@ import { createPlugin } from "./index";
 
 describe("event-bus-metric-plugin", () => {
   let plugin: ReturnType<typeof createPlugin>["plugin"];
-  let subscribe: ReturnType<typeof createPlugin>["subscribe"];
+  let observer: ReturnType<typeof createPlugin>["observer"];
 
   beforeAll(() => {
     let result = createPlugin(deepEqual);
     plugin = result.plugin;
-    subscribe = result.subscribe;
+    observer = result.observer;
   });
 
-  test("should export subscribe", () => {
-    expect(subscribe).toBeFunction();
+  test("should export observer", () => {
+    expect(observer.subscribe).toBeFunction();
+    expect(observer.unsubscribe).toBeFunction();
   });
 
   test("should export plugin", () => {
@@ -41,7 +42,7 @@ describe("event-bus-metric-plugin", () => {
     });
 
     test("should call callback with metrics on subscribe", () => {
-      subscribe(callback);
+      observer.subscribe(callback);
       instance.onSubscribe("topic1", {
         schema: { type: "number" },
         subscribers: new Map(),
@@ -52,7 +53,7 @@ describe("event-bus-metric-plugin", () => {
     });
 
     test("should call callback with metrics on publish", () => {
-      subscribe(callback);
+      observer.subscribe(callback);
       instance.onPublish("topic1", {
         schema: { type: "number" },
         subscribers: new Map(),
@@ -73,7 +74,7 @@ describe("event-bus-metric-plugin", () => {
       let callback: jest.Mock;
       beforeEach(() => {
         callback = jest.fn();
-        subscribe(callback);
+        observer.subscribe(callback);
       });
 
       afterEach(() => {
@@ -110,7 +111,7 @@ describe("event-bus-metric-plugin", () => {
       let callback: jest.Mock;
       beforeEach(() => {
         callback = jest.fn();
-        subscribe(callback);
+        observer.subscribe(callback);
       });
 
       afterEach(() => {
