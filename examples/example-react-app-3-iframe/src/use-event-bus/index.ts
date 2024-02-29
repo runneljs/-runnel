@@ -1,24 +1,9 @@
-import deepEqual from "deep-equal";
-import { useCallback, useEffect, useState } from "react";
-import { eventBus, metricsObserver } from "./event-bus";
-import { EventBusMetricPluginPayload } from "./event-bus-plugin";
+import { useState } from "react";
+import { Metrics, eventBus, metricsObserver } from "./event-bus";
+export { type Metrics };
 
 export function useEventBus() {
-  const [metrics, setMetrics] = useState<EventBusMetricPluginPayload>({});
-
-  const updateMetrics = useCallback(
-    (incomingData: EventBusMetricPluginPayload) => {
-      if (!deepEqual(metrics, incomingData)) {
-        setMetrics(incomingData);
-      }
-    },
-    [metrics],
-  );
-
-  useEffect(() => {
-    metricsObserver.subscribe(updateMetrics);
-    return () => metricsObserver.unsubscribe(updateMetrics);
-  }, [updateMetrics]);
-
+  const [metrics, setMetrics] = useState<Metrics>({});
+  metricsObserver.subscribe(setMetrics);
   return { eventBus, metrics };
 }

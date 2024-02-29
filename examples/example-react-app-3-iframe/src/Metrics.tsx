@@ -1,25 +1,26 @@
-import { EventBusMetricPluginPayload } from "./use-event-bus/event-bus-plugin";
+import type { Metrics } from "mfe-event-bus-metric-plugin";
 
-export function Metrics({ metrics }: { metrics: EventBusMetricPluginPayload }) {
+export function Metrics({ metrics }: { metrics: Metrics }) {
   return (
     <div className="card">
       <h2>Metrics</h2>
       <p>In this app...</p>
       <ul>
-        {metrics.publishStats &&
-          Object.keys(metrics.publishStats).map((topicId) => (
+        {Object.keys(metrics)
+          .filter((topicId) => metrics[topicId].publish)
+          .map((topicId) => (
             <li key={topicId}>
-              {topicId} has had{" "}
-              {metrics.publishStats && metrics.publishStats[topicId]} publishes
+              <strong>{topicId}</strong> has had {metrics[topicId].publish}{" "}
+              publishes
             </li>
           ))}
       </ul>
       <ul>
-        {metrics.subscribeStats &&
-          Object.keys(metrics.subscribeStats).map((topicId) => (
+        {Object.keys(metrics)
+          .filter((topicId) => metrics[topicId].subscribe)
+          .map((topicId) => (
             <li key={topicId}>
-              {topicId} has{" "}
-              {metrics.subscribeStats && metrics.subscribeStats[topicId].length}{" "}
+              <strong>{topicId}</strong> has {metrics[topicId].subscribe}{" "}
               subscriber(s)
             </li>
           ))}

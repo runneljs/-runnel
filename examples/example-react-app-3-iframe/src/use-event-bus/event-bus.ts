@@ -1,25 +1,16 @@
 import deepEqual from "deep-equal";
 import createEventBus from "mfe-event-bus";
+import { createPlugin, type Metrics } from "mfe-event-bus-metric-plugin";
 import { validator } from "mfe-event-bus-validator";
-import {
-  EventBusMetricPluginPayload,
-  eventBusMetricPlugin,
-} from "./event-bus-plugin";
-import { Observable } from "./observer";
-
-const observer = new Observable<EventBusMetricPluginPayload>();
+const { plugin, observer } = createPlugin(deepEqual);
 
 const eventBus = createEventBus({
   deepEqual,
   payloadValidator: validator,
   space: window.parent, // Use the parent window as the space.
   plugins: {
-    metricPlugin: eventBusMetricPlugin(
-      (payload: EventBusMetricPluginPayload) => {
-        observer.notify(payload);
-      },
-    ),
+    metricPlugin: plugin,
   },
 });
 
-export { eventBus, observer as metricsObserver };
+export { eventBus, observer as metricsObserver, type Metrics };
