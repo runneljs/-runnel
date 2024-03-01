@@ -13,7 +13,11 @@
     "dist/"
   ],
   "keywords": [
+    "bus",
+    "eventbus",
     "event bus",
+    "eventemitter",
+    "event emitter",
     "message bus",
     "pubsub",
     "channel",

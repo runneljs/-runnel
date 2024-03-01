@@ -1,6 +1,6 @@
 {
   "name": "mfe-event-bus-metric-plugin",
-  "version": "1.0.0",
+  "version": "0.1.0",
   "main": "dist/index.js",
   "module": "dist/index.js",
   "devDependencies": {
@@ -12,7 +12,11 @@
     "dist/"
   ],
   "keywords": [
+    "bus",
+    "eventbus",
     "event bus",
+    "eventemitter",
+    "event emitter",
     "message bus",
     "pubsub",
     "channel",

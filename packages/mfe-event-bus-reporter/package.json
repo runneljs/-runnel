@@ -1,6 +1,6 @@
 {
   "name": "mfe-event-bus-reporter",
-  "version": "1.0.0",
+  "version": "0.1.0",
   "module": "dist/index.js",
   "devDependencies": {
     "@types/bun": "latest",
@@ -11,7 +11,11 @@
     "dist/"
   ],
   "keywords": [
+    "bus",
+    "eventbus",
     "event bus",
+    "eventemitter",
+    "event emitter",
     "message bus",
     "pubsub",
     "channel",
@@ -25,7 +29,7 @@
   ],
   "license": "MIT",
   "scripts": {
-    "build:note": "echo 'use npm run build for generating ESM instead of bun run build'",
+    "build:note": "echo '[NOTE]: Use **npm** run build for generating ESM instead of bun run build.'",
     "build": "npm run build:note && tsc",
     "test": "bun test"
   },
