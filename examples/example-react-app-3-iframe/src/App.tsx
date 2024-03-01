@@ -1,18 +1,16 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 import { z } from "zod";
 import { zodToJsonSchema } from "zod-to-json-schema";
 import "./App.css";
-import { useEventBus } from "./use-event-bus";
 import { Metrics } from "./Metrics";
+import { useEventBus } from "./use-event-bus";
 
 function App() {
-  const [count, setCount] = useState(0);
-  const { countTopic, metrics } = useCounterTopic();
   const { fullName } = useFullNameTopic();
+  const { count, countTopic } = useCounterTopic();
 
   const clickHandler = () => {
     countTopic.publish(count + 1);
-    setCount((count) => count + 1);
   };
 
   return (
@@ -26,7 +24,7 @@ function App() {
           Your name is {fullName.firstName} {fullName.lastName}.
         </p>
       </div>
-      <Metrics metrics={metrics} />
+      <Metrics />
     </>
   );
 }
@@ -34,27 +32,28 @@ function App() {
 export default App;
 
 function useCounterTopic() {
-  const { metrics, eventBus } = useEventBus();
-  const countTopic = eventBus.registerTopic<number>("count", {
+  const countTopic = useEventBus<number>("count", {
     type: "number",
   });
 
-  return { countTopic, metrics };
+  const [count, setCount] = useState(0);
+  useEffect(() => {
+    const unsubscribe = countTopic.subscribe(setCount);
+    return () => unsubscribe();
+  }, [countTopic]);
+  return { count, countTopic };
 }
 
 function useFullNameTopic() {
-  const { eventBus } = useEventBus();
-  const fullNameTopic = useMemo(() => {
-    const fullNameSchema = z.object({
-      firstName: z.string(),
-      lastName: z.string(),
-    });
-    type FullNameSchema = z.infer<typeof fullNameSchema>;
-    return eventBus.registerTopic<FullNameSchema>(
-      "fullName",
-      zodToJsonSchema(fullNameSchema),
-    );
-  }, [eventBus]);
+  const fullNameSchema = z.object({
+    firstName: z.string(),
+    lastName: z.string(),
+  });
+  type FullNameSchema = z.infer<typeof fullNameSchema>;
+  const fullNameTopic = useEventBus<FullNameSchema>(
+    "fullName",
+    zodToJsonSchema(fullNameSchema),
+  );
 
   const [fullName, setFullName] = useState({
     firstName: "",

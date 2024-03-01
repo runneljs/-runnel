@@ -76,6 +76,11 @@ function App() {
   });
   const [count, setCount] = useState(0);
   useEffect(() => {
+    const unsubscribe = countTopic.subscribe(setCount);
+    return () => unsubscribe();
+  }, []);
+
+  useEffect(() => {
     const unsubscribe = fullNameTopic.subscribe((payload) => {
       setFullName(payload);
     });
@@ -83,7 +88,6 @@ function App() {
   }, []);
   const clickHandler = () => {
     countTopic.publish(count + 1);
-    setCount((count) => count + 1);
   };
 
   return (

@@ -1,6 +1,7 @@
-import type { Metrics } from "mfe-event-bus-metric-plugin";
+import { useEventBusMetrics } from "./use-event-bus";
 
-export function Metrics({ metrics }: { metrics: Metrics }) {
+export function Metrics() {
+  const { metrics } = useEventBusMetrics();
   return (
     <div className="card">
       <h2>Metrics</h2>
@@ -11,7 +12,7 @@ export function Metrics({ metrics }: { metrics: Metrics }) {
           .map((topicId) => (
             <li key={topicId}>
               <strong>{topicId}</strong> has had {metrics[topicId].publish}{" "}
-              publishes
+              publish events
             </li>
           ))}
       </ul>
@@ -21,7 +22,7 @@ export function Metrics({ metrics }: { metrics: Metrics }) {
           .map((topicId) => (
             <li key={topicId}>
               <strong>{topicId}</strong> has {metrics[topicId].subscribe}{" "}
-              subscriber(s)
+              subscribe events
             </li>
           ))}
       </ul>
