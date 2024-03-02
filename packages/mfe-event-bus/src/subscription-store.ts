@@ -8,7 +8,6 @@ export type SubscriptionStore = ReturnType<typeof initSubscriptionStore>;
 
 export function initSubscriptionStore() {
   const subscriptionStore = new Map<TopicId, Subscription>();
-
   return {
     get: (topicId: TopicId): Subscription | undefined =>
       subscriptionStore.get(topicId),

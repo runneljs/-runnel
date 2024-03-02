@@ -4,6 +4,10 @@ import { createRunPlugins, mapPlugIns, type PlugIn } from "./plugin-store";
 import { type Scope, type TopicId } from "./primitive-types";
 import { initSubscriptionStore, type Subscription } from "./subscription-store";
 
+const SUBSCRIPTION_STORE_VARIABLE_NAME =
+  "mfeEventBusSubscriptionStore" as const;
+const LATEST_STATE_STORE_VARIABLE_NAME = "mfeEventBusLatestStateStore" as const;
+
 export { PayloadMismatchError, SchemaMismatchError };
 export type { Subscription, TopicId };
 
@@ -19,17 +23,18 @@ export function createEventBus({
   plugins?: Array<PlugIn | [Scope, PlugIn[]]>;
 }): ReturnType<typeof eventBus> {
   const _global = scope;
-  _global.mfeEventBusSubscriptionStore ??= initSubscriptionStore();
-  const subscriptionStore = _global.mfeEventBusSubscriptionStore;
+  _global[SUBSCRIPTION_STORE_VARIABLE_NAME] ??= initSubscriptionStore();
+  _global[LATEST_STATE_STORE_VARIABLE_NAME] ??= new Map<TopicId, unknown>();
 
   return eventBus({
-    deepEqual,
-    payloadValidator,
-    subscriptionStore,
-    runPlugins: createRunPlugins(
-      mapPlugIns(subscriptionStore, plugins),
+    latestStateStore: _global[LATEST_STATE_STORE_VARIABLE_NAME],
+    subscriptionStore: _global[SUBSCRIPTION_STORE_VARIABLE_NAME],
+    runPlugIns: createRunPlugins(
+      mapPlugIns(_global[SUBSCRIPTION_STORE_VARIABLE_NAME], plugins),
       _global,
     ),
+    deepEqual,
+    payloadValidator,
   });
 }
 

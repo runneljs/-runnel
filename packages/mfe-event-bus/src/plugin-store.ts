@@ -1,38 +1,23 @@
 import type { Scope, TopicId } from "./primitive-types";
 import type { Subscription, SubscriptionStore } from "./subscription-store";
 
+const SCOPE_STORE_VARIABLE_NAME = "mfeEventBusPlugInScopes" as const;
+const PLUGIN_STORE_VARIABLE_NAME_MAYBE_GLOBAL =
+  "mfeEventBusPluginStore" as const;
+
 export type PlugIn = {
   onSubscribe?: (topicId: TopicId, subscription: Subscription) => void;
   onUnsubscribe?: (topicId: TopicId, subscription: Subscription) => void;
-  onPublish?: (topicId: TopicId, subscription: Subscription) => void;
+  onPublish?: (
+    topicId: TopicId,
+    subscription: Subscription,
+    payload: unknown,
+  ) => void;
   onUnregisterAllTopics?: () => void;
 };
-export type PlugInStore = ReturnType<typeof initPluginStore>;
-
-export function initPluginStore({
-  subscriptionStore,
-}: {
-  subscriptionStore: SubscriptionStore;
-}) {
-  const plugins: Array<PlugIn> = [];
-
-  return {
-    run: (eventName: keyof PlugIn, topicId?: TopicId): void => {
-      plugins.forEach((plugin) => {
-        eventName === "onUnregisterAllTopics"
-          ? plugin[eventName]?.()
-          : plugin[eventName]?.(topicId!, subscriptionStore.get(topicId!)!);
-      });
-    },
-    add: (plugin: PlugIn) => {
-      plugins.push(plugin);
-    },
-  };
-}
-
 export type PlugInScope = any; // r.g., window, global, self, window.parent, window.top, etc.
-type PluginStoreMap = Map<PlugInScope, PlugInStore>;
 
+type PluginStoreMap = Map<PlugInScope, PlugInStore>;
 export function mapPlugIns(
   subscriptionStore: SubscriptionStore,
   plugins: Array<PlugIn | [PlugInScope, PlugIn[]]>,
@@ -40,42 +25,90 @@ export function mapPlugIns(
   // Mapping plugins to their respective scopes.
   const pluginStoreMap = new Map<PlugInScope, PlugInStore>();
   plugins.forEach((pluginOrScopedPlugins) => {
-    const [scope, plugins] = Array.isArray(pluginOrScopedPlugins)
+    const [plugInScope, plugins] = Array.isArray(pluginOrScopedPlugins)
       ? pluginOrScopedPlugins
       : [undefined, [pluginOrScopedPlugins]];
-    let pluginStore: PlugInStore;
-    if (scope === undefined) {
-      pluginStore = initPluginStore({ subscriptionStore });
-    } else {
-      scope.mfeEventBusPluginStore ??= initPluginStore({
+    if (plugInScope !== undefined) {
+      plugInScope[PLUGIN_STORE_VARIABLE_NAME_MAYBE_GLOBAL] ??= new PlugInStore(
         subscriptionStore,
-      });
-      pluginStore = scope.mfeEventBusPluginStore;
+      );
     }
-    if (!pluginStoreMap.has(scope)) {
-      pluginStoreMap.set(scope, pluginStore);
+    const pluginStore =
+      plugInScope === undefined
+        ? new PlugInStore(subscriptionStore)
+        : plugInScope[PLUGIN_STORE_VARIABLE_NAME_MAYBE_GLOBAL];
+    if (!pluginStoreMap.has(plugInScope)) {
+      pluginStoreMap.set(plugInScope, pluginStore);
     }
     plugins.forEach((plugin) => pluginStore.add(plugin));
-    pluginStoreMap.set(scope, pluginStore);
+    pluginStoreMap.set(plugInScope, pluginStore);
   });
 
   return pluginStoreMap;
 }
 
-export function createRunPlugins(plugInStoreMap: PluginStoreMap, scope: Scope) {
-  return function runPlugins(eventName: keyof PlugIn, topicId?: string) {
+export type RunPlugIns = (
+  eventName: keyof PlugIn,
+  topicId?: string,
+  payload?: unknown,
+) => void;
+export function createRunPlugins(
+  plugInStoreMap: PluginStoreMap,
+  scope: Scope,
+): RunPlugIns {
+  return function runPlugins(
+    eventName: keyof PlugIn,
+    topicId?: string,
+    payload?: unknown,
+  ) {
     // Always re-calculate the plugin scopes.
-    scope.plugInScopes = uniqueFilter([
-      ...(scope.plugInScopes ? scope.plugInScopes : []),
+    scope[SCOPE_STORE_VARIABLE_NAME] = uniqueFilter<any>([
+      ...(scope[SCOPE_STORE_VARIABLE_NAME]
+        ? scope[SCOPE_STORE_VARIABLE_NAME]
+        : []),
       ...Array.from(plugInStoreMap.keys()),
     ]);
 
-    uniqueFilter([...scope.plugInScopes]).forEach((scope) => {
-      scope === undefined
-        ? plugInStoreMap.get(scope)?.run(eventName, topicId)
-        : scope.mfeEventBusPluginStore?.run(eventName, topicId);
+    scope[SCOPE_STORE_VARIABLE_NAME].forEach((plugInScope: PlugInScope) => {
+      const plugIn =
+        plugInScope === undefined
+          ? plugInStoreMap.get(plugInScope)
+          : plugInScope[PLUGIN_STORE_VARIABLE_NAME_MAYBE_GLOBAL];
+      plugIn?.run(eventName, topicId, payload);
     });
   };
+}
+
+/**
+ * The instance is bound to a specific plugIn scope.
+ */
+class PlugInStore {
+  constructor(private subscriptionStore: SubscriptionStore) {}
+  private plugIns: PlugIn[] = [];
+
+  add(plugin: PlugIn) {
+    this.plugIns.push(plugin);
+  }
+
+  run(eventName: keyof PlugIn, topicId?: TopicId, payload?: unknown): void {
+    this.plugIns.forEach((plugin) => {
+      switch (eventName) {
+        case "onUnregisterAllTopics":
+          plugin[eventName]?.();
+          break;
+        case "onPublish":
+          plugin[eventName]?.(
+            topicId!,
+            this.subscriptionStore.get(topicId!)!,
+            payload,
+          );
+          break;
+        default:
+          plugin[eventName]?.(topicId!, this.subscriptionStore.get(topicId!)!);
+          break;
+      }
+    });
+  }
 }
 
 // Note: Do not use [...new Set()] to get unique - it eliminates undefined/window.

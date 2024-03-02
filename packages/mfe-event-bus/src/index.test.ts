@@ -178,7 +178,9 @@ describe("EventBus", () => {
 
     describe("When there is one topic", () => {
       let testTopic: ReturnType<typeof eventBus.registerTopic<TestSchema>>;
+
       beforeEach(() => {
+        eventBus.unregisterAllTopics();
         testTopic = eventBus.registerTopic<TestSchema>(`test`, jsonSchema, {
           version: 1,
         });
@@ -234,6 +236,31 @@ describe("EventBus", () => {
         test("it throws an error", () => {
           /** @ts-ignore */
           expect(() => testTopic.publish({ name: 1 })).toThrow(Error);
+        });
+      });
+
+      describe("AND a new topic with the same name is registered", () => {
+        test("The second topic's subscriber gets called with latest published payload", () => {
+          const callback1 = jest.fn();
+          testTopic.subscribe(callback1);
+          expect(callback1).not.toHaveBeenCalled();
+          testTopic.publish({ name: "test" });
+          testTopic.publish({ name: "twice" });
+          expect(callback1).toHaveBeenCalledTimes(2);
+          expect(callback1).toHaveBeenCalledWith({ name: "twice" });
+
+          // New topic subscribes the same topic id.
+          const additionalTopic = eventBus.registerTopic<TestSchema>(
+            `test`,
+            jsonSchema,
+            { version: 1 },
+          );
+          const callback2 = jest.fn();
+          expect(callback2).not.toHaveBeenCalled();
+          additionalTopic.subscribe(callback2);
+          expect(callback2).not.toHaveBeenCalledWith({ name: "test" });
+          expect(callback2).toHaveBeenCalledWith({ name: "twice" });
+          expect(callback2).toHaveBeenCalledTimes(1);
         });
       });
 
