@@ -147,9 +147,19 @@ describe("EventBus", () => {
     describe("unregisterTopic", () => {
       describe("When unregistering a topic", () => {
         test("it removes the topic but you can keep sending a message", () => {
-          const topic = eventBus.registerTopic(`test`, jsonSchema);
-          eventBus.unregisterTopic(`test`);
+          const topic = eventBus.registerTopic(`test`, jsonSchema, {
+            version: 1,
+          });
+          eventBus.unregisterTopic(`test`, { version: 1 });
           expect(() => topic.publish({ name: "test" })).not.toThrow();
+        });
+        test("It should fail when a wrrong version is specified", () => {
+          const topic = eventBus.registerTopic(`test`, jsonSchema, {
+            version: 1,
+          });
+          expect(() =>
+            eventBus.unregisterTopic(`test`, { version: 2 }),
+          ).toThrow();
         });
       });
     });
@@ -169,7 +179,9 @@ describe("EventBus", () => {
     describe("When there is one topic", () => {
       let testTopic: ReturnType<typeof eventBus.registerTopic<TestSchema>>;
       beforeEach(() => {
-        testTopic = eventBus.registerTopic<TestSchema>(`test`, jsonSchema);
+        testTopic = eventBus.registerTopic<TestSchema>(`test`, jsonSchema, {
+          version: 1,
+        });
       });
 
       describe("AND it has no subscribers", () => {

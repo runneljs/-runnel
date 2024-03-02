@@ -36,7 +36,7 @@ function useEventBus<T>(
   topicName: string,
   jsonSchema: object,
   options?: {
-    version?: string;
+    version?: number;
   },
 ) {
   return useMemo(

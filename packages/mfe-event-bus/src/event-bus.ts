@@ -1,4 +1,8 @@
-import { PayloadMismatchError, SchemaMismatchError } from "./errors";
+import {
+  PayloadMismatchError,
+  SchemaMismatchError,
+  TopicNotFoundError,
+} from "./errors";
 import type { PlugIn } from "./plugin-store";
 import type { JsonSchema, UUID } from "./primitive-types";
 import type { SubscriptionStore } from "./subscription-store";
@@ -24,7 +28,7 @@ export function eventBus({
   function registerTopic<T>(
     topicName: TopicName,
     jsonSchema: JsonSchema,
-    options?: { version?: string },
+    options?: { version?: number },
   ) {
     const { version } = options ?? {};
     const topicId = topicNameToId(topicName, version);
@@ -73,9 +77,17 @@ export function eventBus({
     };
   }
 
-  function unregisterTopic(topicName: TopicName, options?: { version?: "1" }) {
+  function unregisterTopic(
+    topicName: TopicName,
+    options?: { version?: number },
+  ) {
     const { version } = options ?? {};
-    subscriptionStore.delete(topicNameToId(topicName, version));
+    const topicId = topicNameToId(topicName, version);
+    if (subscriptionStore.has(topicId)) {
+      subscriptionStore.delete(topicId);
+    } else {
+      throw new TopicNotFoundError(topicId);
+    }
   }
 
   function unregisterAllTopics() {
@@ -86,6 +98,6 @@ export function eventBus({
   return { registerTopic, unregisterTopic, unregisterAllTopics };
 }
 
-function topicNameToId(topicName: TopicName, version?: string) {
-  return `${topicName}${typeof version === "string" && version.length > 0 ? `@${version}` : ""}`;
+function topicNameToId(topicName: TopicName, version?: number) {
+  return `${topicName}${version !== undefined && version > 0 ? `@${version}` : ""}`;
 }

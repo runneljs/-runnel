@@ -40,3 +40,13 @@ export class SchemaMismatchError extends Error {
     this.name = SchemaMismatchError.name;
   }
 }
+
+export class TopicNotFoundError extends Error {
+  constructor(public topicId: TopicId) {
+    super(`The topic [${topicId}] is not found.`);
+    if (Error.captureStackTrace) {
+      Error.captureStackTrace(this, TopicNotFoundError);
+    }
+    this.name = TopicNotFoundError.name;
+  }
+}

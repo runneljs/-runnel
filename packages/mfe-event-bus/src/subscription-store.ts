@@ -18,6 +18,7 @@ export function initSubscriptionStore() {
     delete: (topicId: TopicId): void => {
       subscriptionStore.delete(topicId);
     },
+    has: (topicId: TopicId): boolean => subscriptionStore.has(topicId),
     clear: (): void => {
       subscriptionStore.clear();
     },
