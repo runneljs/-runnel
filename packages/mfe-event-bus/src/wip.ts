@@ -44,8 +44,8 @@ export const pubsub = (plugins: ReturnType<typeof plugin>[]) => {
   };
 };
 
-type PubFn = (id: string, payload: unknown) => unknown;
-function chain(funcs: PubFn[]): PubFn {
+type Fn = (id: string, payload: unknown) => unknown;
+function chain(funcs: Fn[]): Fn {
   return (id: string, initialValue: unknown) => {
     return funcs.reduce((currentValue, currentFunction) => {
       return currentFunction(id, currentValue);

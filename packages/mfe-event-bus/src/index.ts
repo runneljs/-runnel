@@ -1,12 +1,23 @@
+import { SubscriptionStore } from "./SubscriptionStore";
 import { PayloadMismatchError, SchemaMismatchError } from "./errors";
-import { eventBus, type DeepEqual, type Validator } from "./event-bus";
-import { createRunPlugins, mapPlugIns, type PlugIn } from "./plugin-store";
-import { type Scope, type TopicId } from "./primitive-types";
-import { initSubscriptionStore, type Subscription } from "./subscription-store";
+import { eventBus, type Validator } from "./event-bus";
+import { chainAcrossScopes, createRunPlugins } from "./legacy-run-plugins";
+import { mapPlugins } from "./map-plugins";
+import type {
+  JsonSchema,
+  Plugin,
+  PluginScope,
+  Scope,
+  Subscription,
+  TopicId,
+} from "./primitive-types";
+import { schemaManager, type DeepEqual } from "./schema-manager";
+export { type Plugin };
 
 const SUBSCRIPTION_STORE_VARIABLE_NAME =
   "mfeEventBusSubscriptionStore" as const;
 const LATEST_STATE_STORE_VARIABLE_NAME = "mfeEventBusLatestStateStore" as const;
+const SCHEMA_STORE_VARIABLE_NAME = "mfeEventBusSchemaStore" as const;
 
 export { PayloadMismatchError, SchemaMismatchError };
 export type { Subscription, TopicId };
@@ -15,25 +26,30 @@ export function createEventBus({
   deepEqual,
   payloadValidator,
   scope = getGlobal(),
-  plugins = [],
+  pluginMap = new Map(),
 }: {
   deepEqual: DeepEqual;
   payloadValidator: Validator;
   scope?: Scope;
-  plugins?: Array<PlugIn | [Scope, PlugIn[]]>;
+  pluginMap?: Map<PluginScope, Plugin[]>;
 }): ReturnType<typeof eventBus> {
   const _global = scope;
-  _global[SUBSCRIPTION_STORE_VARIABLE_NAME] ??= initSubscriptionStore();
+  _global[SCHEMA_STORE_VARIABLE_NAME] ??= new Map<TopicId, JsonSchema>();
+  _global[SUBSCRIPTION_STORE_VARIABLE_NAME] ??= new SubscriptionStore();
   _global[LATEST_STATE_STORE_VARIABLE_NAME] ??= new Map<TopicId, unknown>();
 
   return eventBus({
     latestStateStore: _global[LATEST_STATE_STORE_VARIABLE_NAME],
+    checkSchema: schemaManager(deepEqual, _global[SCHEMA_STORE_VARIABLE_NAME]),
     subscriptionStore: _global[SUBSCRIPTION_STORE_VARIABLE_NAME],
-    runPlugIns: createRunPlugins(
-      mapPlugIns(_global[SUBSCRIPTION_STORE_VARIABLE_NAME], plugins),
+    runPlugins: createRunPlugins(
+      mapPlugins(_global[SUBSCRIPTION_STORE_VARIABLE_NAME], pluginMap),
       _global,
     ),
-    deepEqual,
+    chainForEvent: chainAcrossScopes(
+      mapPlugins(_global[SUBSCRIPTION_STORE_VARIABLE_NAME], pluginMap),
+      _global,
+    ),
     payloadValidator,
   });
 }

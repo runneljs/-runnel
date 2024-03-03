@@ -10,7 +10,7 @@ export function setupReporter(currentFileUrl: string) {
   createEventBus({
     deepEqual,
     payloadValidator: validator,
-    plugins: [[window.parent, [plugin]]],
+    pluginMap: new Map([[window.parent, [plugin]]]),
   });
   return { setReport, reporter, observer };
 }
