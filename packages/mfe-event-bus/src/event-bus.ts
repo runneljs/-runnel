@@ -149,9 +149,11 @@ function createUnregisterAllTopics(
   runPlugins: RunPlugins,
 ) {
   return function unregisterAllTopics() {
-    runPlugins("onUnregisterAllTopics");
-    latestStateStore.clear();
-    subscriptionStore.clear();
+    if (subscriptionStore.size !== 0) {
+      subscriptionStore.clear();
+      latestStateStore.clear();
+      runPlugins("onUnregisterAllTopics");
+    }
   };
 }
 

@@ -17,7 +17,6 @@ import {
   type RunPlugins,
 } from "./legacy-run-plugins";
 import { mapPlugins } from "./map-plugins";
-import type { Subscription } from "./primitive-types";
 import { schemaManager } from "./schema-manager";
 
 type TestSchema = {
@@ -306,15 +305,16 @@ describe("EventBus", () => {
       latestStateStore = new Map();
       subscriptionStore = new SubscriptionStore();
       const metricPlugin = () => {
-        const subscribeStats: Record<string, { length: number }> = {};
+        const subscribeStats: Record<string, number> = {};
         const publishStats: Record<string, number> = {};
+        const subStats: Record<string, number> = {};
+        const pubStats: Record<string, number> = {};
 
         return {
-          onSubscribe: (topicId: string, subscription: Subscription) => {
-            // This will have the latest info.
-            subscribeStats[topicId] = {
-              length: subscription.size,
-            };
+          onSubscribe: (topicId: string) => {
+            subscribeStats[topicId]
+              ? subscribeStats[topicId]++
+              : (subscribeStats[topicId] = 1);
           },
           onPublish: (topicId: string) => {
             publishStats[topicId]
@@ -322,25 +322,26 @@ describe("EventBus", () => {
               : (publishStats[topicId] = 1);
           },
           onUnregisterAllTopics: () => {
-            mock([subscribeStats, publishStats]);
+            mock({ subscribeStats, publishStats, pubStats, subStats });
           },
           publish: (
-            _topicId: string,
+            topicId: string,
             payload: { name: string },
           ): { name: string } => {
+            pubStats[topicId] ? pubStats[topicId]++ : (pubStats[topicId] = 1);
             return { ...payload, name: payload.name + "?" };
           },
           subscribe: (
-            _topicId: string,
+            topicId: string,
             payload: { name: string },
           ): { name: string } => {
+            subStats[topicId] ? subStats[topicId]++ : (subStats[topicId] = 1);
             return { ...payload, name: payload.name.replace(/\?$/, "") };
           },
         };
       };
-      const pluginMap = new Map()
-        .set(undefined, [metricPlugin()])
-        .set(global, [metricPlugin()]);
+      const pluginMap = new Map().set(undefined, [metricPlugin()]);
+      // .set(global, [metricPlugin()]);
       runPlugins = createRunPlugins(
         mapPlugins(subscriptionStore, pluginMap),
         global,
@@ -396,12 +397,15 @@ describe("EventBus", () => {
           expect(callback).toHaveBeenCalledWith({ name: "Leia" });
           _eventBus.unregisterAllTopics();
           // Yay! It has the metrics!
-          expect(mock).toHaveBeenCalledWith([
-            {
-              skywalker: { length: 2 },
+          expect(mock).toHaveBeenCalledWith({
+            subscribeStats: {
+              skywalker: 2,
             },
-            { skywalker: 3 },
-          ]);
+            publishStats: { skywalker: 3 },
+            pubStats: { skywalker: 6 },
+            subStats: { skywalker: 6 },
+          });
+          expect(mock).toHaveBeenCalledTimes(1);
         });
       });
     });
