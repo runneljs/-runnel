@@ -1,0 +1,40 @@
+{
+  "name": "@runnel/metric-plugin",
+  "version": "0.1.0",
+  "main": "dist/index.js",
+  "module": "dist/index.js",
+  "devDependencies": {
+    "@types/bun": "latest",
+    "deep-equal": "^2.2.3"
+  },
+  "files": [
+    "dist/"
+  ],
+  "keywords": [
+    "runnel",
+    "bus",
+    "eventbus",
+    "event bus",
+    "eventemitter",
+    "event emitter",
+    "message bus",
+    "pubsub",
+    "channel",
+    "communication",
+    "contract",
+    "microfrontends",
+    "microfrontend",
+    "micro frontends",
+    "micro frontend",
+    "microservices",
+    "plugin"
+  ],
+  "license": "MIT",
+  "scripts": {
+    "build": "bun build ./src/index.ts --outdir ./dist && bun run build:declaration",
+    "build:declaration": "tsc --project tsconfig.type.json --outdir ./dist",
+    "test": "bun test"
+  },
+  "type": "module",
+  "types": "dist/index.d.ts"
+}

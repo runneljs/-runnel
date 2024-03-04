@@ -1,0 +1,41 @@
+{
+  "name": "@runnel/reporter",
+  "version": "0.0.0",
+  "module": "dist/index.js",
+  "devDependencies": {
+    "@types/bun": "latest",
+    "typescript": "^5.3.3"
+  },
+  "bin": {
+    "runnel-report": "dist/report-aggregator.js"
+  },
+  "files": [
+    "dist/"
+  ],
+  "keywords": [
+    "runnel",
+    "bus",
+    "eventbus",
+    "event bus",
+    "eventemitter",
+    "event emitter",
+    "message bus",
+    "pubsub",
+    "channel",
+    "communication",
+    "contract",
+    "microfrontends",
+    "microfrontend",
+    "micro frontends",
+    "micro frontend",
+    "microservices"
+  ],
+  "license": "MIT",
+  "scripts": {
+    "build:note": "echo '[NOTE]: Use **npm** run build for generating ESM instead of bun run build.'",
+    "build": "npm run build:note && tsc && npm link",
+    "test": "bun test"
+  },
+  "type": "module",
+  "types": "dist/index.d.ts"
+}

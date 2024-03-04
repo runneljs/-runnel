@@ -1,3 +1,3 @@
-# MFE Event Bus
+# Runnel Monorepo
 
-TODO: Go to `mfe-event-bus/README.md`
+WIP
