@@ -21,9 +21,8 @@ describe("event-bus-metric-plugin", () => {
 
     test("should call callback with metrics on subscribe", () => {
       observer.subscribe(callback);
-      plugin.onSubscribe("topic1", {
-        schema: { type: "number" },
-        subscribers: new Map(),
+      plugin.onCreateSubscribe("topic1", {
+        type: "number",
       });
       expect(callback).toHaveBeenCalledWith({
         topic1: { subscribe: 1, publish: 0, schema: { type: "number" } },
@@ -32,9 +31,8 @@ describe("event-bus-metric-plugin", () => {
 
     test("should call callback with metrics on publish", () => {
       observer.subscribe(callback);
-      plugin.onPublish("topic1", {
-        schema: { type: "number" },
-        subscribers: new Map(),
+      plugin.onCreatePublish("topic1", {
+        type: "number",
       });
       expect(callback).toHaveBeenCalledWith({
         topic1: { subscribe: 0, publish: 1, schema: { type: "number" } },

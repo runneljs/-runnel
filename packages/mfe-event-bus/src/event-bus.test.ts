@@ -11,12 +11,13 @@ import {
 import deepEqual from "deep-equal";
 import { SubscriptionStore } from "./SubscriptionStore";
 import { eventBus, type EventBus } from "./event-bus";
+import { mapPlugins } from "./map-plugins";
+import type { JsonSchema } from "./primitive-types";
 import {
-  chainAcrossScopes as _chainAcrossScopes,
+  createPluginEventChain,
   createRunPlugins,
   type RunPlugins,
-} from "./legacy-run-plugins";
-import { mapPlugins } from "./map-plugins";
+} from "./run-plugins";
 import { schemaManager } from "./schema-manager";
 
 type TestSchema = {
@@ -38,7 +39,7 @@ const jsonSchema = {
   $schema: "http://json-schema.org/draft-07/schema#",
 };
 
-const chainAcrossScopes = _chainAcrossScopes(
+const pluginEventChain = createPluginEventChain(
   mapPlugins(new SubscriptionStore(), new Map()),
   global,
 );
@@ -50,8 +51,6 @@ function payloadValidator(jsonSchema: object) {
   };
 }
 
-const checkSchema = schemaManager(deepEqual, new Map());
-
 describe("EventBus", () => {
   describe("eventBus", () => {
     let latestStateStore: Map<string, unknown>;
@@ -62,12 +61,13 @@ describe("EventBus", () => {
       latestStateStore = new Map();
       subscriptionStore = new SubscriptionStore();
       runPlugins = jest.fn();
+      const checkSchema = schemaManager(deepEqual, new Map());
       _eventBus = eventBus({
         latestStateStore,
         subscriptionStore,
         checkSchema,
         runPlugins,
-        chainForEvent: chainAcrossScopes,
+        pluginEventChain,
         payloadValidator,
       });
     });
@@ -180,12 +180,13 @@ describe("EventBus", () => {
       latestStateStore = new Map();
       subscriptionStore = new SubscriptionStore();
       runPlugins = jest.fn();
+      const checkSchema = schemaManager(deepEqual, new Map());
       _eventBus = eventBus({
         latestStateStore,
         subscriptionStore,
         checkSchema,
         runPlugins,
-        chainForEvent: chainAcrossScopes,
+        pluginEventChain,
         payloadValidator,
       });
     });
@@ -296,12 +297,15 @@ describe("EventBus", () => {
 
   describe("plugin", () => {
     let mock: jest.Mock;
+    let schemaReceiver: jest.Mock;
     let latestStateStore: Map<string, unknown>;
     let subscriptionStore: SubscriptionStore;
     let runPlugins: RunPlugins;
     let _eventBus: EventBus;
+    const schemaStore = new Map();
     beforeAll(() => {
       mock = jest.fn();
+      schemaReceiver = jest.fn();
       latestStateStore = new Map();
       subscriptionStore = new SubscriptionStore();
       const metricPlugin = () => {
@@ -309,21 +313,27 @@ describe("EventBus", () => {
         const publishStats: Record<string, number> = {};
         const subStats: Record<string, number> = {};
         const pubStats: Record<string, number> = {};
+        let schema = {};
 
         return {
-          onSubscribe: (topicId: string) => {
+          // when `subscribe` is introduced.
+          onCreateSubscribe: (topicId: string, _schema: JsonSchema) => {
+            schema = _schema;
             subscribeStats[topicId]
               ? subscribeStats[topicId]++
               : (subscribeStats[topicId] = 1);
           },
-          onPublish: (topicId: string) => {
+          // when `publish` is introduced.
+          onCreatePublish: (topicId: string) => {
             publishStats[topicId]
               ? publishStats[topicId]++
               : (publishStats[topicId] = 1);
           },
           onUnregisterAllTopics: () => {
             mock({ subscribeStats, publishStats, pubStats, subStats });
+            schemaReceiver({ schema });
           },
+          // when pub-sub communication happens. On the publish side.
           publish: (
             topicId: string,
             payload: { name: string },
@@ -331,6 +341,7 @@ describe("EventBus", () => {
             pubStats[topicId] ? pubStats[topicId]++ : (pubStats[topicId] = 1);
             return { ...payload, name: payload.name + "?" };
           },
+          // when pub-sub communication happens. On the subscribe side.
           subscribe: (
             topicId: string,
             payload: { name: string },
@@ -342,22 +353,20 @@ describe("EventBus", () => {
       };
       const pluginMap = new Map().set(undefined, [metricPlugin()]);
       // .set(global, [metricPlugin()]);
-      runPlugins = createRunPlugins(
-        mapPlugins(subscriptionStore, pluginMap),
-        global,
-      );
+      runPlugins = createRunPlugins(mapPlugins(schemaStore, pluginMap), global);
 
-      const chainAcrossScopes = _chainAcrossScopes(
-        mapPlugins(subscriptionStore, pluginMap),
+      const pluginEventChain = createPluginEventChain(
+        mapPlugins(schemaStore, pluginMap),
         global,
       );
+      const checkSchema = schemaManager(deepEqual, schemaStore);
 
       _eventBus = eventBus({
         latestStateStore,
         subscriptionStore,
         checkSchema,
         runPlugins,
-        chainForEvent: chainAcrossScopes,
+        pluginEventChain,
         payloadValidator,
       });
     });
@@ -406,6 +415,23 @@ describe("EventBus", () => {
             subStats: { skywalker: 6 },
           });
           expect(mock).toHaveBeenCalledTimes(1);
+          expect(schemaReceiver).toHaveBeenCalledWith({
+            schema: {
+              type: "object",
+              properties: {
+                name: {
+                  type: "string",
+                },
+                age: {
+                  type: "number",
+                },
+              },
+              required: ["name"],
+              additionalProperties: false,
+              $schema: "http://json-schema.org/draft-07/schema#",
+            },
+          });
+          expect(schemaReceiver).toHaveBeenCalledTimes(1);
         });
       });
     });

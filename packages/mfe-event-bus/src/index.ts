@@ -1,7 +1,6 @@
 import { SubscriptionStore } from "./SubscriptionStore";
 import { PayloadMismatchError, SchemaMismatchError } from "./errors";
 import { eventBus, type Validator } from "./event-bus";
-import { chainAcrossScopes, createRunPlugins } from "./legacy-run-plugins";
 import { mapPlugins } from "./map-plugins";
 import type {
   JsonSchema,
@@ -11,6 +10,7 @@ import type {
   Subscription,
   TopicId,
 } from "./primitive-types";
+import { createPluginEventChain, createRunPlugins } from "./run-plugins";
 import { schemaManager, type DeepEqual } from "./schema-manager";
 export { type Plugin };
 
@@ -38,18 +38,17 @@ export function createEventBus({
   _global[SUBSCRIPTION_STORE_VARIABLE_NAME] ??= new SubscriptionStore();
   _global[LATEST_STATE_STORE_VARIABLE_NAME] ??= new Map<TopicId, unknown>();
 
+  const pluginStoreMap = mapPlugins(
+    _global[SCHEMA_STORE_VARIABLE_NAME],
+    pluginMap,
+  );
+
   return eventBus({
     latestStateStore: _global[LATEST_STATE_STORE_VARIABLE_NAME],
     checkSchema: schemaManager(deepEqual, _global[SCHEMA_STORE_VARIABLE_NAME]),
     subscriptionStore: _global[SUBSCRIPTION_STORE_VARIABLE_NAME],
-    runPlugins: createRunPlugins(
-      mapPlugins(_global[SUBSCRIPTION_STORE_VARIABLE_NAME], pluginMap),
-      _global,
-    ),
-    chainForEvent: chainAcrossScopes(
-      mapPlugins(_global[SUBSCRIPTION_STORE_VARIABLE_NAME], pluginMap),
-      _global,
-    ),
+    runPlugins: createRunPlugins(pluginStoreMap, _global),
+    pluginEventChain: createPluginEventChain(pluginStoreMap, _global),
     payloadValidator,
   });
 }

@@ -16,12 +16,12 @@ describe("PluginStore", () => {
       subscriptionStore.set("topicId", new Map().set("uuid", cbToSubscribe));
       pluginStore = new PluginStore(subscriptionStore);
       plugin1 = {
-        onSubscribe: jest.fn(),
+        onCreateSubscribe: jest.fn(),
         onUnregisterAllTopics: jest.fn(),
       };
       plugin2 = {
-        onSubscribe: jest.fn(),
-        onPublish: jest.fn(),
+        onCreateSubscribe: jest.fn(),
+        onCreatePublish: jest.fn(),
       };
       pluginStore.addPlugin(plugin1);
       pluginStore.addPlugin(plugin2);
@@ -31,28 +31,28 @@ describe("PluginStore", () => {
       jest.restoreAllMocks();
     });
 
-    test("onSubscribe", () => {
-      pluginStore.runAllPluginsForEvent("onSubscribe", "topicId", "payload");
-      expect(plugin1.onSubscribe).toHaveBeenCalledWith(
+    test("onCreateSubscribe", () => {
+      pluginStore.runPluginForEvent("onCreateSubscribe", "topicId", "payload");
+      expect(plugin1.onCreateSubscribe).toHaveBeenCalledWith(
         "topicId",
         subscriptionStore.get("topicId"),
       );
       expect(plugin1.onUnregisterAllTopics).not.toHaveBeenCalled();
 
-      expect(plugin2.onSubscribe).toHaveBeenCalledWith(
+      expect(plugin2.onCreateSubscribe).toHaveBeenCalledWith(
         "topicId",
         subscriptionStore.get("topicId"),
       );
-      expect(plugin2.onPublish).not.toHaveBeenCalled();
+      expect(plugin2.onCreatePublish).not.toHaveBeenCalled();
     });
 
-    test("onPublish", () => {
-      pluginStore.runAllPluginsForEvent("onPublish", "topicId", "payload");
-      expect(plugin1.onSubscribe).not.toHaveBeenCalled();
+    test("onCreatePublish", () => {
+      pluginStore.runPluginForEvent("onCreatePublish", "topicId", "payload");
+      expect(plugin1.onCreateSubscribe).not.toHaveBeenCalled();
       expect(plugin1.onUnregisterAllTopics).not.toHaveBeenCalled();
 
-      expect(plugin2.onSubscribe).not.toHaveBeenCalled();
-      expect(plugin2.onPublish).toHaveBeenCalledWith(
+      expect(plugin2.onCreateSubscribe).not.toHaveBeenCalled();
+      expect(plugin2.onCreatePublish).toHaveBeenCalledWith(
         "topicId",
         subscriptionStore.get("topicId"),
         "payload",
@@ -60,12 +60,12 @@ describe("PluginStore", () => {
     });
 
     test("onUnregisterAllTopics", () => {
-      pluginStore.runAllPluginsForEvent("onUnregisterAllTopics");
-      expect(plugin1.onSubscribe).not.toHaveBeenCalled();
+      pluginStore.runPluginForEvent("onUnregisterAllTopics");
+      expect(plugin1.onCreateSubscribe).not.toHaveBeenCalled();
       expect(plugin1.onUnregisterAllTopics).toHaveBeenCalled();
 
-      expect(plugin2.onSubscribe).not.toHaveBeenCalled();
-      expect(plugin2.onPublish).not.toHaveBeenCalled();
+      expect(plugin2.onCreateSubscribe).not.toHaveBeenCalled();
+      expect(plugin2.onCreatePublish).not.toHaveBeenCalled();
     });
   });
 });

@@ -1,13 +1,17 @@
 import { PluginStore } from "./PluginStore";
-import type { SubscriptionStore } from "./SubscriptionStore";
-import type { Plugin, PluginScope } from "./primitive-types";
+import type {
+  JsonSchema,
+  Plugin,
+  PluginScope,
+  TopicId,
+} from "./primitive-types";
 
 export const PLUGIN_STORE_VARIABLE_NAME_MAYBE_GLOBAL =
   "mfeEventBusPluginStore" as const;
 export type PluginStoreMap = Map<PluginScope, PluginStore>;
 
 export function mapPlugins(
-  subscriptionStore: SubscriptionStore,
+  schemaStore: Map<TopicId, JsonSchema>,
   pluginMap: Map<PluginScope, Plugin[]>,
 ): PluginStoreMap {
   const pluginStoreMap = new Map<PluginScope, PluginStore>();
@@ -17,9 +21,9 @@ export function mapPlugins(
     pluginStoreMap.set(
       pluginScope,
       pluginScope === undefined
-        ? new PluginStore(subscriptionStore)
+        ? new PluginStore(schemaStore)
         : pluginScope[PLUGIN_STORE_VARIABLE_NAME_MAYBE_GLOBAL] ??
-            new PluginStore(subscriptionStore),
+            new PluginStore(schemaStore),
     );
 
     // `pluginStore` is a PluginStore instance.

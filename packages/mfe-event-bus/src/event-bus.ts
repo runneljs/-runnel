@@ -1,7 +1,7 @@
-import { PayloadMismatchError, TopicNotFoundError } from "./errors";
-import type { RunPlugins } from "./legacy-run-plugins";
-import type { JsonSchema, UUID } from "./primitive-types";
 import type { SubscriptionStore } from "./SubscriptionStore";
+import { PayloadMismatchError, TopicNotFoundError } from "./errors";
+import type { JsonSchema, TopicId, UUID } from "./primitive-types";
+import type { RunPlugins } from "./run-plugins";
 
 export type Validator = (
   jsonSchema: JsonSchema,
@@ -14,16 +14,14 @@ export function eventBus({
   subscriptionStore,
   checkSchema,
   runPlugins,
-  chainForEvent,
+  pluginEventChain,
   payloadValidator,
 }: {
-  latestStateStore: Map<string, unknown>;
+  latestStateStore: Map<TopicId, unknown>;
   subscriptionStore: SubscriptionStore;
-  checkSchema: (topicId: string, incomingSchema: JsonSchema) => void;
+  checkSchema: (topicId: TopicId, incomingSchema: JsonSchema) => void;
   runPlugins: RunPlugins;
-  chainForEvent: (
-    eventName: "publish" | "subscribe",
-  ) => (topicId: string, payload: unknown) => unknown;
+  pluginEventChain: (topicId: TopicId, payload: unknown) => unknown;
   payloadValidator: Validator;
 }) {
   return {
@@ -32,7 +30,7 @@ export function eventBus({
       subscriptionStore,
       checkSchema,
       runPlugins,
-      chainForEvent,
+      pluginEventChain,
       payloadValidator,
     ),
     unregisterTopic: createUnregisterTopic(latestStateStore, subscriptionStore),
@@ -49,9 +47,7 @@ function createRegisterTopic(
   subscriptionStore: SubscriptionStore,
   checkSchema: (topicId: string, incomingSchema: JsonSchema) => void,
   runPlugins: RunPlugins,
-  chainForEvent: (
-    eventName: "publish" | "subscribe",
-  ) => (topicId: string, payload: unknown) => unknown,
+  pluginEventChain: (topicId: string, payload: unknown) => unknown,
   payloadValidator: Validator,
 ) {
   return function registerTopic<T>(
@@ -78,25 +74,15 @@ function createRegisterTopic(
       subscriptionStore
         .get(topicId)
         ?.forEach((callback: (payload: T) => void) => {
-          // callback(payload);
-          callback(
-            chainForEvent("subscribe")(
-              topicId,
-              chainForEvent("publish")(topicId, payload),
-            ) as T,
-          );
+          callback(pluginEventChain(topicId, payload) as T);
         });
     };
 
     const subscribe = (callback: (payload: T) => void) => {
       if (latestStateStore.has(topicId)) {
         // As soon as a new subscriber subscribes, it should get the latest payload.
-        // callback(latestStateStore.get(topicId)! as T);
         callback(
-          chainForEvent("subscribe")(
-            topicId,
-            chainForEvent("publish")(topicId, latestStateStore.get(topicId)!),
-          ) as T,
+          pluginEventChain(topicId, latestStateStore.get(topicId)!) as T,
         );
       }
       const uuid = crypto.randomUUID();
@@ -109,16 +95,16 @@ function createRegisterTopic(
     return {
       subscribe: (callback: (payload: T) => void) => {
         const unsubscribe = subscribe(callback);
-        runPlugins("onSubscribe", topicId);
+        runPlugins("onCreateSubscribe", topicId);
 
         return () => {
           unsubscribe();
-          runPlugins("onUnsubscribe", topicId);
+          runPlugins("onCreateUnsubscribe", topicId);
         };
       },
       publish: (payload: T) => {
         publish(payload);
-        runPlugins("onPublish", topicId, payload);
+        runPlugins("onCreatePublish", topicId, payload);
       },
     };
   };

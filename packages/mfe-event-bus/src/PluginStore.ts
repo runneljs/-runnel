@@ -1,11 +1,10 @@
-import type { SubscriptionStore } from "./SubscriptionStore";
-import type { Plugin, TopicId } from "./primitive-types";
+import type { JsonSchema, Plugin, TopicId } from "./primitive-types";
 
 /**
  * Each plugin scope has its own PluginStore.
  */
 export class PluginStore {
-  constructor(private subscriptionStore: SubscriptionStore) {}
+  constructor(private schemaStore: Map<TopicId, JsonSchema>) {}
   private plugins: Plugin[] = [];
 
   addPlugin(plugin: Plugin) {
@@ -33,7 +32,7 @@ export class PluginStore {
     );
   }
 
-  runAllPluginsForEvent(
+  runPluginForEvent(
     eventName: keyof Plugin,
     topicId?: TopicId,
     payload?: unknown,
@@ -43,16 +42,16 @@ export class PluginStore {
         case "onUnregisterAllTopics":
           plugin[eventName]?.();
           break;
-        case "onPublish":
+        case "onCreatePublish":
           plugin[eventName]?.(
             topicId!,
-            this.subscriptionStore.get(topicId!)!,
+            this.schemaStore.get(topicId!)!,
             payload,
           );
           break;
-        case "onSubscribe":
-        case "onUnsubscribe":
-          plugin[eventName]?.(topicId!, this.subscriptionStore.get(topicId!)!);
+        case "onCreateSubscribe":
+        case "onCreateUnsubscribe":
+          plugin[eventName]?.(topicId!, this.schemaStore.get(topicId!)!);
           break;
         default:
           break;
@@ -62,7 +61,6 @@ export class PluginStore {
 }
 
 type PluginFn = (topicId: TopicId, payload: unknown) => unknown;
-
 export function chainPlugins(funcs: PluginFn[]): PluginFn {
   return (id: string, initialValue: unknown) => {
     return funcs.reduce((currentValue, currentFunction) => {

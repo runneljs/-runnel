@@ -14,9 +14,8 @@ describe("createEventBusMetricPlugin", () => {
 
     describe("subscribe -> publish", () => {
       test("should call callback with metrics on subscribe", () => {
-        plugin.onSubscribe("topic1", {
-          schema: { type: "number" },
-          subscribers: new Map(),
+        plugin.onCreateSubscribe("topic1", {
+          type: "number",
         });
         expect(callback).toHaveBeenCalledWith({
           topic1: { subscribe: 1, publish: 0, schema: { type: "number" } },
@@ -24,9 +23,8 @@ describe("createEventBusMetricPlugin", () => {
       });
 
       test("should call callback with metrics on publish", () => {
-        plugin.onPublish("topic1", {
-          schema: { type: "number" },
-          subscribers: new Map(),
+        plugin.onCreatePublish("topic1", {
+          type: "number",
         });
         expect(callback).toHaveBeenCalledWith({
           topic1: { subscribe: 1, publish: 1, schema: { type: "number" } },
@@ -36,9 +34,8 @@ describe("createEventBusMetricPlugin", () => {
 
     describe("publish -> subscribe", () => {
       test("should call callback with metrics on publish", () => {
-        plugin.onPublish("topic2", {
-          schema: { type: "string" },
-          subscribers: new Map(),
+        plugin.onCreatePublish("topic2", {
+          type: "string",
         });
         expect(callback).toHaveBeenCalledWith({
           topic1: { subscribe: 1, publish: 1, schema: { type: "number" } },
@@ -47,9 +44,8 @@ describe("createEventBusMetricPlugin", () => {
       });
 
       test("should call callback with metrics on subscribe", () => {
-        plugin.onSubscribe("topic2", {
-          schema: { type: "string" },
-          subscribers: new Map(),
+        plugin.onCreateSubscribe("topic2", {
+          type: "string",
         });
         expect(callback).toHaveBeenCalledWith({
           topic1: { subscribe: 1, publish: 1, schema: { type: "number" } },
