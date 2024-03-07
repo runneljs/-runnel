@@ -1,5 +1,5 @@
 # Runnel Validator
 
-For someone who does not write a few lines of script.
+For someone who does not want to write a few lines of script.
 
-This is designed for the Runnel library.
+This library is designed for [runneljs](https://www.npmjs.com/package/runneljs).

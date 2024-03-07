@@ -38,5 +38,13 @@
     "test": "bun test"
   },
   "type": "module",
-  "types": "dist/index.d.ts"
+  "types": "dist/index.d.ts",
+  "description": "A default validator for Runnel",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/runneljs/runnel.git"
+  },
+  "bugs": {
+    "url": "https://github.com/runneljs/runnel/issues"
+  }
 }
