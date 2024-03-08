@@ -1,24 +1,8 @@
 {
-  "compilerOptions": {
-    "allowSyntheticDefaultImports": true,
-    "baseUrl": "src",
-    "declaration": true,
-    "esModuleInterop": true,
-    "inlineSourceMap": false,
-    "lib": ["ESNext"],
-    "listEmittedFiles": false,
-    "listFiles": false,
-    "moduleResolution": "node",
-    "module": "ESNext",
-    "noFallthroughCasesInSwitch": true,
-    "rootDir": "src",
-    "skipLibCheck": true,
-    "strict": true,
-    "traceResolution": false,
-    "types": ["node"],
-    "outDir": "dist",
-  },
-  "compileOnSave": false,
-  "exclude": ["node_modules", "dist", "src/*test*"],
-  "include": ["src"]
+    "extends": "./tsconfig-base.json",
+    "compilerOptions": {
+        "module": "esnext",
+        "outDir": "dist/mjs",
+        "target": "esnext"
+    }
 }

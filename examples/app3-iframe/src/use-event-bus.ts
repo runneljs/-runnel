@@ -5,7 +5,7 @@ import {
 import { validator } from "@runnel/validator";
 import deepEqual from "deep-equal";
 import { useEffect, useMemo, useState } from "react";
-import createEventBus from "runneljs";
+import { createEventBus } from "runneljs";
 
 const { plugin: metricPlugin, observer: metricObserver } =
   createPlugin(deepEqual);

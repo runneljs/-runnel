@@ -1,16 +1,25 @@
 {
   "name": "@runnel/reporter",
   "version": "0.0.0",
-  "module": "dist/index.js",
+  "type": "module",
+  "main": "dist/cjs/index.js",
+  "module": "dist/mjs/index.js",
+  "exports": {
+    ".": {
+      "require": "./dist/cjs/index.js",
+      "import": "./dist/mjs/index.js"
+    }
+  },
   "devDependencies": {
     "@types/bun": "latest",
     "typescript": "^5.3.3"
   },
   "bin": {
-    "runnel-report": "dist/report-aggregator.js"
+    "runnel-report": "dist/mjs/report-aggregator.js"
   },
   "files": [
-    "dist/"
+    "dist/cjs",
+    "dist/mjs"
   ],
   "keywords": [
     "runnel",
@@ -33,9 +42,8 @@
   "license": "MIT",
   "scripts": {
     "build:note": "echo '[NOTE]: Use **npm** run build for generating ESM instead of bun run build.'",
-    "build": "npm run build:note && tsc && npm link",
+    "build:core": "rm -fr dist/* && tsc -p tsconfig.json && tsc -p tsconfig-cjs.json",
+    "build": "npm run build:note && npm run build:core && npm link",
     "test": "bun test"
-  },
-  "type": "module",
-  "types": "dist/index.d.ts"
+  }
 }

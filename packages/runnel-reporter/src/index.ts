@@ -1,1 +1,1 @@
-export { REPORT_DIR, createReporter } from "create-reporter";
+export { REPORT_DIR, createReporter } from "./create-reporter";
