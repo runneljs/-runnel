@@ -1,13 +1,24 @@
 {
   "name": "@runnel/validator",
-  "version": "1.0.3",
-  "main": "dist/index.js",
-  "module": "dist/index.js",
+  "version": "1.0.4",
+  "type": "module",
+  "main": "dist/index.umd.js",
+  "module": "dist/index.es.js",
+  "types": "dist/index.d.ts",
+  "exports": {
+    ".": {
+      "require": "./dist/index.umd.js",
+      "import": "./dist/index.es.js",
+      "types": "./dist/index.d.ts"
+    }
+  },
   "dependencies": {
     "@cfworker/json-schema": "^1.12.8"
   },
   "devDependencies": {
-    "@types/bun": "latest"
+    "@types/bun": "latest",
+    "vite": "^5.1.5",
+    "vite-plugin-dts": "^3.7.3"
   },
   "files": [
     "dist/"
@@ -33,12 +44,11 @@
   ],
   "license": "MIT",
   "scripts": {
-    "build": "bun build ./src/index.ts --outdir ./dist && bun run build:declaration",
+    "build:bun": "bun build ./src/index.ts --outdir ./dist && bun run build:declaration",
     "build:declaration": "tsc --project tsconfig.type.json --outdir ./dist",
+    "build": "bunx --bun vite build",
     "test": "bun test"
   },
-  "type": "module",
-  "types": "dist/index.d.ts",
   "description": "A default validator for Runnel",
   "repository": {
     "type": "git",
