@@ -22,7 +22,7 @@ describe("varidator", () => {
     let validate: ReturnType<typeof validator>;
 
     beforeAll(() => {
-      validate = validator();
+      validate = validator({});
     });
 
     test("should return false for a payload", () => {
