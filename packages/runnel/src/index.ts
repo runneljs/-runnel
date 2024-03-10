@@ -25,7 +25,7 @@ export function createEventBus({
   deepEqual,
   payloadValidator,
   scope = getGlobal(),
-  pluginMap = new Map(),
+  pluginMap = new Map<any, Plugin[]>(),
 }: {
   deepEqual: DeepEqual;
   payloadValidator: Validator;
@@ -33,8 +33,8 @@ export function createEventBus({
   pluginMap?: Map<PluginScope, Plugin[]>;
 }): ReturnType<typeof eventBus> {
   const _global = scope;
-  _global[SCHEMA_STORE_VARIABLE_NAME] ??= new Map<TopicId, JsonSchema>();
   _global[SUBSCRIPTION_STORE_VARIABLE_NAME] ??= new SubscriptionStore();
+  _global[SCHEMA_STORE_VARIABLE_NAME] ??= new Map<TopicId, JsonSchema>();
   _global[LATEST_STATE_STORE_VARIABLE_NAME] ??= new Map<TopicId, unknown>();
 
   const pluginStoreMap = mapPlugins(
