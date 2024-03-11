@@ -31,31 +31,41 @@ It collects the number of publish/subscribe events called with the topics create
 ```ts
 type Metrics = Record<
   string,
-  { publish: number; subscribe: number; schema: object }
+  {
+    onCreatePublish: number;
+    onCreateSubscribe: number;
+    schema: object;
+    publish: any[];
+    subscribe: any[];
+  }
 >;
 ```
 
 ### Example
 
-#### Case: The `topic1` topic that has `{"type": "number"}` had one publish event in the micro frontend app.
+#### Case: The `topic1` topic that has `{"type": "number"}` had one publish event with payload `100` but there are no subscribers
 
 ```json
 {
   "topic1": {
-    "publish": 1,
-    "subscribe": 0,
+    "onCreatePublish": 1,
+    "publish": [100],
+    "onCreateSubscribe": 0,
+    "subscribe": [],
     "schema": { "type": "number" }
   }
 }
 ```
 
-#### Case: The `topic2` topic that has `{"type": "string"}` in its schema had one subscribe event in the micro frontend app.
+#### Case: The `topic2` topic that has `{"type": "string"}` in its schema had one subscribe event but there are no publishers
 
 ```json
 {
   "topic2": {
-    "publish": 0,
-    "subscribe": 1,
+    "onCreatePublish": 0,
+    "publish": [],
+    "onCreateSubscribe": 1,
+    "subscribe": [],
     "schema": { "type": "string" }
   }
 }

@@ -18,7 +18,13 @@ describe("createEventBusMetricPlugin", () => {
           type: "number",
         });
         expect(callback).toHaveBeenCalledWith({
-          topic1: { subscribe: 1, publish: 0, schema: { type: "number" } },
+          topic1: {
+            onCreateSubscribe: 1,
+            onCreatePublish: 0,
+            schema: { type: "number" },
+            publish: [],
+            subscribe: [],
+          },
         });
       });
 
@@ -27,7 +33,13 @@ describe("createEventBusMetricPlugin", () => {
           type: "number",
         });
         expect(callback).toHaveBeenCalledWith({
-          topic1: { subscribe: 1, publish: 1, schema: { type: "number" } },
+          topic1: {
+            onCreateSubscribe: 1,
+            onCreatePublish: 1,
+            schema: { type: "number" },
+            publish: [],
+            subscribe: [],
+          },
         });
       });
     });
@@ -38,8 +50,20 @@ describe("createEventBusMetricPlugin", () => {
           type: "string",
         });
         expect(callback).toHaveBeenCalledWith({
-          topic1: { subscribe: 1, publish: 1, schema: { type: "number" } },
-          topic2: { subscribe: 0, publish: 1, schema: { type: "string" } },
+          topic1: {
+            onCreateSubscribe: 1,
+            onCreatePublish: 1,
+            schema: { type: "number" },
+            publish: [],
+            subscribe: [],
+          },
+          topic2: {
+            onCreateSubscribe: 0,
+            onCreatePublish: 1,
+            schema: { type: "string" },
+            publish: [],
+            subscribe: [],
+          },
         });
       });
 
@@ -48,8 +72,20 @@ describe("createEventBusMetricPlugin", () => {
           type: "string",
         });
         expect(callback).toHaveBeenCalledWith({
-          topic1: { subscribe: 1, publish: 1, schema: { type: "number" } },
-          topic2: { subscribe: 1, publish: 1, schema: { type: "string" } },
+          topic1: {
+            onCreateSubscribe: 1,
+            onCreatePublish: 1,
+            schema: { type: "number" },
+            publish: [],
+            subscribe: [],
+          },
+          topic2: {
+            onCreateSubscribe: 1,
+            onCreatePublish: 1,
+            schema: { type: "string" },
+            publish: [],
+            subscribe: [],
+          },
         });
       });
     });

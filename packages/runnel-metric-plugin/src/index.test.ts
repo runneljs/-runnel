@@ -25,7 +25,13 @@ describe("event-bus-metric-plugin", () => {
         type: "number",
       });
       expect(callback).toHaveBeenCalledWith({
-        topic1: { subscribe: 1, publish: 0, schema: { type: "number" } },
+        topic1: {
+          onCreateSubscribe: 1,
+          onCreatePublish: 0,
+          schema: { type: "number" },
+          publish: [],
+          subscribe: [],
+        },
       });
     });
 
@@ -35,7 +41,13 @@ describe("event-bus-metric-plugin", () => {
         type: "number",
       });
       expect(callback).toHaveBeenCalledWith({
-        topic1: { subscribe: 0, publish: 1, schema: { type: "number" } },
+        topic1: {
+          onCreateSubscribe: 0,
+          onCreatePublish: 1,
+          schema: { type: "number" },
+          publish: [],
+          subscribe: [],
+        },
       });
     });
   });
