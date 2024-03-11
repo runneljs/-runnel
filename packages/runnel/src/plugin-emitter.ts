@@ -1,7 +1,9 @@
 import { chainPlugins, type PluginStore } from "./PluginStore";
-import { type PluginStoreMap } from "./map-plugins";
+import {
+  PLUGIN_STORE_VARIABLE_NAME_MAYBE_GLOBAL,
+  type PluginStoreMap,
+} from "./map-plugins";
 import type { PluginScope, Scope, TopicId } from "./primitive-types";
-
 const SCOPE_STORE_VARIABLE_NAME = "runnelPluginScopes" as const;
 
 export function createPluginEmitter(
@@ -13,36 +15,42 @@ export function createPluginEmitter(
    * Then re-calculate the plugin stores,
    * so we don't miss plugins across micro frontends.
    */
-  const getPluginStores: PluginStore[] = recalcPluginScopes(
-    scope,
-    pluginStoreMap,
-  )
-    .map(getPluginStoreByScope(pluginStoreMap))
-    .filter(Boolean); // There can be scopes that do not have a pluginStore.
+  const getPluginStoreByScope = createGetPluginStoreByScope(pluginStoreMap);
+  const getPluginStores: () => PluginStore[] = () =>
+    recalcPluginScopes(scope, pluginStoreMap).reduce<PluginStore[]>(
+      (acc, pluginScope) => {
+        const pluginStore = getPluginStoreByScope(pluginScope);
+        if (pluginStore !== undefined) {
+          acc.push(pluginStore);
+        }
+        return acc;
+      },
+      [],
+    );
 
   return {
     onCreatePublish: (topicId: TopicId, payload: unknown) => {
-      getPluginStores.forEach((pluginStore) => {
+      getPluginStores().forEach((pluginStore) => {
         pluginStore.onCreatePublishEvent(topicId, payload);
       });
     },
     onCreateSubscribe: (topicId: TopicId) => {
-      getPluginStores.forEach((pluginStore) => {
+      getPluginStores().forEach((pluginStore) => {
         pluginStore.onCreateSubscribeEvent(topicId);
       });
     },
     onCreateUnsubscribe: (topicId: TopicId) => {
-      getPluginStores.forEach((pluginStore) => {
+      getPluginStores().forEach((pluginStore) => {
         pluginStore.onCreateUnsubscribeEvent(topicId);
       });
     },
     onUnregisterAllTopics: () => {
-      getPluginStores.forEach((pluginStore) => {
+      getPluginStores().forEach((pluginStore) => {
         pluginStore.onUnregisterAllTopicsEvent();
       });
     },
     subscribe: chainPlugins(
-      getPluginStores.reduce<
+      getPluginStores().reduce<
         Array<(topicId: TopicId, payload: unknown) => unknown>
       >((acc, pluginStore) => {
         if (pluginStore.size("subscribe") > 0) {
@@ -52,7 +60,7 @@ export function createPluginEmitter(
       }, []),
     ),
     publish: chainPlugins(
-      getPluginStores.reduce<
+      getPluginStores().reduce<
         Array<(topicId: TopicId, payload: unknown) => unknown>
       >((acc, pluginStore) => {
         if (pluginStore.size("publish") > 0) {
@@ -64,9 +72,14 @@ export function createPluginEmitter(
   };
 }
 
-function getPluginStoreByScope(pluginStoreMap: PluginStoreMap) {
-  return function (pluginScope: PluginScope): PluginStore {
-    return pluginStoreMap.get(pluginScope)!;
+function createGetPluginStoreByScope(pluginStoreMap: PluginStoreMap) {
+  return function getPluginStoreByScope(
+    pluginScope: PluginScope,
+  ): PluginStore | undefined {
+    return pluginScope === undefined
+      ? pluginStoreMap.get(pluginScope)
+      : // Fetch the plugin store from the global scope.
+        pluginScope[PLUGIN_STORE_VARIABLE_NAME_MAYBE_GLOBAL];
   };
 }
 

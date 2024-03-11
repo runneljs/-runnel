@@ -42,7 +42,7 @@ describe("PluginStore", () => {
       describe("onCreateSubscribe", () => {
         test("should not throw", () => {
           expect(() =>
-            pluginStore.runPluginForEvent("onCreateSubscribe", "topicId"),
+            pluginStore.onCreateSubscribeEvent("topicId"),
           ).not.toThrow();
         });
       });
@@ -50,7 +50,7 @@ describe("PluginStore", () => {
       describe("onCreateUnsubscribe", () => {
         test("should not throw", () => {
           expect(() =>
-            pluginStore.runPluginForEvent("onCreateUnsubscribe", "topicId"),
+            pluginStore.onCreateSubscribeEvent("topicId"),
           ).not.toThrow();
         });
       });
@@ -58,20 +58,14 @@ describe("PluginStore", () => {
       describe("onCreatePublish", () => {
         test("should not throw", () => {
           expect(() =>
-            pluginStore.runPluginForEvent(
-              "onCreatePublish",
-              "topicId",
-              "payload",
-            ),
+            pluginStore.onCreatePublishEvent("topicId", "payload"),
           ).not.toThrow();
         });
       });
 
       describe("onUnregisterAllTopics", () => {
         test("should not throw", () => {
-          expect(() =>
-            pluginStore.runPluginForEvent("onUnregisterAllTopics"),
-          ).not.toThrow();
+          expect(() => pluginStore.onUnregisterAllTopicsEvent()).not.toThrow();
         });
       });
     });
@@ -106,7 +100,7 @@ describe("PluginStore", () => {
       });
 
       test("onCreateSubscribe", () => {
-        pluginStore.runPluginForEvent("onCreateSubscribe", "topicId");
+        pluginStore.onCreateSubscribeEvent("topicId");
 
         // plugin1
         expect(plugin1.onCreateSubscribe).toHaveBeenCalledWith(
@@ -125,7 +119,7 @@ describe("PluginStore", () => {
       });
 
       test("onCreateUnsubscribe", () => {
-        pluginStore.runPluginForEvent("onCreateUnsubscribe", "topicId");
+        pluginStore.onCreateUnsubscribeEvent("topicId");
 
         // plugin1
         expect(plugin1.onCreateSubscribe).not.toHaveBeenCalled();
@@ -141,7 +135,7 @@ describe("PluginStore", () => {
       });
 
       test("onCreatePublish", () => {
-        pluginStore.runPluginForEvent("onCreatePublish", "topicId", "payload");
+        pluginStore.onCreatePublishEvent("topicId", "payload");
 
         // plugin1
         expect(plugin1.onCreateSubscribe).not.toHaveBeenCalled();
@@ -158,7 +152,7 @@ describe("PluginStore", () => {
       });
 
       test("onUnregisterAllTopics", () => {
-        pluginStore.runPluginForEvent("onUnregisterAllTopics");
+        pluginStore.onUnregisterAllTopicsEvent();
 
         // plugin1
         expect(plugin1.onCreateSubscribe).not.toHaveBeenCalled();

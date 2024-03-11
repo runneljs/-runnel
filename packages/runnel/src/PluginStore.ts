@@ -99,25 +99,6 @@ export class PluginStore {
       plugin(topicId!, this.schemaStore.get(topicId!)!);
     });
   }
-
-  runPluginForEvent(
-    eventName: keyof Plugin,
-    topicId?: TopicId,
-    payload?: unknown,
-  ): void {
-    if (eventName === "onUnregisterAllTopics") {
-      this.onUnregisterAllTopicsEvent();
-    }
-    if (eventName === "onCreatePublish") {
-      this.onCreatePublishEvent(topicId!, payload);
-    }
-    if (eventName === "onCreateSubscribe") {
-      this.onCreateSubscribeEvent(topicId!);
-    }
-    if (eventName === "onCreateUnsubscribe") {
-      this.onCreateUnsubscribeEvent(topicId!);
-    }
-  }
 }
 
 type PluginFn = (topicId: TopicId, payload: unknown) => unknown;
