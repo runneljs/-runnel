@@ -10,7 +10,7 @@ import type {
   Subscription,
   TopicId,
 } from "./primitive-types";
-import { createPluginEventChain, createRunPlugins } from "./run-plugins";
+import { createPluginEmitter } from "./run-plugins";
 import { schemaManager, type DeepEqual } from "./schema-manager";
 export { type Plugin };
 
@@ -44,10 +44,9 @@ export function createEventBus({
 
   return eventBus({
     latestStateStore: _global[LATEST_STATE_STORE_VARIABLE_NAME],
-    checkSchema: schemaManager(deepEqual, _global[SCHEMA_STORE_VARIABLE_NAME]),
     subscriptionStore: _global[SUBSCRIPTION_STORE_VARIABLE_NAME],
-    runPlugins: createRunPlugins(pluginStoreMap, _global),
-    pluginEventChain: createPluginEventChain(pluginStoreMap, _global),
+    checkSchema: schemaManager(deepEqual, _global[SCHEMA_STORE_VARIABLE_NAME]),
+    pluginEmitter: createPluginEmitter(pluginStoreMap, _global),
     payloadValidator,
   });
 }

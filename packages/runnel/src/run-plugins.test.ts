@@ -2,9 +2,9 @@ import { afterEach, beforeEach, describe, expect, jest, test } from "bun:test";
 import { mapPlugins } from "./map-plugins";
 import type { JsonSchema, Plugin, TopicId } from "./primitive-types";
 import {
+  createPluginEmitter,
   createPluginEventChain,
   createRunPlugins,
-  emitPlugins,
   type RunPlugins,
 } from "./run-plugins";
 
@@ -179,14 +179,14 @@ describe("run-plugins", () => {
     describe("When no plugins are set", () => {
       let pluginStoreMap: ReturnType<typeof mapPlugins>;
       let schemaStore: Map<TopicId, JsonSchema>;
-      let emitter: ReturnType<typeof emitPlugins>;
+      let emitter: ReturnType<typeof createPluginEmitter>;
       let pluginMap = new Map<any, Plugin[]>();
       const scope = {} as any;
 
       beforeEach(() => {
         schemaStore = new Map();
         pluginStoreMap = mapPlugins(schemaStore, pluginMap);
-        emitter = emitPlugins(pluginStoreMap, scope);
+        emitter = createPluginEmitter(pluginStoreMap, scope);
       });
 
       afterEach(() => {
@@ -209,7 +209,7 @@ describe("run-plugins", () => {
     describe("When plugins are set", () => {
       let pluginStoreMap: ReturnType<typeof mapPlugins>;
       let schemaStore: Map<TopicId, JsonSchema>;
-      let emitter: ReturnType<typeof emitPlugins>;
+      let emitter: ReturnType<typeof createPluginEmitter>;
       const scope = {} as any;
       let mock1stBatchLocal1: jest.Mock;
       let mock1stBatchGlobal: jest.Mock;
@@ -239,7 +239,7 @@ describe("run-plugins", () => {
           ]) // Local scope
           .set(scope, [{ onCreatePublish: mock1stBatchGlobal }]); // Global scope
         pluginStoreMap = mapPlugins(schemaStore, pluginMap1stBatch);
-        emitter = emitPlugins(pluginStoreMap, scope);
+        emitter = createPluginEmitter(pluginStoreMap, scope);
         schemaStore.set("topicId", { some: "schema" });
 
         // Adding another set of plugins to the same global scope.

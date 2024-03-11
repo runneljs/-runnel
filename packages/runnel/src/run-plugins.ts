@@ -35,7 +35,9 @@ export function createRunPlugins(
     const pluginStores: PluginStore[] = recalcPluginScopes(
       scope,
       pluginStoreMap,
-    ).map(getPluginStoreByScope(pluginStoreMap));
+    )
+      .map(getPluginStoreByScope(pluginStoreMap))
+      .filter(Boolean);
 
     pluginStores.forEach((pluginStore) => {
       pluginStore.runPluginForEvent(eventName, topicId, payload);
@@ -43,7 +45,10 @@ export function createRunPlugins(
   };
 }
 
-export function emitPlugins(pluginStoreMap: PluginStoreMap, scope: Scope) {
+export function createPluginEmitter(
+  pluginStoreMap: PluginStoreMap,
+  scope: Scope,
+) {
   /**
    * Always re-calculate the plugin scopes when we add plugins.
    * Then re-calculate the plugin stores,
@@ -52,7 +57,9 @@ export function emitPlugins(pluginStoreMap: PluginStoreMap, scope: Scope) {
   const getPluginStores: PluginStore[] = recalcPluginScopes(
     scope,
     pluginStoreMap,
-  ).map(getPluginStoreByScope(pluginStoreMap));
+  )
+    .map(getPluginStoreByScope(pluginStoreMap))
+    .filter(Boolean); // There can be scopes that do not have a pluginStore.
 
   return {
     onCreatePublish: (topicId: TopicId, payload: unknown) => {
@@ -126,7 +133,9 @@ function chainAcrossScopes(pluginStoreMap: PluginStoreMap, scope: Scope) {
     const pluginStores: PluginStore[] = recalcPluginScopes(
       scope,
       pluginStoreMap,
-    ).map(getPluginStoreByScope(pluginStoreMap));
+    )
+      .map(getPluginStoreByScope(pluginStoreMap))
+      .filter(Boolean);
 
     const pluginPubOrSub = pluginStores.reduce<
       Array<(topicId: TopicId, payload: unknown) => unknown>

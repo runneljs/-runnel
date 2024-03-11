@@ -1,7 +1,7 @@
 import type { SubscriptionStore } from "./SubscriptionStore";
 import { PayloadMismatchError, TopicNotFoundError } from "./errors";
 import type { JsonSchema, TopicId, UUID } from "./primitive-types";
-import type { RunPlugins } from "./run-plugins";
+import type { createPluginEmitter } from "./run-plugins";
 
 export type Validator = (
   jsonSchema: JsonSchema,
@@ -13,15 +13,13 @@ export function eventBus({
   latestStateStore,
   subscriptionStore,
   checkSchema,
-  runPlugins,
-  pluginEventChain,
+  pluginEmitter,
   payloadValidator,
 }: {
   latestStateStore: Map<TopicId, unknown>;
   subscriptionStore: SubscriptionStore;
   checkSchema: (topicId: TopicId, incomingSchema: JsonSchema) => void;
-  runPlugins: RunPlugins;
-  pluginEventChain: (topicId: TopicId, payload: unknown) => unknown;
+  pluginEmitter: ReturnType<typeof createPluginEmitter>;
   payloadValidator: Validator;
 }) {
   return {
@@ -29,15 +27,14 @@ export function eventBus({
       latestStateStore,
       subscriptionStore,
       checkSchema,
-      runPlugins,
-      pluginEventChain,
+      pluginEmitter,
       payloadValidator,
     ),
     unregisterTopic: createUnregisterTopic(latestStateStore, subscriptionStore),
     unregisterAllTopics: createUnregisterAllTopics(
       latestStateStore,
       subscriptionStore,
-      runPlugins,
+      pluginEmitter,
     ),
   };
 }
@@ -46,8 +43,7 @@ function createRegisterTopic(
   latestStateStore: Map<string, unknown>,
   subscriptionStore: SubscriptionStore,
   checkSchema: (topicId: string, incomingSchema: JsonSchema) => void,
-  runPlugins: RunPlugins,
-  pluginEventChain: (topicId: string, payload: unknown) => unknown,
+  pluginEmitter: ReturnType<typeof createPluginEmitter>,
   payloadValidator: Validator,
 ) {
   return function registerTopic<T>(
@@ -65,16 +61,17 @@ function createRegisterTopic(
       new Map<UUID, <T>(payload: T) => void>();
     subscriptionStore.set(topicId, subscribers);
 
-    const publish = (payload: T) => {
-      if (!payloadValidator(jsonSchema)(payload)) {
-        throw new PayloadMismatchError(topicId, jsonSchema, payload);
+    const publish = (_payload: T) => {
+      if (!payloadValidator(jsonSchema)(_payload)) {
+        throw new PayloadMismatchError(topicId, jsonSchema, _payload);
       }
+      const payload = pluginEmitter.publish(topicId, _payload);
       // Preserve the latest payload with the topicId. So the newly registered topics can get the latest payload when they subscribe.
       latestStateStore.set(topicId, payload);
       subscriptionStore
         .get(topicId)
         ?.forEach((callback: (payload: T) => void) => {
-          callback(pluginEventChain(topicId, payload) as T);
+          callback(pluginEmitter.subscribe(topicId, payload) as T);
         });
     };
 
@@ -82,7 +79,7 @@ function createRegisterTopic(
       if (latestStateStore.has(topicId)) {
         // As soon as a new subscriber subscribes, it should get the latest payload.
         callback(
-          pluginEventChain(topicId, latestStateStore.get(topicId)!) as T,
+          pluginEmitter.subscribe(topicId, latestStateStore.get(topicId)!) as T,
         );
       }
       const uuid = crypto.randomUUID();
@@ -95,16 +92,16 @@ function createRegisterTopic(
     return {
       subscribe: (callback: (payload: T) => void) => {
         const unsubscribe = subscribe(callback);
-        runPlugins("onCreateSubscribe", topicId);
+        pluginEmitter.onCreateSubscribe(topicId);
 
         return () => {
           unsubscribe();
-          runPlugins("onCreateUnsubscribe", topicId);
+          pluginEmitter.onCreateUnsubscribe(topicId);
         };
       },
       publish: (payload: T) => {
         publish(payload);
-        runPlugins("onCreatePublish", topicId, payload);
+        pluginEmitter.onCreatePublish(topicId, payload);
       },
     };
   };
@@ -132,13 +129,13 @@ function createUnregisterTopic(
 function createUnregisterAllTopics(
   latestStateStore: Map<string, unknown>,
   subscriptionStore: SubscriptionStore,
-  runPlugins: RunPlugins,
+  pluginEmitter: ReturnType<typeof createPluginEmitter>,
 ) {
   return function unregisterAllTopics() {
     if (subscriptionStore.size !== 0) {
       subscriptionStore.clear();
       latestStateStore.clear();
-      runPlugins("onUnregisterAllTopics");
+      pluginEmitter.onUnregisterAllTopics();
     }
   };
 }

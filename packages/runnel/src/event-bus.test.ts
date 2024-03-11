@@ -13,11 +13,7 @@ import { SubscriptionStore } from "./SubscriptionStore";
 import { eventBus, type EventBus } from "./event-bus";
 import { mapPlugins } from "./map-plugins";
 import type { JsonSchema } from "./primitive-types";
-import {
-  createPluginEventChain,
-  createRunPlugins,
-  type RunPlugins,
-} from "./run-plugins";
+import { createPluginEmitter } from "./run-plugins";
 import { schemaManager } from "./schema-manager";
 
 type TestSchema = {
@@ -39,10 +35,7 @@ const jsonSchema = {
   $schema: "http://json-schema.org/draft-07/schema#",
 };
 
-const pluginEventChain = createPluginEventChain(
-  mapPlugins(new SubscriptionStore(), new Map()),
-  global,
-);
+const pluginEmitter = createPluginEmitter(new Map(), global);
 
 function payloadValidator(jsonSchema: object) {
   const validator = new Validator(jsonSchema);
@@ -55,19 +48,16 @@ describe("EventBus", () => {
   describe("eventBus", () => {
     let latestStateStore: Map<string, unknown>;
     let subscriptionStore: SubscriptionStore;
-    let runPlugins: RunPlugins;
     let _eventBus: EventBus;
     beforeAll(() => {
       latestStateStore = new Map();
       subscriptionStore = new SubscriptionStore();
-      runPlugins = jest.fn();
       const checkSchema = schemaManager(deepEqual, new Map());
       _eventBus = eventBus({
         latestStateStore,
         subscriptionStore,
         checkSchema,
-        runPlugins,
-        pluginEventChain,
+        pluginEmitter,
         payloadValidator,
       });
     });
@@ -174,19 +164,16 @@ describe("EventBus", () => {
   describe("topic", () => {
     let latestStateStore: Map<string, unknown>;
     let subscriptionStore: SubscriptionStore;
-    let runPlugins: RunPlugins;
     let _eventBus: EventBus;
     beforeAll(() => {
       latestStateStore = new Map();
       subscriptionStore = new SubscriptionStore();
-      runPlugins = jest.fn();
       const checkSchema = schemaManager(deepEqual, new Map());
       _eventBus = eventBus({
         latestStateStore,
         subscriptionStore,
         checkSchema,
-        runPlugins,
-        pluginEventChain,
+        pluginEmitter,
         payloadValidator,
       });
     });
@@ -300,7 +287,6 @@ describe("EventBus", () => {
     let schemaReceiver: jest.Mock;
     let latestStateStore: Map<string, unknown>;
     let subscriptionStore: SubscriptionStore;
-    let runPlugins: RunPlugins;
     let _eventBus: EventBus;
     const schemaStore = new Map();
     beforeAll(() => {
@@ -353,9 +339,8 @@ describe("EventBus", () => {
       };
       const pluginMap = new Map().set(undefined, [metricPlugin()]);
       // .set(global, [metricPlugin()]);
-      runPlugins = createRunPlugins(mapPlugins(schemaStore, pluginMap), global);
 
-      const pluginEventChain = createPluginEventChain(
+      const pluginEmitter = createPluginEmitter(
         mapPlugins(schemaStore, pluginMap),
         global,
       );
@@ -365,8 +350,7 @@ describe("EventBus", () => {
         latestStateStore,
         subscriptionStore,
         checkSchema,
-        runPlugins,
-        pluginEventChain,
+        pluginEmitter,
         payloadValidator,
       });
     });
@@ -389,10 +373,9 @@ describe("EventBus", () => {
       });
 
       describe("When a plugin gets registered", () => {
-        test("it runs the plugin", () => {
+        beforeEach(() => {
           const callback = jest.fn();
           const cbWrapper = (payload: { name: string }) => {
-            // console.error(payload);
             callback(payload);
           };
           testTopic.subscribe(cbWrapper);
@@ -404,15 +387,28 @@ describe("EventBus", () => {
           expect(callback).toHaveBeenCalledWith({ name: "Anakin" });
           expect(callback).toHaveBeenCalledWith({ name: "Luke" });
           expect(callback).toHaveBeenCalledWith({ name: "Leia" });
+
+          // Additional subscriber is added. It should receive the latest payload.
+          _eventBus
+            .registerTopic<TestSchema>(`skywalker`, jsonSchema)
+            .subscribe(cbWrapper);
+          expect(callback).toHaveBeenCalledTimes(7);
           _eventBus.unregisterAllTopics();
+        });
+
+        afterEach(() => {
+          jest.restoreAllMocks();
+        });
+
+        test("it runs the plugin", () => {
           // Yay! It has the metrics!
           expect(mock).toHaveBeenCalledWith({
             subscribeStats: {
-              skywalker: 2,
+              skywalker: 2 + 1, // +1 for the additional subscriber.
             },
             publishStats: { skywalker: 3 },
-            pubStats: { skywalker: 6 },
-            subStats: { skywalker: 6 },
+            pubStats: { skywalker: 3 },
+            subStats: { skywalker: 6 + 1 }, // +1 for the additional subscriber.
           });
           expect(mock).toHaveBeenCalledTimes(1);
           expect(schemaReceiver).toHaveBeenCalledWith({
