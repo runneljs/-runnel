@@ -2,6 +2,7 @@ import { SubscriptionStore } from "./SubscriptionStore";
 import { PayloadMismatchError, SchemaMismatchError } from "./errors";
 import { eventBus, type Validator } from "./event-bus";
 import { mapPlugins } from "./map-plugins";
+import { createPluginEmitter } from "./plugin-emitter";
 import type {
   JsonSchema,
   Plugin,
@@ -10,7 +11,6 @@ import type {
   Subscription,
   TopicId,
 } from "./primitive-types";
-import { createPluginEmitter } from "./run-plugins";
 import { schemaManager, type DeepEqual } from "./schema-manager";
 export { type Plugin };
 

@@ -12,8 +12,8 @@ import deepEqual from "deep-equal";
 import { SubscriptionStore } from "./SubscriptionStore";
 import { eventBus, type EventBus } from "./event-bus";
 import { mapPlugins } from "./map-plugins";
+import { createPluginEmitter } from "./plugin-emitter";
 import type { JsonSchema } from "./primitive-types";
-import { createPluginEmitter } from "./run-plugins";
 import { schemaManager } from "./schema-manager";
 
 type TestSchema = {

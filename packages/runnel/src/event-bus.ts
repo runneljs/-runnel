@@ -1,7 +1,7 @@
 import type { SubscriptionStore } from "./SubscriptionStore";
 import { PayloadMismatchError, TopicNotFoundError } from "./errors";
+import type { createPluginEmitter } from "./plugin-emitter";
 import type { JsonSchema, TopicId, UUID } from "./primitive-types";
-import type { createPluginEmitter } from "./run-plugins";
 
 export type Validator = (
   jsonSchema: JsonSchema,
