@@ -2,9 +2,7 @@
 
 A plugin to aggregate the metrics of the local event bus.
 
-## Installation
-
-TODO:
+This library is designed for [runneljs](https://www.npmjs.com/package/runneljs).
 
 ## Usage
 

@@ -46,5 +46,13 @@
     "build:bun": "bun build ./src/index.ts --outdir ./dist && bun run build:declaration",
     "build:declaration": "tsc --project tsconfig.type.json --outdir ./dist",
     "test": "bun test"
+  },
+  "description": "A metric plugin for Runnel. It can be used in testing.",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/runneljs/runnel.git"
+  },
+  "bugs": {
+    "url": "https://github.com/runneljs/runnel/issues"
   }
 }
