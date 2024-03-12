@@ -6,8 +6,14 @@
   "module": "dist/mjs/index.js",
   "exports": {
     ".": {
-      "require": "./dist/cjs/index.js",
-      "import": "./dist/mjs/index.js"
+      "require": {
+        "types": "./dist/cjs/index.d.ts",
+        "default": "./dist/cjs/index.js"
+      },
+      "import": {
+        "default": "./dist/mjs/index.js",
+        "types": "./dist/mjs/index.d.ts"
+      }
     }
   },
   "devDependencies": {
