@@ -18,34 +18,44 @@ describe("App", () => {
     reporter();
   });
 
-  test("counter increments when button is clicked", async () => {
-    render(<App />);
-    const button = screen.getByText("count is 0");
-    fireEvent.click(button);
-
-    await waitFor(() => {
-      expect(screen.getByText("count is 1")).toBeTruthy();
+  describe("render the app and click the button", () => {
+    beforeAll(() => {
+      render(<App />);
+      const button = screen.getByText("count is 0");
+      fireEvent.click(button);
     });
-  });
+    test("counter increments when button is clicked", async () => {
+      await waitFor(() => {
+        expect(screen.getByText("count is 1")).toBeTruthy();
+      });
+    });
 
-  // Schema info is decouple
-  test("expected publish/subscribe events are introduced", () => {
-    expect(reportInMemory).toEqual({
-      fullName: {
-        subscribe: 1,
-        publish: 0,
-        schema: {
-          type: "object",
-          properties: {
-            firstName: { type: "string" },
-            lastName: { type: "string" },
+    test("expected publish/subscribe events are introduced", () => {
+      expect(reportInMemory).toEqual({
+        fullName: {
+          onCreateSubscribe: 1,
+          onCreatePublish: 0,
+          schema: {
+            type: "object",
+            properties: {
+              firstName: { type: "string" },
+              lastName: { type: "string" },
+            },
+            required: ["firstName", "lastName"],
+            additionalProperties: false,
+            $schema: "http://json-schema.org/draft-07/schema#",
           },
-          required: ["firstName", "lastName"],
-          additionalProperties: false,
-          $schema: "http://json-schema.org/draft-07/schema#",
+          publish: [],
+          subscribe: [],
         },
-      },
-      count: { subscribe: 1, publish: 1, schema: { type: "number" } },
+        count: {
+          onCreateSubscribe: 1,
+          onCreatePublish: 1,
+          schema: { type: "number" },
+          publish: [1],
+          subscribe: [],
+        },
+      });
     });
   });
 });

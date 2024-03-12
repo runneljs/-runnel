@@ -32,8 +32,8 @@ describe("App", () => {
   test("expected publish/subscribe events are introduced", () => {
     expect(reportInMemory).toEqual({
       fullName: {
-        subscribe: 1,
-        publish: 0,
+        onCreateSubscribe: 1,
+        onCreatePublish: 0,
         schema: {
           type: "object",
           properties: {
@@ -44,8 +44,16 @@ describe("App", () => {
           additionalProperties: false,
           $schema: "http://json-schema.org/draft-07/schema#",
         },
+        publish: [],
+        subscribe: [],
       },
-      count: { subscribe: 1, publish: 1, schema: { type: "number" } },
+      count: {
+        onCreateSubscribe: 1,
+        onCreatePublish: 1,
+        schema: { type: "number" },
+        publish: [1],
+        subscribe: [],
+      },
     });
   });
 });

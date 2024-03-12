@@ -10,7 +10,19 @@ export function setupReporter(currentFileUrl: string) {
   createEventBus({
     deepEqual,
     payloadValidator: validator,
-    pluginMap: new Map([[window.parent, [plugin]]]),
+    pluginMap: new Map().set(window.parent, [
+      plugin,
+      {
+        publish: (id: string, payload: unknown) => {
+          console.log(`[${id}] publish ${payload}`);
+          return payload;
+        },
+        onCreatePublish: (id: string) => {
+          console.log(`[${id}] onCreatePublish`);
+        },
+      },
+    ]),
+    scope: window.parent,
   });
   return { setReport, reporter, observer };
 }
