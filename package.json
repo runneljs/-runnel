@@ -19,7 +19,7 @@
     "clean:app-shell": "rimraf ./examples/app-shell/public/*.js",
     "build:app1": "cd ./examples/app1 && bun i && bun run build:cp",
     "build:app2": "cd ./examples/app2 && bun i && bun run build:cp",
-    "test:app3": "cd ./examples/app3-iframe && bun test && bun run report",
+    "test:app3": "cd ./examples/app3-iframe && bun run test && bun run report",
     "build:app3": "cd ./examples/app3-iframe && bun i && bun run build:cp",
     "build:example": "bun run clean:app-shell && bun run build:app1 && bun run build:app2 && bun run build:app3",
     "run:example": "cd ./examples/app-shell && bun run dev",
