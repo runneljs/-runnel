@@ -1,6 +1,24 @@
 import { afterEach, beforeEach, describe, expect, jest, test } from "bun:test";
-import { PluginStore } from "./PluginStore";
-import type { Plugin } from "./primitive-types";
+import { PluginStore, chainPlugins } from "./PluginStore";
+import type { Plugin, TopicId } from "./primitive-types";
+
+describe("chainPlugins", () => {
+  describe("when the length of functions is zero", () => {
+    test("should return payload", () => {
+      expect(chainPlugins([])("topicId", "payload")).toEqual("payload");
+    });
+  });
+  describe("when the length of functions is one", () => {
+    test("should return a modified payload", () => {
+      expect(
+        chainPlugins([(_topicId: TopicId, payload: unknown) => `${payload}+`])(
+          "topicId",
+          "payload",
+        ),
+      ).toEqual("payload+");
+    });
+  });
+});
 
 describe("PluginStore", () => {
   describe("when there are no plugins", () => {

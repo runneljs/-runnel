@@ -43,13 +43,15 @@ describe("plugin-emitter", () => {
       let mock1stBatchLocal1: jest.Mock;
       let mock1stBatchGlobal: jest.Mock;
       let mock1stBatchLocal2: jest.Mock;
-      let mock2ndBatchGlobal: jest.Mock;
+      let mock2ndBatchGlobal1: jest.Mock;
+      let mock2ndBatchGlobal2: jest.Mock;
 
       beforeEach(() => {
         mock1stBatchLocal1 = jest.fn();
         mock1stBatchGlobal = jest.fn();
         mock1stBatchLocal2 = jest.fn();
-        mock2ndBatchGlobal = jest.fn();
+        mock2ndBatchGlobal1 = jest.fn();
+        mock2ndBatchGlobal2 = jest.fn();
 
         schemaStore = new Map();
         const pluginMap1stBatch = new Map<any, Plugin[]>()
@@ -66,7 +68,15 @@ describe("plugin-emitter", () => {
               },
             },
           ]) // Local scope
-          .set(scope, [{ onCreatePublish: mock1stBatchGlobal }]); // Global scope
+          .set(scope, [
+            {
+              onCreatePublish: mock1stBatchGlobal,
+              publish: (topicId: TopicId, payload: unknown) => {
+                mock2ndBatchGlobal2(topicId, payload);
+                return payload;
+              },
+            },
+          ]); // Global scope
         pluginStoreMap = mapPlugins(schemaStore, pluginMap1stBatch);
         emitter = createPluginEmitter(pluginStoreMap, scope);
         schemaStore.set("topicId", { some: "schema" });
@@ -74,13 +84,14 @@ describe("plugin-emitter", () => {
         // Adding another set of plugins to the same global scope.
         const pluginMap2ndBatch = new Map<any, Plugin[]>().set(scope, [
           {
-            onCreatePublish: mock2ndBatchGlobal,
+            onCreatePublish: mock2ndBatchGlobal1,
           },
         ]);
         mapPlugins(schemaStore, pluginMap2ndBatch);
 
         // Call emitter after the 2nd batch is added. So we can test if the 2nd batch is acknowledged by emitter.
         emitter.onCreatePublish("topicId", "payload");
+        emitter.publish("topicId", "payload");
         emitter.subscribe("topicId", "payload");
       });
 
@@ -110,12 +121,15 @@ describe("plugin-emitter", () => {
         expect(mock1stBatchLocal2).toHaveBeenCalledWith("topicId", "payload");
 
         // Additional plugin gets called.
-        expect(mock2ndBatchGlobal).toHaveBeenCalledTimes(1);
-        expect(mock2ndBatchGlobal).toHaveBeenCalledWith(
+        expect(mock2ndBatchGlobal1).toHaveBeenCalledTimes(1);
+        expect(mock2ndBatchGlobal1).toHaveBeenCalledWith(
           "topicId",
           { some: "schema" },
           "payload",
         );
+
+        expect(mock2ndBatchGlobal2).toHaveBeenCalledTimes(1);
+        expect(mock2ndBatchGlobal2).toHaveBeenCalledWith("topicId", "payload");
       });
     });
   });

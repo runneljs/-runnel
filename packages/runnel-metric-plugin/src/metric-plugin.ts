@@ -1,21 +1,19 @@
-export type Metrics = Record<
-  string,
-  {
-    onCreatePublish: number;
-    onCreateSubscribe: number;
-    schema: object | null;
-    publish: any[];
-    subscribe: any[];
-  }
->;
+export type Metrics = {
+  onCreatePublish: number;
+  onCreateSubscribe: number;
+  schema: object | null;
+  publish: any[];
+  subscribe: any[];
+};
+export type MetricsRecord = Record<string, Metrics>;
 export function createEventBusMetricPlugin(
   deepEqual: (a: any, b: any) => boolean,
-  callback: (payload: Metrics) => void,
+  callback: (payload: MetricsRecord) => void,
 ) {
   /**
    * Count up subscribe/publish events called by the local event bus.
    */
-  const metrics: Metrics = {};
+  const metrics: MetricsRecord = {};
   const initialTopicMetrics = {
     onCreateSubscribe: 0,
     onCreatePublish: 0,
@@ -26,36 +24,47 @@ export function createEventBusMetricPlugin(
 
   return {
     onCreateSubscribe: (topicId: string, schema: object) => {
-      updateStats(topicId, schema, "onCreateSubscribe");
+      updateStats(topicId, (metrics: Metrics) => {
+        return {
+          ...metrics,
+          schema,
+          onCreateSubscribe: metrics.onCreateSubscribe + 1,
+        };
+      });
     },
     onCreatePublish: (topicId: string, schema: object) => {
-      updateStats(topicId, schema, "onCreatePublish");
+      updateStats(topicId, (metrics: Metrics) => {
+        return {
+          ...metrics,
+          schema,
+          onCreatePublish: metrics.onCreatePublish + 1,
+        };
+      });
     },
     publish: (topicId: string, payload: any) => {
-      metrics[topicId] ??= initialTopicMetrics;
-      metrics[topicId].publish.push(payload);
+      updateStats(topicId, (metrics: Metrics) => {
+        return {
+          ...metrics,
+          publish: [...metrics.publish, payload],
+        };
+      });
+      return payload;
     },
     subscribe: (topicId: string, payload: any) => {
-      metrics[topicId] ??= initialTopicMetrics;
-      metrics[topicId].subscribe.push(payload);
+      updateStats(topicId, (metrics: Metrics) => {
+        return {
+          ...metrics,
+          subscribe: [...metrics.subscribe, payload],
+        };
+      });
+      return payload;
     },
   };
 
-  function updateStats(
-    topicId: string,
-    schema: object,
-    statType: "onCreateSubscribe" | "onCreatePublish",
-  ) {
+  function updateStats(topicId: string, diff: (metrics: Metrics) => Metrics) {
     const old = { ...metrics };
     metrics[topicId] ??= initialTopicMetrics;
-
-    metrics[topicId] = {
-      ...metrics[topicId],
-      ...{
-        [statType]: metrics[topicId][statType] + 1,
-        schema,
-      },
-    };
+    metrics[topicId] = { ...diff(metrics[topicId]) };
 
     if (!deepEqual(old, metrics)) {
       callback(metrics);

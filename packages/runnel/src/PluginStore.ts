@@ -50,23 +50,19 @@ export class PluginStore {
     return this.plugins.length;
   }
 
-  publishEvent(): (topicId: string, payload: unknown) => unknown {
+  publishEvent(): PluginFn {
     return chainPlugins(
-      (this.pluginsForEvent.get("publish") as PluginEventFns["publish"][]).map(
-        (pluginEvent) => pluginEvent,
-      ),
+      this.pluginsForEvent.get("publish") as PluginEventFns["publish"][],
     );
   }
 
-  subscribeEvent(): (topicId: string, payload: unknown) => unknown {
+  subscribeEvent(): PluginFn {
     return chainPlugins(
       [
         ...(this.pluginsForEvent.get(
           "subscribe",
         ) as PluginEventFns["subscribe"][]),
-      ]
-        .reverse()
-        .map((pluginEvent) => pluginEvent),
+      ].reverse(),
     );
   }
 
@@ -87,25 +83,25 @@ export class PluginStore {
   onCreateSubscribeEvent(topicId: string): void {
     (this.pluginsForEvent.get(
       "onCreateSubscribe",
-    ) as PluginEventFns["onCreateSubscribe"][])!.forEach((plugin) => {
-      plugin(topicId!, this.schemaStore.get(topicId!)!);
+    ) as PluginEventFns["onCreateSubscribe"][])!.forEach((pluginEvent) => {
+      pluginEvent(topicId!, this.schemaStore.get(topicId!)!);
     });
   }
 
   onCreateUnsubscribeEvent(topicId: string): void {
     (this.pluginsForEvent.get(
       "onCreateUnsubscribe",
-    ) as PluginEventFns["onCreateUnsubscribe"][])!.forEach((plugin) => {
-      plugin(topicId!, this.schemaStore.get(topicId!)!);
+    ) as PluginEventFns["onCreateUnsubscribe"][])!.forEach((pluginEvent) => {
+      pluginEvent(topicId!, this.schemaStore.get(topicId!)!);
     });
   }
 }
 
 type PluginFn = (topicId: TopicId, payload: unknown) => unknown;
 export function chainPlugins(funcs: PluginFn[]): PluginFn {
-  return (id: string, initialValue: unknown) => {
+  return (topicId: TopicId, initialValue: unknown): unknown => {
     return funcs.reduce((currentValue, currentFunction) => {
-      return currentFunction(id, currentValue);
+      return currentFunction(topicId, currentValue);
     }, initialValue);
   };
 }

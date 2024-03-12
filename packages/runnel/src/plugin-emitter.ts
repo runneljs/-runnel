@@ -59,16 +59,33 @@ export function createPluginEmitter(
         return acc;
       }, []),
     ),
-    publish: chainPlugins(
-      getPluginStores().reduce<
-        Array<(topicId: TopicId, payload: unknown) => unknown>
-      >((acc, pluginStore) => {
-        if (pluginStore.size("publish") > 0) {
-          acc.push(pluginStore.publishEvent());
-        }
-        return acc;
-      }, []),
-    ),
+    /**
+     * TODO: I don't know why the code block below breaks tests in `index.test.ts`.
+     */
+    // subscribe: (topicId: TopicId, payload: unknown) => {
+    //   return chainPlugins(
+    //     getPluginStores().reduce<
+    //       Array<(topicId: TopicId, payload: unknown) => unknown>
+    //     >((acc, pluginStore) => {
+    //       if (pluginStore.size("subscribe") > 0) {
+    //         acc.push(pluginStore.subscribeEvent());
+    //       }
+    //       return acc;
+    //     }, []),
+    //   )(topicId, payload);
+    // },
+    publish: (topicId: TopicId, payload: unknown) => {
+      return chainPlugins(
+        getPluginStores().reduce<
+          Array<(topicId: TopicId, payload: unknown) => unknown>
+        >((acc, pluginStore) => {
+          if (pluginStore.size("publish") > 0) {
+            acc.push(pluginStore.publishEvent());
+          }
+          return acc;
+        }, []),
+      )(topicId, payload);
+    },
   };
 }
 
