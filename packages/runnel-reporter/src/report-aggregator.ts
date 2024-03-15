@@ -32,6 +32,7 @@ const contract = new Map<
 
 // Read all the JSON files in .runnel, except contract.json
 const files = fs.readdirSync(reportsDir).filter((f) => f !== "contract.json");
+const reports: Report[] = [];
 for (const file of files) {
   const report = JSON.parse(
     fs.readFileSync(join(reportsDir, file), "utf-8"),
@@ -52,9 +53,10 @@ for (const file of files) {
       }
     }
   }
+  reports.push(report);
 }
 // Serialize the contracts to contracts.json
 fs.writeFileSync(
   join(reportsDir, "contract.json"),
-  JSON.stringify({ contract: Object.fromEntries(contract) }),
+  JSON.stringify({ contract: Object.fromEntries(contract), reports }),
 );
