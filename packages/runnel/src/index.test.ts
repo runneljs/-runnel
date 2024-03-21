@@ -53,13 +53,15 @@ describe("index", () => {
   });
 });
 
-describe("Register two eventbus", () => {
+describe("Register two eventbuses. The latter has a plugin.", () => {
   let globalScope: any;
   let pubStore: any;
   let subStore: any;
   let eventBus1: ReturnType<typeof createEventBus>;
   let eventBus2: ReturnType<typeof createEventBus>;
-  let mock: jest.Mock;
+  let mockPublish: jest.Mock;
+  let mockSubscribe: jest.Mock;
+  let subscriber: jest.Mock;
 
   beforeEach(() => {
     globalScope = {};
@@ -74,7 +76,9 @@ describe("Register two eventbus", () => {
     // Create another eventBus with a plugin.
     pubStore = {};
     subStore = {};
-    mock = jest.fn();
+    mockPublish = jest.fn();
+    mockSubscribe = jest.fn();
+    subscriber = jest.fn();
     eventBus2 = createEventBus({
       deepEqual: isEqual,
       payloadValidator,
@@ -88,18 +92,16 @@ describe("Register two eventbus", () => {
             subStore[topicId] = subStore[topicId] ? subStore[topicId] + 1 : 1;
           },
           publish: (topicId: TopicId, payload: unknown) => {
-            mock(topicId, payload);
+            mockPublish(topicId, payload);
             return `${payload} + 1`; // You could modify the payload here.
+          },
+          subscribe: (topicId: TopicId, payload: unknown) => {
+            mockSubscribe(topicId, payload);
+            return payload;
           },
         },
       ]),
     });
-  });
-
-  afterEach(() => {
-    globalScope = {};
-    pubStore = {};
-    subStore = {};
   });
 
   test("it has two eventBus instances", () => {
@@ -125,10 +127,16 @@ describe("Register two eventbus", () => {
     });
 
     test("plugin gets the result", () => {
+      // No subscribe
+      expect(Object.keys(subStore).length).toBe(0);
+      expect(subStore.testTopic1).not.toBeDefined();
+      expect(subscriber).toHaveBeenCalledTimes(0);
+      expect(mockSubscribe).toHaveBeenCalledTimes(0);
+
+      // One publish
       expect(Object.keys(pubStore).length).toBe(1);
       expect(pubStore.testTopic1).toBeDefined();
-
-      expect(mock).toHaveBeenCalledTimes(1);
+      expect(mockPublish).toHaveBeenCalledTimes(1);
 
       expect(globalScope.runnelSubscriptionStore.size).toBe(1); // One topic
       expect(globalScope.runnelLatestStateStore.size).toBe(1); // One publish event
@@ -138,15 +146,22 @@ describe("Register two eventbus", () => {
 
   describe("executes a publish event with the 1st eventBus", () => {
     beforeEach(() => {
-      const topic = eventBus1.registerTopic("testTopic1", { type: "string" });
+      const topic = eventBus1.registerTopic("testTopic2", { type: "string" });
+      topic.subscribe((payload) => subscriber(payload));
       topic.publish("foo");
     });
 
     test("plugin gets the result", () => {
-      expect(Object.keys(pubStore).length).toBe(1);
-      expect(pubStore.testTopic1).toBeDefined();
+      // One subscribe
+      expect(Object.keys(subStore).length).toBe(1);
+      expect(subStore.testTopic2).toBeDefined();
+      expect(subscriber).toHaveBeenCalledTimes(1);
+      expect(mockSubscribe).toHaveBeenCalledTimes(1);
 
-      expect(mock).toHaveBeenCalledTimes(1);
+      // One publish
+      expect(Object.keys(pubStore).length).toBe(1);
+      expect(pubStore.testTopic2).toBeDefined();
+      expect(mockPublish).toHaveBeenCalledTimes(1);
 
       expect(globalScope.runnelSubscriptionStore.size).toBe(1); // One topic
       expect(globalScope.runnelLatestStateStore.size).toBe(1); // One publish event

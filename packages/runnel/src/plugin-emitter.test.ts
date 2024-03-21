@@ -2,6 +2,7 @@ import { afterEach, beforeEach, describe, expect, jest, test } from "bun:test";
 import { mapPlugins } from "./map-plugins";
 import { createPluginEmitter } from "./plugin-emitter";
 import type { JsonSchema, Plugin, TopicId } from "./primitive-types";
+import { createGetSynchedPluginStores } from "./sync-plugins";
 
 describe("plugin-emitter", () => {
   describe("emitPlugins", () => {
@@ -15,7 +16,10 @@ describe("plugin-emitter", () => {
       beforeEach(() => {
         schemaStore = new Map();
         pluginStoreMap = mapPlugins(schemaStore, pluginMap);
-        emitter = createPluginEmitter(pluginStoreMap, scope);
+        emitter = createPluginEmitter(
+          createGetSynchedPluginStores(pluginStoreMap, scope),
+          scope,
+        );
       });
 
       afterEach(() => {
@@ -78,7 +82,10 @@ describe("plugin-emitter", () => {
             },
           ]); // Global scope
         pluginStoreMap = mapPlugins(schemaStore, pluginMap1stBatch);
-        emitter = createPluginEmitter(pluginStoreMap, scope);
+        emitter = createPluginEmitter(
+          createGetSynchedPluginStores(pluginStoreMap, scope),
+          scope,
+        );
         schemaStore.set("topicId", { some: "schema" });
 
         // Adding another set of plugins to the same global scope.
