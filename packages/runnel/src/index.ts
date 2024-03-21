@@ -1,17 +1,19 @@
 import { SubscriptionStore } from "./SubscriptionStore";
 import { PayloadMismatchError, SchemaMismatchError } from "./errors";
 import { eventBus, type Validator } from "./event-bus";
+import { getGlobal } from "./get-global";
 import { mapPlugins } from "./map-plugins";
 import { createPluginEmitter } from "./plugin-emitter";
 import type {
   JsonSchema,
   Plugin,
   PluginScope,
-  Scope,
   Subscription,
   TopicId,
 } from "./primitive-types";
 import { schemaManager, type DeepEqual } from "./schema-manager";
+import type { Scope } from "./scope";
+import { createGetSynchedPluginStores } from "./sync-plugins";
 export { type Plugin };
 
 const SUBSCRIPTION_STORE_VARIABLE_NAME = "runnelSubscriptionStore" as const;
@@ -29,10 +31,10 @@ export function createEventBus({
 }: {
   deepEqual: DeepEqual;
   payloadValidator: Validator;
-  scope?: Scope;
+  scope?: any;
   pluginMap?: Map<PluginScope, Plugin[]>;
 }): ReturnType<typeof eventBus> {
-  const _global = scope;
+  const _global = scope as Scope;
   _global[SUBSCRIPTION_STORE_VARIABLE_NAME] ??= new SubscriptionStore();
   _global[SCHEMA_STORE_VARIABLE_NAME] ??= new Map<TopicId, JsonSchema>();
   _global[LATEST_STATE_STORE_VARIABLE_NAME] ??= new Map<TopicId, unknown>();
@@ -46,20 +48,10 @@ export function createEventBus({
     latestStateStore: _global[LATEST_STATE_STORE_VARIABLE_NAME],
     subscriptionStore: _global[SUBSCRIPTION_STORE_VARIABLE_NAME],
     checkSchema: schemaManager(deepEqual, _global[SCHEMA_STORE_VARIABLE_NAME]),
-    pluginEmitter: createPluginEmitter(pluginStoreMap, _global),
+    pluginEmitter: createPluginEmitter(
+      createGetSynchedPluginStores(pluginStoreMap, _global),
+      _global,
+    ),
     payloadValidator,
   });
-}
-
-function getGlobal() {
-  if (typeof window !== "undefined") {
-    return window;
-  }
-  if (typeof global !== "undefined") {
-    return global;
-  }
-  if (typeof self !== "undefined") {
-    return self;
-  }
-  throw new Error("No global object found. Please create a PR to support it.");
 }

@@ -50,6 +50,7 @@
     "build:note": "echo '[NOTE]: Use **npm** run build for generating ESM instead of bun run build.'",
     "build:core": "rm -fr dist/* && tsc -p tsconfig.json && tsc -p tsconfig-cjs.json",
     "build": "npm run build:note && npm run build:core && npm link",
-    "test": "bun test"
+    "test": "bun test",
+    "publish": "bun run build && npm publish --access public"
   }
 }

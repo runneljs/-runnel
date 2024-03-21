@@ -1,32 +1,46 @@
+import { useState } from "react";
 import { useEventBusMetrics } from "./use-event-bus";
 
 export function Metrics() {
+  const [isExpanded, setIsExpanded] = useState(false);
   const { metrics } = useEventBusMetrics();
+  const onClick = () => {
+    setIsExpanded((prev) => !prev);
+  };
   return (
     <div className="card">
       <h2>Metrics</h2>
-      <p>In this app...</p>
-      <ul>
-        {Object.keys(metrics)
-          .filter((topicId) => metrics[topicId].publish)
-          .map((topicId) => (
-            <li key={topicId}>
-              <strong>{topicId}</strong> has had {metrics[topicId].publish}{" "}
-              publish events
-            </li>
+      <p>
+        collected by{" "}
+        <a
+          href="https://www.npmjs.com/package/@runnel/metric-plugin"
+          target="_blank"
+        >
+          @runnel/metric-plugin
+        </a>
+      </p>
+      <table>
+        <thead>
+          <tr>
+            <th>Topic ID</th>
+            <th>published</th>
+            <th>subscribed</th>
+          </tr>
+        </thead>
+        <tbody>
+          {Object.keys(metrics).map((topicId) => (
+            <tr key={topicId}>
+              <td>{topicId}</td>
+              <td>{metrics[topicId].onCreatePublish}</td>
+              <td>{metrics[topicId].onCreateSubscribe}</td>
+            </tr>
           ))}
-      </ul>
-      <ul>
-        {Object.keys(metrics)
-          .filter((topicId) => metrics[topicId].subscribe)
-          .map((topicId) => (
-            <li key={topicId}>
-              <strong>{topicId}</strong> has {metrics[topicId].subscribe}{" "}
-              subscribe events
-            </li>
-          ))}
-      </ul>
-      <pre style={{ textWrap: "wrap" }}>{JSON.stringify(metrics)}</pre>
+        </tbody>
+      </table>
+      <button onClick={onClick}>Details</button>
+      {isExpanded && (
+        <pre style={{ textWrap: "wrap" }}>{JSON.stringify(metrics)}</pre>
+      )}
     </div>
   );
 }

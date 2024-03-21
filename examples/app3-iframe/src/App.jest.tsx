@@ -52,7 +52,7 @@ describe("App", () => {
         onCreatePublish: 1,
         schema: { type: "number" },
         publish: [1],
-        subscribe: [],
+        subscribe: [1],
       },
     });
   });

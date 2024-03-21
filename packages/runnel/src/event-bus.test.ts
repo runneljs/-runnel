@@ -15,6 +15,8 @@ import { mapPlugins } from "./map-plugins";
 import { createPluginEmitter } from "./plugin-emitter";
 import type { JsonSchema } from "./primitive-types";
 import { schemaManager } from "./schema-manager";
+import type { Scope } from "./scope";
+import { createGetSynchedPluginStores } from "./sync-plugins";
 
 type TestSchema = {
   name: string;
@@ -35,7 +37,11 @@ const jsonSchema = {
   $schema: "http://json-schema.org/draft-07/schema#",
 };
 
-const pluginEmitter = createPluginEmitter(new Map(), global);
+const global = {} as Scope;
+const pluginEmitter = createPluginEmitter(
+  createGetSynchedPluginStores(new Map(), global),
+  global,
+);
 
 function payloadValidator(jsonSchema: object) {
   const validator = new Validator(jsonSchema);
@@ -341,7 +347,10 @@ describe("EventBus", () => {
       // .set(global, [metricPlugin()]);
 
       const pluginEmitter = createPluginEmitter(
-        mapPlugins(schemaStore, pluginMap),
+        createGetSynchedPluginStores(
+          mapPlugins(schemaStore, pluginMap),
+          global,
+        ),
         global,
       );
       const checkSchema = schemaManager(deepEqual, schemaStore);

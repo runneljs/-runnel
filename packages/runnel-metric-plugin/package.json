@@ -45,7 +45,8 @@
     "build": "bunx --bun vite build",
     "build:bun": "bun build ./src/index.ts --outdir ./dist && bun run build:declaration",
     "build:declaration": "tsc --project tsconfig.type.json --outdir ./dist",
-    "test": "bun test"
+    "test": "bun test",
+    "publish": "bun run build && npm publish --access public"
   },
   "description": "A metric plugin for Runnel. It can be used in testing.",
   "repository": {
