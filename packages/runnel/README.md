@@ -1,12 +1,6 @@
-# Runnel
+# Runnel: The Micro-Frontend Event Bus Library
 
-An Event Bus library designed for Micro-Frontend Applications.
-
-> Hugely Inspired by [@trutoo/event-bus](https://www.npmjs.com/package/@trutoo/event-bus)
-
-## Installation
-
-`npm install runneljs`
+[Runnel](https://docs.runnel.run/) is an event bus library specifically tailored for the dynamic world of Micro-Frontend Applications. It aims to bring you seamless communication across various fragments of your application. It's greatly inspired by [@trutoo/event-bus](https://www.npmjs.com/package/@trutoo/event-bus), inheriting its best features while adding some functionalities and flexibilities tailored for micro-frontend architectures.
 
 ## Communication Challenges in Micro-Frontends
 
@@ -16,45 +10,40 @@ In microservice and micro-frontend development, the concept of "autonomy" is piv
 
 The PubSub pattern is a mainstay in software architecture due to its ability to keep applications loosely coupled. However, it's not without its drawbacks.
 
-#### Semantic Coupling
-
-Once a topic in PubSub is established, altering its data schema becomes challenging. Publishers are constrained in their ability to freely modify the schema of the data they emit. A common workaround is to version the payload schema, providing subscribers time to adapt to new versions.
-
 #### Unknown Publisher-Subscriber Relationships
 
 A notable limitation of this pattern is the lack of awareness between publishers and subscribers. Publishers are unaware of the subscribers' schema compatibility and continue to send messages regardless of whether there are subscribers. This situation is reciprocal for subscribers.
 
+#### Semantic Coupling
+
+Once a topic in PubSub is established, altering its data schema becomes challenging. Publishers are constrained in their ability to freely modify the schema of the data they emit. A common workaround is to version the payload schema, providing subscribers time to adapt to new versions.
+
 ## Proposed Solutions
+
+### Enforcing Schema Declaration
+
+Drawing inspiration from [@trutoo/event-bus](https://www.npmjs.com/package/@trutoo/event-bus), topic creation mandates a schema declaration. This ensures uniformity across topics sharing the same ID and facilitates payload validation against the defined schema.
+
+```ts
+import jsonSchema from "example-schema-definition.json";
+
+const exampleTopic = registerTopic<object>("example", jsonSchema);
+```
 
 ### Version Information in Topic Registration
 
 Incorporating version information as an optional parameter in the topic registration API can help manage schema changes.
 
-### Enforcing Schema Declaration
+```ts
+const exampleTopic = registerTopic<string>(
+  "example",
+  {
+    type: "string",
+  },
+  { version: 1 },
+);
+```
 
-Drawing inspiration from [@trutoo/event-bus](https://www.npmjs.com/package/@trutoo/event-bus), topic creation can mandate a schema declaration. This ensures uniformity across topics sharing the same ID and facilitates payload validation against the defined schema.
+## Explore the Documentation
 
-## Usage
-
-### Bring Your Own Libraries
-
-TODO: How to give deepEqual and validator
-
-### Code
-
-TODO: Add code snippet. Maybe with React.
-
-## Example
-
-TODO: Add screenshots
-
-TODO: Require Bun
-
-## Resource
-
-- https://increment.com/frontend/micro-frontends-in-context/
-- https://oskari.io/blog/event-bus-micro-frontend
-- https://lucamezzalira.com/2022/03/01/the-micro-frontends-future/
-- https://single-spa.js.org/docs/faq/#how-can-i-share-application-state-between-applications
-- https://youtu.be/BuRB3djraeM?si=YgQqYaBvmdLoTAKN
-- https://youtu.be/Wn1Cj7785i8?si=9Mp5f6IDSWaHPg-U
+Please visit [our documentation](https://docs.runnel.run/) and learn more.

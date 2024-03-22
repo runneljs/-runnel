@@ -1,8 +1,6 @@
-# Runnel Metric PlugIn
+# @runnel/metric-plugin
 
-A plugin to aggregate the metrics of the local event bus.
-
-This library is designed for [runneljs](https://www.npmjs.com/package/runneljs).
+This library is designed for [Runnel](https://docs.runnel.run/). Please visit [our documentation](https://docs.runnel.run/) and learn more.
 
 ## Usage
 
@@ -11,8 +9,7 @@ const { plugin, subscribe } = createPlugin(deepEqual);
 const eventBus = createEventBus({
   deepEqual,
   payloadValidator,
-  pluginMap: new Map([[window.parent, [metricPlugin]]]), // When you want to observe the parent window. If the `scope` is smaller than the specified plugin scope, the specified plugin will not work.
-  // pluginMap: new Map([[undefined, [plugin]]]), // When you want to observe the current event bus only.
+  pluginMap: new Map([[window, [metricPlugin]]]), // To observe the window. If the `scope` is smaller than the specified plugin scope, the specified plugin will not function.
 });
 
 ...
@@ -22,28 +19,13 @@ const [metrics, setMetrics] = useState();
 subscribe(setMetrics);
 ```
 
-## Data Type
+## Output Examples
 
-### `Metrics`
+### Case 1
 
-It collects the number of publish/subscribe events called with the topics created via the `eventBus`.
-
-```ts
-type Metrics = Record<
-  string,
-  {
-    onCreatePublish: number;
-    onCreateSubscribe: number;
-    schema: object;
-    publish: any[];
-    subscribe: any[];
-  }
->;
-```
-
-### Example
-
-#### Case: The `topic1` topic that has `{"type": "number"}` had one publish event with payload `100` but there are no subscribers
+- `topic1` with schema `{ "type": "number" }`.
+- No subscribers.
+- One publish event with payload `100`.
 
 ```json
 {
@@ -57,7 +39,11 @@ type Metrics = Record<
 }
 ```
 
-#### Case: The `topic2` topic that has `{"type": "string"}` in its schema had one subscribe event but there are no publishers
+### Case 2
+
+- `topic2` with schema `{ "type": "string" }`.
+- One subscriber.
+- No publish events.
 
 ```json
 {
