@@ -23,6 +23,9 @@
     "build:app3": "cd ./examples/app3-iframe && bun i && bun run build:cp",
     "build:example": "bun run clean:app-shell && bun run build:app1 && bun run build:app2 && bun run build:app3",
     "run:example": "cd ./examples/app-shell && bun run dev",
+    "build:app-shell": "cd ./examples/app-shell && bun run build",
+    "pre-deploy:example": "bun run build:packages && bun run build:example && bun run build:app-shell",
+    "deploy:example": "wrangler pages deploy examples/app-shell/dist",
     "test:all": "bun run test:runnel && bun run test:reporter && bun run test:metric-plugin && bun run test:validator && bun run test:app3",
     "prepare": "husky"
   },
@@ -30,6 +33,7 @@
     "husky": "^9.0.11",
     "lint-staged": "^15.2.2",
     "prettier": "^3.2.5",
-    "rimraf": "^5.0.5"
+    "rimraf": "^5.0.5",
+    "wrangler": "^3.36.0"
   }
 }
