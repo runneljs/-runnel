@@ -7,7 +7,7 @@ import { createEventBus } from "runneljs";
 export function setupReporter(currentFileUrl: string) {
   const { setReport, reporter } = createReporter(currentFileUrl);
   const { plugin, observer } = createPlugin(deepEqual);
-  createEventBus({
+  const { registerTopic } = createEventBus({
     deepEqual,
     payloadValidator: validator,
     pluginMap: new Map().set(window.parent, [
@@ -24,5 +24,5 @@ export function setupReporter(currentFileUrl: string) {
     ]),
     scope: window.parent,
   });
-  return { setReport, reporter, observer };
+  return { setReport, reporter, observer, registerTopic };
 }
