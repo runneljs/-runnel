@@ -2,21 +2,28 @@
   "name": "@runnel/metric-plugin",
   "version": "0.1.4",
   "type": "module",
-  "main": "dist/index.umd.js",
-  "module": "dist/index.es.js",
+  "main": "dist/index.cjs",
+  "module": "dist/index.js",
   "types": "dist/index.d.ts",
   "exports": {
     ".": {
-      "require": "./dist/index.umd.js",
-      "import": "./dist/index.es.js",
+      "require": "./dist/index.cjs",
+      "import": "./dist/index.js",
       "types": "./dist/index.d.ts"
     }
   },
+  "scripts": {
+    "prebuild": "rimraf dist",
+    "build": "node build.mjs",
+    "postbuild": "tsc --project tsconfig.type.json --outdir ./dist",
+    "test": "vitest run",
+    "publish": "pnpm run build && npm publish --access public"
+  },
   "devDependencies": {
-    "@types/bun": "latest",
     "deep-equal": "^2.2.3",
-    "vite": "^5.1.5",
-    "vite-plugin-dts": "^3.7.3"
+    "rimraf": "^5.0.7",
+    "vite": "^5.3.1",
+    "vitest": "^1.6.0"
   },
   "files": [
     "dist/"
@@ -41,13 +48,6 @@
     "plugin"
   ],
   "license": "MIT",
-  "scripts": {
-    "build": "bunx --bun vite build",
-    "build:bun": "bun build ./src/index.ts --outdir ./dist && bun run build:declaration",
-    "build:declaration": "tsc --project tsconfig.type.json --outdir ./dist",
-    "test": "bun test",
-    "publish": "bun run build && npm publish --access public"
-  },
   "description": "A metric plugin for Runnel. It can be used in testing.",
   "repository": {
     "type": "git",
