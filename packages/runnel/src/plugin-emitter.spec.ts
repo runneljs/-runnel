@@ -1,4 +1,3 @@
-import { afterEach, beforeEach, describe, expect, jest, test } from "bun:test";
 import { mapPlugins } from "./map-plugins";
 import { createPluginEmitter } from "./plugin-emitter";
 import type { JsonSchema, Plugin, TopicId } from "./primitive-types";
@@ -45,18 +44,18 @@ describe("plugin-emitter", () => {
       let schemaStore: Map<TopicId, JsonSchema>;
       let emitter: ReturnType<typeof createPluginEmitter>;
       const scope = {} as Scope;
-      let mock1stBatchLocal1: jest.Mock;
-      let mock1stBatchGlobal: jest.Mock;
-      let mock1stBatchLocal2: jest.Mock;
-      let mock2ndBatchGlobal1: jest.Mock;
-      let mock2ndBatchGlobal2: jest.Mock;
+      let mock1stBatchLocal1: ReturnType<typeof vi.fn>;
+      let mock1stBatchGlobal: ReturnType<typeof vi.fn>;
+      let mock1stBatchLocal2: ReturnType<typeof vi.fn>;
+      let mock2ndBatchGlobal1: ReturnType<typeof vi.fn>;
+      let mock2ndBatchGlobal2: ReturnType<typeof vi.fn>;
 
       beforeEach(() => {
-        mock1stBatchLocal1 = jest.fn();
-        mock1stBatchGlobal = jest.fn();
-        mock1stBatchLocal2 = jest.fn();
-        mock2ndBatchGlobal1 = jest.fn();
-        mock2ndBatchGlobal2 = jest.fn();
+        mock1stBatchLocal1 = vi.fn();
+        mock1stBatchGlobal = vi.fn();
+        mock1stBatchLocal2 = vi.fn();
+        mock2ndBatchGlobal1 = vi.fn();
+        mock2ndBatchGlobal2 = vi.fn();
 
         schemaStore = new Map();
         const pluginMap1stBatch = new Map<any, Plugin[]>()
@@ -106,7 +105,7 @@ describe("plugin-emitter", () => {
       afterEach(() => {
         schemaStore.clear();
         scope.pluginScopes = undefined;
-        jest.restoreAllMocks();
+        vi.restoreAllMocks();
       });
 
       test("should run a method of local/global plugins", () => {

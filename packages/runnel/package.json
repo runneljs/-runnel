@@ -2,24 +2,32 @@
   "name": "runneljs",
   "version": "0.1.18",
   "type": "module",
-  "main": "dist/index.umd.js",
-  "module": "dist/index.es.js",
+  "main": "dist/index.cjs",
+  "module": "dist/index.js",
   "types": "dist/index.d.ts",
   "exports": {
     ".": {
-      "require": "./dist/index.umd.js",
-      "import": "./dist/index.es.js",
+      "require": "./dist/index.cjs",
+      "import": "./dist/index.js",
       "types": "./dist/index.d.ts"
     }
   },
+  "scripts": {
+    "prebuild": "rimraf dist",
+    "build": "node build.mjs",
+    "postbuild": "tsc --project tsconfig.type.json --outdir ./dist",
+    "test": "vitest run",
+    "publish": "pnpm run build && npm publish --access public"
+  },
   "devDependencies": {
     "@cfworker/json-schema": "^1.12.8",
-    "@types/bun": "latest",
     "@types/lodash.isequal": "^4.5.8",
+    "esbuild": "^0.21.5",
     "lodash.isequal": "^4.5.0",
+    "rimraf": "^5.0.7",
     "typescript": "^5.3.3",
-    "vite": "^5.1.5",
-    "vite-plugin-dts": "^3.7.3"
+    "vite": "^5.3.1",
+    "vitest": "^1.6.0"
   },
   "description": "Runnel is a type safe event bus for microfrontends.",
   "repository": {
@@ -50,12 +58,5 @@
     "micro frontend",
     "microservices"
   ],
-  "license": "MIT",
-  "scripts": {
-    "build": "bun build ./src/index.ts --outdir ./dist && bun run build:declaration",
-    "build:declaration": "tsc --project tsconfig.type.json --outdir ./dist",
-    "build:vite": "bunx --bun vite build",
-    "test": "bun test",
-    "publish": "bun run build && npm publish --access public"
-  }
+  "license": "MIT"
 }

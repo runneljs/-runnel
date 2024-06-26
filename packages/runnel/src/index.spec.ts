@@ -1,14 +1,4 @@
 import { Validator } from "@cfworker/json-schema";
-import {
-  afterAll,
-  afterEach,
-  beforeAll,
-  beforeEach,
-  describe,
-  expect,
-  jest,
-  test,
-} from "bun:test";
 import isEqual from "lodash.isequal";
 import { createEventBus, type TopicId } from "./index";
 import type { GlobalType } from "./scope";
@@ -62,9 +52,9 @@ describe("Register two eventbuses. The latter has a plugin.", () => {
   let subStore: any;
   let eventBus1: ReturnType<typeof createEventBus>;
   let eventBus2: ReturnType<typeof createEventBus>;
-  let mockPublish: jest.Mock;
-  let mockSubscribe: jest.Mock;
-  let subscriber: jest.Mock;
+  let mockPublish: ReturnType<typeof vi.fn>;
+  let mockSubscribe: ReturnType<typeof vi.fn>;
+  let subscriber: ReturnType<typeof vi.fn>;
 
   beforeEach(() => {
     globalVar = {} as GlobalType;
@@ -79,9 +69,9 @@ describe("Register two eventbuses. The latter has a plugin.", () => {
     // Create another eventBus with a plugin.
     pubStore = {};
     subStore = {};
-    mockPublish = jest.fn();
-    mockSubscribe = jest.fn();
-    subscriber = jest.fn();
+    mockPublish = vi.fn();
+    mockSubscribe = vi.fn();
+    subscriber = vi.fn();
     eventBus2 = createEventBus({
       deepEqual: isEqual,
       payloadValidator,

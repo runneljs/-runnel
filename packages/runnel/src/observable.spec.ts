@@ -1,4 +1,3 @@
-import { beforeEach, describe, expect, jest, test } from "bun:test";
 import { Observable } from "./observable";
 
 describe("Observable", () => {
@@ -8,9 +7,9 @@ describe("Observable", () => {
   });
 
   describe("subscribe", () => {
-    let func: jest.Mock;
+    let func: ReturnType<typeof vi.fn>;
     beforeEach(() => {
-      func = jest.fn();
+      func = vi.fn();
       observer.subscribe(func);
     });
 

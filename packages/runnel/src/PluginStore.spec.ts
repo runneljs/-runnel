@@ -1,4 +1,3 @@
-import { afterEach, beforeEach, describe, expect, jest, test } from "bun:test";
 import { PluginStore, chainPlugins } from "./PluginStore";
 import type { Plugin, TopicId } from "./primitive-types";
 
@@ -101,20 +100,20 @@ describe("PluginStore", () => {
         schemaStore.set("topicId", {});
         pluginStore = new PluginStore(schemaStore);
         plugin1 = {
-          onCreateSubscribe: jest.fn(),
-          onCreateUnsubscribe: jest.fn(),
-          onUnregisterAllTopics: jest.fn(),
+          onCreateSubscribe: vi.fn(),
+          onCreateUnsubscribe: vi.fn(),
+          onUnregisterAllTopics: vi.fn(),
         };
         plugin2 = {
-          onCreateSubscribe: jest.fn(),
-          onCreatePublish: jest.fn(),
+          onCreateSubscribe: vi.fn(),
+          onCreatePublish: vi.fn(),
         };
         pluginStore.addPlugin(plugin1);
         pluginStore.addPlugin(plugin2);
       });
 
       afterEach(() => {
-        jest.restoreAllMocks();
+        vi.restoreAllMocks();
       });
 
       test("onCreateSubscribe", () => {
