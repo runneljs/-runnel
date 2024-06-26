@@ -61,7 +61,7 @@ function useFullNameTopic() {
   });
 
   useEffect(() => {
-    const unsubscribe = fullNameTopic.subscribe((payload) => {
+    const unsubscribe = fullNameTopic.subscribe((payload: FullNameSchema) => {
       setFullName(payload);
     });
     return () => unsubscribe();

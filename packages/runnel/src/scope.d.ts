@@ -2,9 +2,15 @@ import type { SubscriptionStore } from "./SubscriptionStore";
 import type { Observable } from "./observable";
 
 export type Scope = {
-  runnelPluginScopes?: any[];
-  runnelPluginStores?: Observable<void>;
-  runnelSubscriptionStore?: SubscriptionStore;
-  runnelSchemaStore?: Map<TopicId, JsonSchema>;
-  runnelLatestStateStore?: Map<TopicId, unknown>;
-}; // r.g., window, global, self, window.parent, window.top, etc.
+  pluginScopes?: any[];
+  pluginStoresObservable?: Observable<void>;
+  subscriptionStore?: SubscriptionStore;
+  schemaStoreMap?: Map<TopicId, JsonSchema>;
+  latestStateStoreMap?: Map<TopicId, unknown>;
+};
+
+declare global {
+  var __runnel: Scope;
+}
+
+type GlobalType = typeof globalThis;

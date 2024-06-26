@@ -1,14 +1,14 @@
-import type { Scope } from "./scope";
+import type { GlobalType } from "./scope";
 
-export function getGlobal(): Scope {
+export function getGlobal(): GlobalType {
   if (typeof window !== "undefined") {
-    return window as Scope;
+    return window;
   }
   if (typeof global !== "undefined") {
-    return global as Scope;
+    return global;
   }
   if (typeof self !== "undefined") {
-    return self as Scope;
+    return self;
   }
   throw new Error("No global object found. Please create a PR to support it.");
 }

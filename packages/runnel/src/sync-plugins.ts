@@ -6,8 +6,6 @@ import {
 import type { PluginScope } from "./primitive-types";
 import type { Scope } from "./scope";
 
-const SCOPE_STORE_VARIABLE_NAME = "runnelPluginScopes" as const;
-
 export function createGetSynchedPluginStores(
   pluginStoreMap: PluginStoreMap,
   scope: Scope,
@@ -34,13 +32,11 @@ function recalcPluginScopes(
   scope: Scope,
   pluginStoreMap: PluginStoreMap,
 ): PluginScope[] {
-  scope[SCOPE_STORE_VARIABLE_NAME] = uniqueFilter<any>([
-    ...(scope[SCOPE_STORE_VARIABLE_NAME]
-      ? scope[SCOPE_STORE_VARIABLE_NAME]
-      : []),
+  scope.pluginScopes = uniqueFilter<any>([
+    ...(scope.pluginScopes ? scope.pluginScopes : []),
     ...Array.from(pluginStoreMap.keys()),
   ]);
-  return scope[SCOPE_STORE_VARIABLE_NAME];
+  return scope.pluginScopes;
 }
 
 // Note: Do not use [...new Set()] to get unique - it eliminates undefined/window.

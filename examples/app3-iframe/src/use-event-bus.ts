@@ -12,7 +12,7 @@ const { plugin: metricPlugin, observer: metricObserver } =
 const eventBus = createEventBus({
   deepEqual,
   payloadValidator: validator,
-  scope: window.parent, // Use the parent window as the space.
+  globalVar: window.parent, // Use the parent window as the space.
   pluginMap: new Map([[window.parent, [metricPlugin]]]), // When you want to observe the parent window. If the `scope` is smaller than the specified plugin scope, the specified plugin will not work.
   // pluginMap: new Map([[undefined, [plugin]]]), // When you want to observe the current event bus only.
 });

@@ -22,7 +22,7 @@ export function setupReporter(currentFileUrl: string) {
         },
       },
     ]),
-    scope: window.parent,
+    globalVar: window.parent,
   });
   return { setReport, reporter, observer, registerTopic };
 }

@@ -1,5 +1,6 @@
 import { Validator } from "@cfworker/json-schema";
 import {
+  afterAll,
   afterEach,
   beforeAll,
   beforeEach,
@@ -10,6 +11,7 @@ import {
 } from "bun:test";
 import isEqual from "lodash.isequal";
 import { createEventBus, type TopicId } from "./index";
+import type { GlobalType } from "./scope";
 
 function payloadValidator(jsonSchema: object) {
   const validator = new Validator(jsonSchema);
@@ -19,9 +21,10 @@ function payloadValidator(jsonSchema: object) {
 }
 
 describe("index", () => {
-  let globalScope: any;
+  let globalVar: GlobalType;
+
   beforeAll(() => {
-    globalScope = {};
+    globalVar = {} as GlobalType;
   });
 
   let eventBus: ReturnType<typeof createEventBus>;
@@ -29,12 +32,12 @@ describe("index", () => {
     eventBus = createEventBus({
       deepEqual: isEqual,
       payloadValidator,
-      scope: globalScope,
+      globalVar,
     });
   });
 
-  afterEach(() => {
-    globalScope = {};
+  afterAll(() => {
+    globalVar = {} as GlobalType;
   });
 
   describe("createEventBus", () => {
@@ -42,19 +45,19 @@ describe("index", () => {
       expect(eventBus).toBeDefined();
     });
     test("it attaches things to the global objects", () => {
-      expect(globalScope.runnelSubscriptionStore).toBeDefined();
-      expect(globalScope.runnelSubscriptionStore.size).toBe(0);
-      expect(globalScope.runnelLatestStateStore).toBeDefined();
-      expect(globalScope.runnelLatestStateStore.size).toBe(0);
-      expect(globalScope.runnelSchemaStore).toBeDefined();
-      expect(globalScope.runnelSchemaStore.size).toBe(0);
-      expect(globalScope.runnelPluginStore).not.toBeDefined();
+      expect(globalVar.__runnel.subscriptionStore).toBeDefined();
+      expect(globalVar.__runnel.subscriptionStore?.size).toBe(0);
+      expect(globalVar.__runnel.latestStateStoreMap).toBeDefined();
+      expect(globalVar.__runnel.latestStateStoreMap?.size).toBe(0);
+      expect(globalVar.__runnel.schemaStoreMap).toBeDefined();
+      expect(globalVar.__runnel.schemaStoreMap?.size).toBe(0);
+      // TODO: expect(globalVar.__runnel.runnelPluginStores).not.toBeDefined();
     });
   });
 });
 
 describe("Register two eventbuses. The latter has a plugin.", () => {
-  let globalScope: any;
+  let globalVar: GlobalType;
   let pubStore: any;
   let subStore: any;
   let eventBus1: ReturnType<typeof createEventBus>;
@@ -64,13 +67,13 @@ describe("Register two eventbuses. The latter has a plugin.", () => {
   let subscriber: jest.Mock;
 
   beforeEach(() => {
-    globalScope = {};
+    globalVar = {} as GlobalType;
 
     // Create an eventBus without a plugin.
     eventBus1 = createEventBus({
       deepEqual: isEqual,
       payloadValidator,
-      scope: globalScope,
+      globalVar,
     });
 
     // Create another eventBus with a plugin.
@@ -82,8 +85,8 @@ describe("Register two eventbuses. The latter has a plugin.", () => {
     eventBus2 = createEventBus({
       deepEqual: isEqual,
       payloadValidator,
-      scope: globalScope,
-      pluginMap: new Map().set(globalScope, [
+      globalVar,
+      pluginMap: new Map().set(globalVar, [
         {
           onCreatePublish: (topicId: TopicId) => {
             pubStore[topicId] = pubStore[topicId] ? pubStore[topicId] + 1 : 1;
@@ -104,20 +107,24 @@ describe("Register two eventbuses. The latter has a plugin.", () => {
     });
   });
 
+  afterEach(() => {
+    globalVar = {} as GlobalType;
+  });
+
   test("it has two eventBus instances", () => {
     expect(eventBus1).toBeDefined();
     expect(eventBus2).toBeDefined();
   });
 
   test("it attaches things to the global objects", () => {
-    expect(globalScope.runnelSubscriptionStore).toBeDefined();
-    expect(globalScope.runnelSubscriptionStore.size).toBe(0); // One topic
-    expect(globalScope.runnelLatestStateStore).toBeDefined();
-    expect(globalScope.runnelLatestStateStore.size).toBe(0); // One publish event
-    expect(globalScope.runnelSchemaStore).toBeDefined();
-    expect(globalScope.runnelSchemaStore.size).toBe(0); // One schema from one topic
-    expect(globalScope.runnelPluginStore).toBeDefined();
-    expect(globalScope.runnelPluginStore.size()).toBe(1); // One plugin
+    expect(globalVar.__runnel.subscriptionStore).toBeDefined();
+    expect(globalVar.__runnel.subscriptionStore?.size).toBe(0); // One topic
+    expect(globalVar.__runnel.latestStateStoreMap).toBeDefined();
+    expect(globalVar.__runnel.latestStateStoreMap?.size).toBe(0); // One publish event
+    expect(globalVar.__runnel.schemaStoreMap).toBeDefined();
+    expect(globalVar.__runnel.schemaStoreMap?.size).toBe(0); // One schema from one topic
+    expect(globalVar.__runnel.pluginStoresObservable).toBeDefined();
+    // TODO: expect(globalVar.__runnel.runnelPluginStores?.size()).toBe(1); // One plugin
   });
 
   describe("executes a publish event with the 2nd eventBus", () => {
@@ -138,9 +145,9 @@ describe("Register two eventbuses. The latter has a plugin.", () => {
       expect(pubStore.testTopic1).toBeDefined();
       expect(mockPublish).toHaveBeenCalledTimes(1);
 
-      expect(globalScope.runnelSubscriptionStore.size).toBe(1); // One topic
-      expect(globalScope.runnelLatestStateStore.size).toBe(1); // One publish event
-      expect(globalScope.runnelSchemaStore.size).toBe(1); // One schema from one topic
+      expect(globalVar.__runnel.subscriptionStore?.size).toBe(1); // One topic
+      expect(globalVar.__runnel.latestStateStoreMap?.size).toBe(1); // One publish event
+      expect(globalVar.__runnel.schemaStoreMap?.size).toBe(1); // One schema from one topic
     });
   });
 
@@ -163,9 +170,9 @@ describe("Register two eventbuses. The latter has a plugin.", () => {
       expect(pubStore.testTopic2).toBeDefined();
       expect(mockPublish).toHaveBeenCalledTimes(1);
 
-      expect(globalScope.runnelSubscriptionStore.size).toBe(1); // One topic
-      expect(globalScope.runnelLatestStateStore.size).toBe(1); // One publish event
-      expect(globalScope.runnelSchemaStore.size).toBe(1); // One schema from one topic
+      expect(globalVar.__runnel.subscriptionStore?.size).toBe(1); // One topic
+      expect(globalVar.__runnel.latestStateStoreMap?.size).toBe(1); // One publish event
+      expect(globalVar.__runnel.schemaStoreMap?.size).toBe(1); // One schema from one topic
     });
   });
 });

@@ -3,8 +3,6 @@ import { Observable } from "./observable";
 import type { TopicId } from "./primitive-types";
 import type { Scope } from "./scope";
 
-const PLUGIN_STORES_VARIABLE_NAME = "runnelPluginStores" as const;
-
 // TODO: Lifecycle support. What to do when the micro frontend is unmounted?
 export function createPluginEmitter(
   getSynchedPluginStores: () => PluginStore[],
@@ -13,8 +11,8 @@ export function createPluginEmitter(
   let _pluginStores: PluginStore[] = getSynchedPluginStores();
 
   // Observe other instances.
-  scope[PLUGIN_STORES_VARIABLE_NAME] ??= new Observable<void>();
-  scope[PLUGIN_STORES_VARIABLE_NAME].subscribe(() => {
+  scope.pluginStoresObservable ??= new Observable<void>();
+  scope.pluginStoresObservable.subscribe(() => {
     /**
      * Re-calculate the plugin scopes when we add plugins.
      * Then re-calculate the plugin stores,
@@ -22,7 +20,7 @@ export function createPluginEmitter(
      */
     _pluginStores = getSynchedPluginStores();
   });
-  scope[PLUGIN_STORES_VARIABLE_NAME].notify();
+  scope.pluginStoresObservable.notify();
 
   const getPluginStores: () => PluginStore[] = () => {
     return _pluginStores;
