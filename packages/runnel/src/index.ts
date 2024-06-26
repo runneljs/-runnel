@@ -23,11 +23,13 @@ export function createEventBus({
   deepEqual,
   payloadValidator,
   globalVar = getGlobal(),
+  scope = getGlobal(), // deprecated. Removed soon.
   pluginMap = new Map<any, Plugin[]>(),
 }: {
   deepEqual: DeepEqual;
   payloadValidator: Validator;
   globalVar?: GlobalType;
+  scope?: GlobalType; // deprecated. Removed soon.
   pluginMap?: Map<PluginScope, Plugin[]>;
 }): ReturnType<typeof eventBus> {
   const _runnel = (globalVar.__runnel ??= {} as Scope);

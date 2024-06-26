@@ -1,15 +1,15 @@
 {
   "name": "runneljs",
-  "version": "0.1.13",
+  "version": "0.1.18",
   "type": "module",
   "main": "dist/index.umd.js",
   "module": "dist/index.es.js",
   "types": "dist/index.d.ts",
   "exports": {
     ".": {
-      "types": "./dist/index.d.ts",
       "require": "./dist/index.umd.js",
-      "import": "./dist/index.es.js"
+      "import": "./dist/index.es.js",
+      "types": "./dist/index.d.ts"
     }
   },
   "devDependencies": {
@@ -52,9 +52,9 @@
   ],
   "license": "MIT",
   "scripts": {
-    "build:bun": "bun build ./src/index.ts --outdir ./dist && bun run build:declaration",
+    "build": "bun build ./src/index.ts --outdir ./dist && bun run build:declaration",
     "build:declaration": "tsc --project tsconfig.type.json --outdir ./dist",
-    "build": "bunx --bun vite build",
+    "build:vite": "bunx --bun vite build",
     "test": "bun test",
     "publish": "bun run build && npm publish --access public"
   }
