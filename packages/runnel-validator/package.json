@@ -2,23 +2,29 @@
   "name": "@runnel/validator",
   "version": "1.0.5",
   "type": "module",
-  "main": "dist/index.umd.js",
-  "module": "dist/index.es.js",
+  "main": "dist/index.cjs",
+  "module": "dist/index.js",
   "types": "dist/index.d.ts",
   "exports": {
     ".": {
-      "require": "./dist/index.umd.js",
-      "import": "./dist/index.es.js",
+      "require": "./dist/index.cjs",
+      "import": "./dist/index.js",
       "types": "./dist/index.d.ts"
     }
+  },
+  "scripts": {
+    "prebuild": "rimraf dist",
+    "build": "node build.mjs",
+    "postbuild": "tsc --project tsconfig.type.json --outdir ./dist",
+    "test": "vitest run",
+    "publish": "pnpm run build && npm publish --access public"
   },
   "dependencies": {
     "@cfworker/json-schema": "^1.12.8"
   },
   "devDependencies": {
-    "@types/bun": "latest",
-    "vite": "^5.1.5",
-    "vite-plugin-dts": "^3.7.3"
+    "vite": "^5.3.1",
+    "vitest": "^1.6.0"
   },
   "files": [
     "dist/"
@@ -43,13 +49,6 @@
     "validator"
   ],
   "license": "MIT",
-  "scripts": {
-    "build:bun": "bun build ./src/index.ts --outdir ./dist && bun run build:declaration",
-    "build:declaration": "tsc --project tsconfig.type.json --outdir ./dist",
-    "build": "bunx --bun vite build",
-    "test": "bun test",
-    "publish": "bun run build && npm publish --access public"
-  },
   "description": "A default validator for Runnel",
   "repository": {
     "type": "git",
