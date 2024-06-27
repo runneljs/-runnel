@@ -1,13 +1,4 @@
 import { Validator } from "@cfworker/json-schema";
-import {
-  afterEach,
-  beforeAll,
-  beforeEach,
-  describe,
-  expect,
-  jest,
-  test,
-} from "bun:test";
 import deepEqual from "deep-equal";
 import { SubscriptionStore } from "./SubscriptionStore";
 import { eventBus, type EventBus } from "./event-bus";
@@ -206,7 +197,7 @@ describe("EventBus", () => {
 
       describe("AND it has one subscriber", () => {
         test("it publishes a message", () => {
-          const callback = jest.fn();
+          const callback = vi.fn();
           testTopic.subscribe(callback);
           testTopic.publish({ name: "test" });
           expect(callback).toHaveBeenCalledWith({ name: "test" });
@@ -216,8 +207,8 @@ describe("EventBus", () => {
       describe("AND it has two subscribers", () => {
         describe("AND publish once", () => {
           test("it publishes a message", () => {
-            const callback1 = jest.fn();
-            const callback2 = jest.fn();
+            const callback1 = vi.fn();
+            const callback2 = vi.fn();
             testTopic.subscribe(callback1);
             testTopic.subscribe(callback2);
             testTopic.publish({ name: "test" });
@@ -228,8 +219,8 @@ describe("EventBus", () => {
           });
 
           test("it publishes two messages", () => {
-            const callback1 = jest.fn();
-            const callback2 = jest.fn();
+            const callback1 = vi.fn();
+            const callback2 = vi.fn();
             testTopic.subscribe(callback1);
             testTopic.subscribe(callback2);
             testTopic.publish({ name: "test1" });
@@ -253,7 +244,7 @@ describe("EventBus", () => {
 
       describe("AND a new topic with the same name is registered", () => {
         test("The second topic's subscriber gets called with latest published payload", () => {
-          const callback1 = jest.fn();
+          const callback1 = vi.fn();
           testTopic.subscribe(callback1);
           expect(callback1).not.toHaveBeenCalled();
           testTopic.publish({ name: "test" });
@@ -267,7 +258,7 @@ describe("EventBus", () => {
             jsonSchema,
             { version: 1 },
           );
-          const callback2 = jest.fn();
+          const callback2 = vi.fn();
           expect(callback2).not.toHaveBeenCalled();
           additionalTopic.subscribe(callback2);
           expect(callback2).not.toHaveBeenCalledWith({ name: "test" });
@@ -278,7 +269,7 @@ describe("EventBus", () => {
 
       describe("AND unsubscribe it", () => {
         test("it does not publish a message", () => {
-          const callback = jest.fn();
+          const callback = vi.fn();
           const unsubscribe = testTopic.subscribe(callback);
           unsubscribe();
           testTopic.publish({ name: "test" });
@@ -289,15 +280,15 @@ describe("EventBus", () => {
   });
 
   describe("plugin", () => {
-    let mock: jest.Mock;
-    let schemaReceiver: jest.Mock;
+    let mock: ReturnType<typeof vi.fn>;
+    let schemaReceiver: ReturnType<typeof vi.fn>;
     let latestStateStore: Map<string, unknown>;
     let subscriptionStore: SubscriptionStore;
     let _eventBus: EventBus;
     const schemaStore = new Map();
     beforeAll(() => {
-      mock = jest.fn();
-      schemaReceiver = jest.fn();
+      mock = vi.fn();
+      schemaReceiver = vi.fn();
       latestStateStore = new Map();
       subscriptionStore = new SubscriptionStore();
       const metricPlugin = () => {
@@ -369,7 +360,7 @@ describe("EventBus", () => {
     });
 
     afterEach(() => {
-      jest.restoreAllMocks();
+      vi.restoreAllMocks();
     });
 
     describe("When there is one topic", () => {
@@ -383,7 +374,7 @@ describe("EventBus", () => {
 
       describe("When a plugin gets registered", () => {
         beforeEach(() => {
-          const callback = jest.fn();
+          const callback = vi.fn();
           const cbWrapper = (payload: { name: string }) => {
             callback(payload);
           };
@@ -406,7 +397,7 @@ describe("EventBus", () => {
         });
 
         afterEach(() => {
-          jest.restoreAllMocks();
+          vi.restoreAllMocks();
         });
 
         test("it runs the plugin", () => {

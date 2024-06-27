@@ -1,10 +1,9 @@
-import { afterEach, beforeEach, describe, expect, jest, test } from "bun:test";
 import deepEqual from "deep-equal";
 import { createPlugin } from "./index";
 
 describe("event-bus-metric-plugin", () => {
   describe("subscribe", () => {
-    let callback: jest.Mock;
+    let callback: ReturnType<typeof vi.fn>;
     let plugin: ReturnType<typeof createPlugin>["plugin"];
     let observer: ReturnType<typeof createPlugin>["observer"];
 
@@ -12,11 +11,11 @@ describe("event-bus-metric-plugin", () => {
       let result = createPlugin(deepEqual);
       plugin = result.plugin;
       observer = result.observer;
-      callback = jest.fn();
+      callback = vi.fn();
     });
 
     afterEach(() => {
-      jest.restoreAllMocks();
+      vi.restoreAllMocks();
     });
 
     test("should call callback with metrics on subscribe", () => {

@@ -1,19 +1,18 @@
-import { afterAll, beforeAll, describe, expect, jest, test } from "bun:test";
 import deepEqual from "deep-equal";
 import { createEventBusMetricPlugin } from "./metric-plugin";
 
 describe("createEventBusMetricPlugin", () => {
   describe("plugin", () => {
-    let callback: jest.Mock;
+    let callback: ReturnType<typeof vi.fn>;
     let plugin: ReturnType<typeof createEventBusMetricPlugin>;
 
     beforeAll(() => {
-      callback = jest.fn();
+      callback = vi.fn();
       plugin = createEventBusMetricPlugin(deepEqual, callback);
     });
 
     afterAll(() => {
-      jest.restoreAllMocks();
+      vi.restoreAllMocks();
     });
 
     describe("subscribe -> publish", () => {

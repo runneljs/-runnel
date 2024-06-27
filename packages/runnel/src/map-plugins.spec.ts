@@ -1,11 +1,3 @@
-import {
-  afterEach,
-  beforeAll,
-  beforeEach,
-  describe,
-  expect,
-  test,
-} from "bun:test";
 import { PluginStore } from "./PluginStore";
 import { mapPlugins } from "./map-plugins";
 import type { Plugin } from "./primitive-types";
@@ -63,7 +55,9 @@ describe("mapPlugins", () => {
     describe("When no schemas are set", () => {
       test("should map local plugins to pluginStoreMap", () => {
         expect(pluginStoreMap.size).toBe(1);
-        expect(pluginStoreMap.get(undefined) instanceof PluginStore).toBeTrue();
+        expect(
+          pluginStoreMap.get(undefined) instanceof PluginStore,
+        ).toBeTruthy();
         expect(pluginStoreMap.get(undefined)!.size()).toBe(2);
         expect(pluginStoreMap.get(globalScope)).toBeUndefined();
       });
@@ -77,7 +71,9 @@ describe("mapPlugins", () => {
 
       test("should map local plugins to pluginStoreMap", () => {
         expect(pluginStoreMap.size).toBe(1);
-        expect(pluginStoreMap.get(undefined) instanceof PluginStore).toBeTrue();
+        expect(
+          pluginStoreMap.get(undefined) instanceof PluginStore,
+        ).toBeTruthy();
         expect(pluginStoreMap.get(undefined)!.size()).toBe(2);
         expect(pluginStoreMap.get(globalScope)).toBeUndefined();
       });
@@ -106,7 +102,7 @@ describe("mapPlugins", () => {
         expect(pluginStoreMap.size).toBe(1);
         expect(
           pluginStoreMap.get(globalScope) instanceof PluginStore,
-        ).toBeTrue();
+        ).toBeTruthy();
         expect(pluginStoreMap.get(globalScope)!.size()).toBe(2);
         expect(globalScope.runnelPluginStore.size()).toBe(2);
         expect(pluginStoreMap.get(undefined)).toBeUndefined();
@@ -123,7 +119,7 @@ describe("mapPlugins", () => {
         expect(pluginStoreMap.size).toBe(1);
         expect(
           pluginStoreMap.get(globalScope) instanceof PluginStore,
-        ).toBeTrue();
+        ).toBeTruthy();
         expect(pluginStoreMap.get(globalScope)!.size()).toBe(2);
         expect(globalScope.runnelPluginStore.size()).toBe(2);
         expect(pluginStoreMap.get(undefined)).toBeUndefined();
@@ -159,11 +155,13 @@ describe("mapPlugins", () => {
     describe("When no schemas are set", () => {
       test("should map local and global plugins to pluginStoreMap", () => {
         expect(pluginStoreMap.size).toBe(2);
-        expect(pluginStoreMap.get(undefined) instanceof PluginStore).toBeTrue();
+        expect(
+          pluginStoreMap.get(undefined) instanceof PluginStore,
+        ).toBeTruthy();
         expect(pluginStoreMap.get(undefined)!.size()).toBe(3);
         expect(
           pluginStoreMap.get(globalScope) instanceof PluginStore,
-        ).toBeTrue();
+        ).toBeTruthy();
         expect(pluginStoreMap.get(globalScope)!.size()).toBe(4);
         expect(globalScope.runnelPluginStore.size()).toBe(4);
       });
@@ -177,11 +175,13 @@ describe("mapPlugins", () => {
 
       test("should map local and global plugins to pluginStoreMap", () => {
         expect(pluginStoreMap.size).toBe(2);
-        expect(pluginStoreMap.get(undefined) instanceof PluginStore).toBeTrue();
+        expect(
+          pluginStoreMap.get(undefined) instanceof PluginStore,
+        ).toBeTruthy();
         expect(pluginStoreMap.get(undefined)!.size()).toBe(3);
         expect(
           pluginStoreMap.get(globalScope) instanceof PluginStore,
-        ).toBeTrue();
+        ).toBeTruthy();
         expect(pluginStoreMap.get(globalScope)!.size()).toBe(4);
         expect(globalScope.runnelPluginStore.size()).toBe(4);
       });
@@ -212,7 +212,7 @@ describe("mapPlugins", () => {
         expect(pluginStoreMap.get(globalScope)).toBeUndefined();
         expect(
           pluginStoreMap.get(pluginScope) instanceof PluginStore,
-        ).toBeTrue();
+        ).toBeTruthy();
         expect(pluginStoreMap.get(pluginScope)!.size()).toBe(2);
       });
     });
@@ -229,7 +229,7 @@ describe("mapPlugins", () => {
         expect(pluginStoreMap.get(globalScope)).toBeUndefined();
         expect(
           pluginStoreMap.get(pluginScope) instanceof PluginStore,
-        ).toBeTrue();
+        ).toBeTruthy();
         expect(pluginStoreMap.get(pluginScope)!.size()).toBe(2);
       });
     });
@@ -269,7 +269,7 @@ describe("mapPlugins", () => {
         expect(anotherPluginStoreMap.size).toBe(1);
         expect(
           anotherPluginStoreMap.get(scope) instanceof PluginStore,
-        ).toBeTrue();
+        ).toBeTruthy();
         expect(anotherPluginStoreMap.get(scope)!.size()).toBe(3);
         expect(scope.runnelPluginStore.size()).toBe(3);
         expect(pluginStoreMap.get(scope)!.size()).toBe(3);

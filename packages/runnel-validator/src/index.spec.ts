@@ -1,4 +1,3 @@
-import { beforeAll, describe, expect, test } from "bun:test";
 import { validator } from "./index";
 
 describe("varidator", () => {

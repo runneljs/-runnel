@@ -24,6 +24,6 @@
     "noUnusedParameters": false,
     "noPropertyAccessFromIndexSignature": false
   },
-  "exclude": ["./src/*.test.ts", "./dist"],
+  "exclude": ["./src/*.spec.ts", "./dist"],
   "outDir": "./dist"
 }
