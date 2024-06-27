@@ -41,7 +41,7 @@ describe("index", () => {
       expect(globalVar.__runnel.latestStateStoreMap?.size).toBe(0);
       expect(globalVar.__runnel.schemaStoreMap).toBeDefined();
       expect(globalVar.__runnel.schemaStoreMap?.size).toBe(0);
-      // TODO: expect(globalVar.__runnel.runnelPluginStores).not.toBeDefined();
+      expect(globalVar.__runnel.pluginStoresObservable).toBeDefined();
     });
   });
 });
@@ -114,7 +114,6 @@ describe("Register two eventbuses. The latter has a plugin.", () => {
     expect(globalVar.__runnel.schemaStoreMap).toBeDefined();
     expect(globalVar.__runnel.schemaStoreMap?.size).toBe(0); // One schema from one topic
     expect(globalVar.__runnel.pluginStoresObservable).toBeDefined();
-    // TODO: expect(globalVar.__runnel.runnelPluginStores?.size()).toBe(1); // One plugin
   });
 
   describe("executes a publish event with the 2nd eventBus", () => {

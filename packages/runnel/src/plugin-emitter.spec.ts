@@ -109,7 +109,6 @@ describe("plugin-emitter", () => {
       });
 
       test("should run a method of local/global plugins", () => {
-        // TODO: expect(scope.runnelPluginStores.size()).toBe(2); // The 2nd batch is acknowledged.
         expect(mock1stBatchLocal1).toHaveBeenCalledTimes(1);
         expect(mock1stBatchLocal1).toHaveBeenCalledWith(
           "topicId",
