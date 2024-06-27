@@ -1,6 +1,5 @@
 import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import App from "./App";
-import { beforeAll, describe, expect, test, afterAll } from "@jest/globals";
 import { setupReporter } from "./test-utils/setup-reporter";
 
 const { setReport, reporter, observer } = setupReporter(`file://${__filename}`);
