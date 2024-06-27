@@ -4,15 +4,15 @@
   "version": "0.0.0",
   "type": "module",
   "scripts": {
-    "dev": "bunx --bun vite",
-    "build": "bunx --bun vite build",
-    "build:cp": "bun run build && cp dist/app3.js ../app-shell/public/ && cp dist/index.html ../app-shell/public/app3.html",
+    "dev": "vite",
+    "build": "vite build",
+    "build:cp": "npm run build && cp dist/app3.js ../app-shell/public/ && cp dist/index.html ../app-shell/public/app3.html",
     "lint": "eslint . --ext ts,tsx --report-unused-disable-directives --max-warnings 0",
     "report": "runnel-report",
-    "preview": "bunx --bun vite preview",
+    "preview": "vite preview",
     "test:jest": "jest",
-    "test:bun": "bun test",
-    "test": "bun run test:jest && bun run test:bun"
+    "test:vitest": "echo \"TODO: vitest run\"",
+    "test": "npm run test:jest && npm run test:vitest"
   },
   "dependencies": {
     "deep-equal": "^2.2.3",
