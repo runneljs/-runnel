@@ -15,7 +15,7 @@
     "build": "node build.mjs",
     "postbuild": "npm link",
     "test": "vitest run",
-    "publish": "bun run build && npm publish --access public"
+    "publish": "npm run build && npm publish --access public"
   },
   "devDependencies": {
     "rimraf": "^5.0.7",
