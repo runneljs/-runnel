@@ -6,7 +6,7 @@ import { mapPlugins } from "./map-plugins";
 import { createPluginEmitter } from "./plugin-emitter";
 import type { JsonSchema } from "./primitive-types";
 import { schemaManager } from "./schema-manager";
-import type { Scope } from "./scope";
+import type { RunnelGlobals } from "./scope";
 import { createGetSynchedPluginStores } from "./sync-plugins";
 
 type TestSchema = {
@@ -28,7 +28,7 @@ const jsonSchema = {
   $schema: "http://json-schema.org/draft-07/schema#",
 };
 
-const global = {} as Scope;
+const global = {} as RunnelGlobals;
 const pluginEmitter = createPluginEmitter(
   createGetSynchedPluginStores(new Map(), global),
   global,

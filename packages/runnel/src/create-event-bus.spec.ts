@@ -10,7 +10,7 @@ function payloadValidator(jsonSchema: object) {
   };
 }
 
-describe("index", () => {
+describe("create-event-bus", () => {
   let globalVar: GlobalType;
 
   beforeAll(() => {

@@ -93,7 +93,7 @@ describe("mapPlugins", () => {
 
     afterEach(() => {
       pluginStoreMap.clear();
-      globalScope.runnelPluginStore = undefined;
+      globalScope.pluginStore = undefined;
     });
 
     // Regardless of the schema, it should return the consistent result.
@@ -104,7 +104,7 @@ describe("mapPlugins", () => {
           pluginStoreMap.get(globalScope) instanceof PluginStore,
         ).toBeTruthy();
         expect(pluginStoreMap.get(globalScope)!.size()).toBe(2);
-        expect(globalScope.runnelPluginStore.size()).toBe(2);
+        expect(globalScope.pluginStore.size()).toBe(2);
         expect(pluginStoreMap.get(undefined)).toBeUndefined();
       });
     });
@@ -121,7 +121,7 @@ describe("mapPlugins", () => {
           pluginStoreMap.get(globalScope) instanceof PluginStore,
         ).toBeTruthy();
         expect(pluginStoreMap.get(globalScope)!.size()).toBe(2);
-        expect(globalScope.runnelPluginStore.size()).toBe(2);
+        expect(globalScope.pluginStore.size()).toBe(2);
         expect(pluginStoreMap.get(undefined)).toBeUndefined();
       });
     });
@@ -148,7 +148,7 @@ describe("mapPlugins", () => {
 
     afterEach(() => {
       pluginStoreMap.clear();
-      globalScope.runnelPluginStore = undefined;
+      globalScope.pluginStore = undefined;
     });
 
     // Regardless of the schema, it should return the consistent result.
@@ -163,7 +163,7 @@ describe("mapPlugins", () => {
           pluginStoreMap.get(globalScope) instanceof PluginStore,
         ).toBeTruthy();
         expect(pluginStoreMap.get(globalScope)!.size()).toBe(4);
-        expect(globalScope.runnelPluginStore.size()).toBe(4);
+        expect(globalScope.pluginStore.size()).toBe(4);
       });
     });
 
@@ -183,7 +183,7 @@ describe("mapPlugins", () => {
           pluginStoreMap.get(globalScope) instanceof PluginStore,
         ).toBeTruthy();
         expect(pluginStoreMap.get(globalScope)!.size()).toBe(4);
-        expect(globalScope.runnelPluginStore.size()).toBe(4);
+        expect(globalScope.pluginStore.size()).toBe(4);
       });
     });
   });
@@ -201,7 +201,7 @@ describe("mapPlugins", () => {
 
     afterEach(() => {
       pluginStoreMap.clear();
-      pluginScope.runnelPluginStore = undefined;
+      pluginScope.pluginStore = undefined;
     });
 
     // Regardless of the schema, it should return the consistent result.
@@ -246,7 +246,7 @@ describe("mapPlugins", () => {
 
     afterEach(() => {
       pluginStoreMap.clear();
-      scope.runnelPluginStore = undefined;
+      scope.pluginStore = undefined;
     });
 
     describe("add another set of plugins", () => {
@@ -262,7 +262,7 @@ describe("mapPlugins", () => {
 
       afterEach(() => {
         anotherPluginStoreMap.clear();
-        scope.runnelPluginStore = undefined;
+        scope.pluginStore = undefined;
       });
 
       test("pluginStores that share the same scope have the same number of plugins", () => {
@@ -271,7 +271,7 @@ describe("mapPlugins", () => {
           anotherPluginStoreMap.get(scope) instanceof PluginStore,
         ).toBeTruthy();
         expect(anotherPluginStoreMap.get(scope)!.size()).toBe(3);
-        expect(scope.runnelPluginStore.size()).toBe(3);
+        expect(scope.pluginStore.size()).toBe(3);
         expect(pluginStoreMap.get(scope)!.size()).toBe(3);
       });
     });

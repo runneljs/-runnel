@@ -1,7 +1,7 @@
 import { mapPlugins } from "./map-plugins";
 import { createPluginEmitter } from "./plugin-emitter";
 import type { JsonSchema, Plugin, TopicId } from "./primitive-types";
-import type { Scope } from "./scope";
+import type { RunnelGlobals } from "./scope";
 import { createGetSynchedPluginStores } from "./sync-plugins";
 
 describe("plugin-emitter", () => {
@@ -11,7 +11,7 @@ describe("plugin-emitter", () => {
       let schemaStore: Map<TopicId, JsonSchema>;
       let emitter: ReturnType<typeof createPluginEmitter>;
       let pluginMap = new Map<any, Plugin[]>();
-      const scope = {} as Scope;
+      const scope = {} as RunnelGlobals;
 
       beforeEach(() => {
         schemaStore = new Map();
@@ -43,7 +43,7 @@ describe("plugin-emitter", () => {
       let pluginStoreMap: ReturnType<typeof mapPlugins>;
       let schemaStore: Map<TopicId, JsonSchema>;
       let emitter: ReturnType<typeof createPluginEmitter>;
-      const scope = {} as Scope;
+      const scope = {} as RunnelGlobals;
       let mock1stBatchLocal1: ReturnType<typeof vi.fn>;
       let mock1stBatchGlobal: ReturnType<typeof vi.fn>;
       let mock1stBatchLocal2: ReturnType<typeof vi.fn>;

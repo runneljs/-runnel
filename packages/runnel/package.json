@@ -23,6 +23,7 @@
   "devDependencies": {
     "@cfworker/json-schema": "^1.12.8",
     "@types/lodash.isequal": "^4.5.8",
+    "@vitest/coverage-v8": "^1.6.0",
     "esbuild": "^0.21.5",
     "lodash.isequal": "^4.5.0",
     "rimraf": "^5.0.7",

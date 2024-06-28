@@ -32,7 +32,9 @@ export class PluginStore {
   private pluginsForEvent: Map<keyof Plugin, PluginEventFns[keyof Plugin][]> =
     new Map(pluginEventNames.map((name) => [name, []]));
 
-  constructor(private schemaStore: Map<TopicId, JsonSchema>) {}
+  // TODO: schemaStore is only because we want to expose the schema data
+  // through plugins.
+  constructor(private schemaStoreMap: Map<TopicId, JsonSchema>) {}
 
   addPlugin(plugin: Plugin): void {
     this.plugins.push(plugin);
@@ -76,7 +78,7 @@ export class PluginStore {
 
   onCreatePublishEvent(topicId: string, payload: unknown): void {
     this.pluginsForEvent.get("onCreatePublish")!.forEach((pluginEvent) => {
-      pluginEvent(topicId, this.schemaStore.get(topicId!)!, payload);
+      pluginEvent(topicId, this.schemaStoreMap.get(topicId!)!, payload);
     });
   }
 
@@ -84,7 +86,7 @@ export class PluginStore {
     (this.pluginsForEvent.get(
       "onCreateSubscribe",
     ) as PluginEventFns["onCreateSubscribe"][])!.forEach((pluginEvent) => {
-      pluginEvent(topicId!, this.schemaStore.get(topicId!)!);
+      pluginEvent(topicId!, this.schemaStoreMap.get(topicId!)!);
     });
   }
 
@@ -92,7 +94,7 @@ export class PluginStore {
     (this.pluginsForEvent.get(
       "onCreateUnsubscribe",
     ) as PluginEventFns["onCreateUnsubscribe"][])!.forEach((pluginEvent) => {
-      pluginEvent(topicId!, this.schemaStore.get(topicId!)!);
+      pluginEvent(topicId!, this.schemaStoreMap.get(topicId!)!);
     });
   }
 }

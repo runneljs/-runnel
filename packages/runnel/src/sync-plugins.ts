@@ -1,14 +1,11 @@
 import { type PluginStore } from "./PluginStore";
-import {
-  PLUGIN_STORE_VARIABLE_NAME_MAYBE_GLOBAL,
-  type PluginStoreMap,
-} from "./map-plugins";
+import { type PluginStoreMap } from "./map-plugins";
 import type { PluginScope } from "./primitive-types";
-import type { Scope } from "./scope";
+import type { RunnelGlobals } from "./scope";
 
 export function createGetSynchedPluginStores(
   pluginStoreMap: PluginStoreMap,
-  scope: Scope,
+  scope: RunnelGlobals,
 ): () => PluginStore[] {
   return function getSynchedPluginStores() {
     return recalcPluginScopes(scope, pluginStoreMap).reduce<PluginStore[]>(
@@ -17,7 +14,7 @@ export function createGetSynchedPluginStores(
           pluginScope === undefined
             ? pluginStoreMap.get(pluginScope)
             : // Fetch the plugin store from the global scope.
-              pluginScope[PLUGIN_STORE_VARIABLE_NAME_MAYBE_GLOBAL];
+              pluginScope.pluginStore;
         if (pluginStore !== undefined) {
           acc.push(pluginStore);
         }
@@ -29,7 +26,7 @@ export function createGetSynchedPluginStores(
 }
 
 function recalcPluginScopes(
-  scope: Scope,
+  scope: RunnelGlobals,
   pluginStoreMap: PluginStoreMap,
 ): PluginScope[] {
   scope.pluginScopes = uniqueFilter<any>([

@@ -20,6 +20,7 @@
     "publish": "npm run build && npm publish --access public"
   },
   "devDependencies": {
+    "@vitest/coverage-v8": "^1.6.0",
     "deep-equal": "^2.2.3",
     "rimraf": "^5.0.7",
     "vite": "^5.3.1",

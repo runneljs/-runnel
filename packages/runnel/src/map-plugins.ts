@@ -6,8 +6,6 @@ import type {
   TopicId,
 } from "./primitive-types";
 
-export const PLUGIN_STORE_VARIABLE_NAME_MAYBE_GLOBAL =
-  "runnelPluginStore" as const;
 export type PluginStoreMap = Map<PluginScope, PluginStore>;
 
 export function mapPlugins(
@@ -22,8 +20,7 @@ export function mapPlugins(
       pluginScope,
       pluginScope === undefined
         ? new PluginStore(schemaStore)
-        : pluginScope[PLUGIN_STORE_VARIABLE_NAME_MAYBE_GLOBAL] ??
-            new PluginStore(schemaStore),
+        : pluginScope.pluginStore ?? new PluginStore(schemaStore),
     );
 
     // `pluginStore` is a PluginStore instance.
@@ -32,7 +29,7 @@ export function mapPlugins(
     pluginStoreMap.set(pluginScope, pluginStore);
     if (pluginScope !== undefined) {
       // Also update plugins stores in the global scope.
-      pluginScope[PLUGIN_STORE_VARIABLE_NAME_MAYBE_GLOBAL] = pluginStore;
+      pluginScope.pluginStore = pluginStore;
     }
   });
 

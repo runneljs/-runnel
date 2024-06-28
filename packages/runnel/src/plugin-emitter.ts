@@ -1,7 +1,7 @@
 import { chainPlugins, type PluginStore } from "./PluginStore";
 import { Observable } from "./observable";
 import type { TopicId } from "./primitive-types";
-import type { Scope } from "./scope";
+import type { RunnelGlobals } from "./scope";
 
 export type PluginEmitter = {
   onCreatePublish: (topicId: TopicId, payload: unknown) => void;
@@ -15,7 +15,7 @@ export type PluginEmitter = {
 // TODO: Lifecycle support. What to do when the micro frontend is unmounted?
 export function createPluginEmitter(
   getSynchedPluginStores: () => PluginStore[],
-  scope: Scope,
+  scope: RunnelGlobals,
 ): PluginEmitter {
   let _pluginStores: PluginStore[] = getSynchedPluginStores();
 
