@@ -9,7 +9,7 @@ import type {
  * This may be redundant. I want to hide "subscribers".
  */
 export class SubscriptionStore extends Map<TopicId, Subscription> {
-  update(topicId: TopicId, uuid: UUID, subscriber?: Subscriber) {
+  update(topicId: TopicId, uuid: UUID, subscriber?: Subscriber): void {
     const subscribers = this.get(topicId)!;
     subscriber ? subscribers.set(uuid, subscriber) : subscribers.delete(uuid);
     this.set(topicId, subscribers);

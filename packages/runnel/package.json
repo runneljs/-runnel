@@ -17,7 +17,8 @@
     "build": "node build.mjs",
     "postbuild": "tsc --project tsconfig.type.json --outdir ./dist",
     "test": "vitest run",
-    "publish": "npm run build && npm publish --access public"
+    "publish": "npm run build && npm publish --access public",
+    "publish:jsr": "npx jsr publish"
   },
   "devDependencies": {
     "@cfworker/json-schema": "^1.12.8",

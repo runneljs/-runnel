@@ -34,7 +34,7 @@ export class PluginStore {
 
   constructor(private schemaStore: Map<TopicId, JsonSchema>) {}
 
-  addPlugin(plugin: Plugin) {
+  addPlugin(plugin: Plugin): void {
     this.plugins.push(plugin);
     pluginEventNames.forEach((eventName) => {
       if (plugin[eventName]) {
@@ -43,7 +43,7 @@ export class PluginStore {
     });
   }
 
-  size(eventName?: keyof Plugin) {
+  size(eventName?: keyof Plugin): number {
     if (eventName) {
       return this.pluginsForEvent.get(eventName)!.length;
     }

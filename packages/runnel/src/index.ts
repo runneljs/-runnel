@@ -1,6 +1,6 @@
 import { SubscriptionStore } from "./SubscriptionStore";
 import { PayloadMismatchError, SchemaMismatchError } from "./errors";
-import { eventBus, type Validator } from "./event-bus";
+import { eventBus, type EventBus, type Validator } from "./event-bus";
 import { getGlobal } from "./get-global";
 import { mapPlugins } from "./map-plugins";
 import { createPluginEmitter } from "./plugin-emitter";
@@ -31,7 +31,7 @@ export function createEventBus({
   globalVar?: GlobalType;
   scope?: GlobalType; // deprecated. Removed soon.
   pluginMap?: Map<PluginScope, Plugin[]>;
-}): ReturnType<typeof eventBus> {
+}): EventBus {
   const _runnel = (globalVar.__runnel ??= {} as Scope);
   _runnel.subscriptionStore ??= new SubscriptionStore();
   _runnel.schemaStoreMap ??= new Map<TopicId, JsonSchema>();

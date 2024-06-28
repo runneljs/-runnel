@@ -9,7 +9,7 @@ import type { Scope } from "./scope";
 export function createGetSynchedPluginStores(
   pluginStoreMap: PluginStoreMap,
   scope: Scope,
-) {
+): () => PluginStore[] {
   return function getSynchedPluginStores() {
     return recalcPluginScopes(scope, pluginStoreMap).reduce<PluginStore[]>(
       (acc, pluginScope) => {

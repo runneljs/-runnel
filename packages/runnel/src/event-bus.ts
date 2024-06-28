@@ -1,14 +1,34 @@
 import type { SubscriptionStore } from "./SubscriptionStore";
 import { PayloadMismatchError, TopicNotFoundError } from "./errors";
-import type { createPluginEmitter } from "./plugin-emitter";
+import type { PluginEmitter } from "./plugin-emitter";
 import type { JsonSchema, TopicId, UUID } from "./primitive-types";
+
+type TopicName = string;
 
 export type Validator = (
   jsonSchema: JsonSchema,
 ) => (payload: unknown) => boolean;
 
-type TopicName = string;
-export type EventBus = ReturnType<typeof eventBus>;
+export type EventBus = {
+  registerTopic: <T>(
+    topicName: TopicName,
+    jsonSchema: JsonSchema,
+    options?: {
+      version?: number;
+    },
+  ) => {
+    subscribe: (callback: (payload: T) => void) => () => void;
+    publish: (payload: T) => void;
+  };
+  unregisterTopic: (
+    topicName: TopicName,
+    options?: {
+      version?: number;
+    },
+  ) => void;
+  unregisterAllTopics: () => void;
+};
+
 export function eventBus({
   latestStateStore,
   subscriptionStore,
@@ -19,9 +39,9 @@ export function eventBus({
   latestStateStore: Map<TopicId, unknown>;
   subscriptionStore: SubscriptionStore;
   checkSchema: (topicId: TopicId, incomingSchema: JsonSchema) => void;
-  pluginEmitter: ReturnType<typeof createPluginEmitter>;
+  pluginEmitter: PluginEmitter;
   payloadValidator: Validator;
-}) {
+}): EventBus {
   return {
     registerTopic: createRegisterTopic(
       latestStateStore,
@@ -43,7 +63,7 @@ function createRegisterTopic(
   latestStateStore: Map<string, unknown>,
   subscriptionStore: SubscriptionStore,
   checkSchema: (topicId: string, incomingSchema: JsonSchema) => void,
-  pluginEmitter: ReturnType<typeof createPluginEmitter>,
+  pluginEmitter: PluginEmitter,
   payloadValidator: Validator,
 ) {
   return function registerTopic<T>(
@@ -129,7 +149,7 @@ function createUnregisterTopic(
 function createUnregisterAllTopics(
   latestStateStore: Map<string, unknown>,
   subscriptionStore: SubscriptionStore,
-  pluginEmitter: ReturnType<typeof createPluginEmitter>,
+  pluginEmitter: PluginEmitter,
 ) {
   return function unregisterAllTopics() {
     if (subscriptionStore.size !== 0) {

@@ -5,7 +5,9 @@ export type Validator = (
   jsonSchema: JsonSchema,
 ) => (payload: unknown) => boolean;
 
-export function payloadValidator(validator: Validator) {
+export function payloadValidator(
+  validator: Validator,
+): (topicId: TopicId, jsonSchema: JsonSchema, payload: unknown) => void {
   return function validate(
     topicId: TopicId,
     jsonSchema: JsonSchema,

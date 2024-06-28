@@ -4,15 +4,16 @@ export class Observable<T> {
     this.observers = [];
   }
 
-  subscribe(func: (data: T) => void) {
+  subscribe(func: (data: T) => void): () => void {
     this.observers.push(func);
+    return () => this.unsubscribe(func);
   }
 
-  unsubscribe(func: (data: T) => void) {
+  unsubscribe(func: (data: T) => void): void {
     this.observers = this.observers.filter((observer) => observer !== func);
   }
 
-  notify(data: T) {
+  notify(data: T): void {
     this.observers.forEach((observer) => observer(data));
   }
 }

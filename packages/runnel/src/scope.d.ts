@@ -9,8 +9,8 @@ export type Scope = {
   latestStateStoreMap?: Map<TopicId, unknown>;
 };
 
-declare global {
-  var __runnel: Scope;
+interface CustomWindow extends Window {
+  __runnel: Scope;
 }
-
-type GlobalType = typeof globalThis;
+declare const window: CustomWindow;
+type GlobalType = CustomWindow;

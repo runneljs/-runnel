@@ -3,11 +3,20 @@ import { Observable } from "./observable";
 import type { TopicId } from "./primitive-types";
 import type { Scope } from "./scope";
 
+export type PluginEmitter = {
+  onCreatePublish: (topicId: TopicId, payload: unknown) => void;
+  onCreateSubscribe: (topicId: TopicId) => void;
+  onCreateUnsubscribe: (topicId: TopicId) => void;
+  onUnregisterAllTopics: () => void;
+  subscribe: (topicId: TopicId, payload: unknown) => unknown;
+  publish: (topicId: TopicId, payload: unknown) => unknown;
+};
+
 // TODO: Lifecycle support. What to do when the micro frontend is unmounted?
 export function createPluginEmitter(
   getSynchedPluginStores: () => PluginStore[],
   scope: Scope,
-) {
+): PluginEmitter {
   let _pluginStores: PluginStore[] = getSynchedPluginStores();
 
   // Observe other instances.

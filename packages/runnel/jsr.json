@@ -1,0 +1,6 @@
+{
+    "name": "@runnel/runneljs",
+    "version": "0.1.18",
+    "exports": "./src/index.ts"
+  }
+  
