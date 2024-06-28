@@ -1,4 +1,4 @@
-import type { Plugin, TopicId } from "./primitive-types";
+import type { Plugin, TopicId } from "../primitive-types";
 
 const pluginEventNames = [
   "publish",

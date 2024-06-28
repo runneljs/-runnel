@@ -1,5 +1,5 @@
+import type { Plugin, PluginScope } from "../primitive-types";
 import { PluginStore } from "./PluginStore";
-import type { Plugin, PluginScope } from "./primitive-types";
 
 export type PluginStoreMap = Map<PluginScope, PluginStore>;
 export type PluginMap = Map<PluginScope, Plugin[]>;

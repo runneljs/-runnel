@@ -1,6 +1,6 @@
-import { PluginStore } from "./PluginStore";
+import type { Plugin, PluginScope } from "../primitive-types";
 import { mapPlugins } from "./map-plugins";
-import type { Plugin, PluginScope } from "./primitive-types";
+import { PluginStore } from "./PluginStore";
 
 describe("mapPlugins", () => {
   let globalScope: any;

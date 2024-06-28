@@ -17,9 +17,7 @@ describe("createEventBusMetricPlugin", () => {
 
     describe("subscribe -> publish", () => {
       test("should call callback with metrics on subscribe", () => {
-        plugin.onCreateSubscribe("topic1", {
-          type: "number",
-        });
+        plugin.onCreateSubscribe("topic1");
         expect(callback).toHaveBeenCalledWith({
           topic1: {
             onCreateSubscribe: 1,
@@ -31,9 +29,7 @@ describe("createEventBusMetricPlugin", () => {
       });
 
       test("should call callback with metrics on publish", () => {
-        plugin.onCreatePublish("topic1", {
-          type: "number",
-        });
+        plugin.onCreatePublish("topic1");
         expect(callback).toHaveBeenCalledWith({
           topic1: {
             onCreateSubscribe: 1,
@@ -47,9 +43,7 @@ describe("createEventBusMetricPlugin", () => {
 
     describe("publish -> subscribe", () => {
       test("should call callback with metrics on publish", () => {
-        plugin.onCreatePublish("topic2", {
-          type: "string",
-        });
+        plugin.onCreatePublish("topic2");
         expect(callback).toHaveBeenCalledWith({
           topic1: {
             onCreateSubscribe: 1,
@@ -67,9 +61,7 @@ describe("createEventBusMetricPlugin", () => {
       });
 
       test("should call callback with metrics on subscribe", () => {
-        plugin.onCreateSubscribe("topic2", {
-          type: "string",
-        });
+        plugin.onCreateSubscribe("topic2");
         expect(callback).toHaveBeenCalledWith({
           topic1: {
             onCreateSubscribe: 1,

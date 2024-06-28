@@ -20,9 +20,7 @@ describe("event-bus-metric-plugin", () => {
 
     test("should call callback with metrics on subscribe", () => {
       observer.subscribe(callback);
-      plugin.onCreateSubscribe("topic1", {
-        type: "number",
-      });
+      plugin.onCreateSubscribe("topic1");
       expect(callback).toHaveBeenCalledWith({
         topic1: {
           onCreateSubscribe: 1,
@@ -35,9 +33,7 @@ describe("event-bus-metric-plugin", () => {
 
     test("should call callback with metrics on publish", () => {
       observer.subscribe(callback);
-      plugin.onCreatePublish("topic1", {
-        type: "number",
-      });
+      plugin.onCreatePublish("topic1");
       expect(callback).toHaveBeenCalledWith({
         topic1: {
           onCreateSubscribe: 0,

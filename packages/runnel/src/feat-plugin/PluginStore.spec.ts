@@ -1,5 +1,5 @@
+import type { Plugin, TopicId } from "../primitive-types";
 import { PluginStore, chainPlugins } from "./PluginStore";
-import type { Plugin, TopicId } from "./primitive-types";
 
 describe("chainPlugins", () => {
   describe("when the length of functions is zero", () => {

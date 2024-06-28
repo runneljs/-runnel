@@ -10,7 +10,7 @@ export function setupReporter(currentFileUrl: string) {
   const { registerTopic } = createEventBus({
     deepEqual,
     payloadValidator: validator,
-    pluginMap: new Map().set(window.parent, [
+    pluginMap: new Map().set(window, [
       plugin,
       {
         publish: (id: string, payload: unknown) => {
@@ -22,7 +22,6 @@ export function setupReporter(currentFileUrl: string) {
         },
       },
     ]),
-    globalVar: window.parent,
   });
   return { setReport, reporter, observer, registerTopic };
 }

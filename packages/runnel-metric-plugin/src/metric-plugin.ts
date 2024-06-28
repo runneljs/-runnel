@@ -21,7 +21,7 @@ export function createEventBusMetricPlugin(
   };
 
   return {
-    onCreateSubscribe: (topicId: string, schema: object) => {
+    onCreateSubscribe: (topicId: string) => {
       updateStats(topicId, (metrics: Metrics) => {
         return {
           ...metrics,
@@ -29,7 +29,7 @@ export function createEventBusMetricPlugin(
         };
       });
     },
-    onCreatePublish: (topicId: string, schema: object) => {
+    onCreatePublish: (topicId: string) => {
       updateStats(topicId, (metrics: Metrics) => {
         return {
           ...metrics,

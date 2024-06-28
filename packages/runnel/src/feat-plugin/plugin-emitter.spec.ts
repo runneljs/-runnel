@@ -1,7 +1,7 @@
+import type { JsonSchema, Plugin, TopicId } from "../primitive-types";
+import type { RunnelGlobals } from "../scope";
 import { mapPlugins } from "./map-plugins";
 import { createPluginEmitter } from "./plugin-emitter";
-import type { JsonSchema, Plugin, TopicId } from "./primitive-types";
-import type { RunnelGlobals } from "./scope";
 import { createGetSynchedPluginStores } from "./sync-plugins";
 
 describe("plugin-emitter", () => {

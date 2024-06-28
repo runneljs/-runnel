@@ -1,7 +1,7 @@
-import { chainPlugins, type PluginStore } from "./PluginStore";
 import { Observable } from "./observable";
-import type { TopicId } from "./primitive-types";
-import type { RunnelGlobals } from "./scope";
+import type { TopicId } from "../primitive-types";
+import type { RunnelGlobals } from "../scope";
+import { chainPlugins, type PluginStore } from "./PluginStore";
 
 export type PluginEmitter = {
   onCreatePublish: (topicId: TopicId, payload: unknown) => void;

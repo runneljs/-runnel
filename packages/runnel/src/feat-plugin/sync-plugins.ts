@@ -1,7 +1,7 @@
+import type { PluginScope } from "../primitive-types";
+import type { RunnelGlobals } from "../scope";
 import { type PluginStore } from "./PluginStore";
 import { type PluginStoreMap } from "./map-plugins";
-import type { PluginScope } from "./primitive-types";
-import type { RunnelGlobals } from "./scope";
 
 export function createGetSynchedPluginStores(
   pluginStoreMap: PluginStoreMap,

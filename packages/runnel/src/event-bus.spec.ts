@@ -2,12 +2,12 @@ import { Validator } from "@cfworker/json-schema";
 import deepEqual from "deep-equal";
 import { SubscriptionStore } from "./SubscriptionStore";
 import { eventBus, type EventBus } from "./event-bus";
-import { mapPlugins } from "./map-plugins";
-import { createPluginEmitter } from "./plugin-emitter";
+import { mapPlugins } from "./feat-plugin/map-plugins";
+import { createPluginEmitter } from "./feat-plugin/plugin-emitter";
+import { createGetSynchedPluginStores } from "./feat-plugin/sync-plugins";
+import { schemaManager } from "./feat-schema/schema-manager";
 import type { JsonSchema } from "./primitive-types";
-import { schemaManager } from "./schema-manager";
 import type { RunnelGlobals } from "./scope";
-import { createGetSynchedPluginStores } from "./sync-plugins";
 
 type TestSchema = {
   name: string;

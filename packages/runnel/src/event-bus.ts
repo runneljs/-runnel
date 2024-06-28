@@ -1,8 +1,8 @@
 import type { SubscriptionStore } from "./SubscriptionStore";
 import { PayloadMismatchError, TopicNotFoundError } from "./errors";
-import type { PluginEmitter } from "./plugin-emitter";
+import type { PluginEmitter } from "./feat-plugin/plugin-emitter";
+import type { SchemaManager } from "./feat-schema/schema-manager";
 import type { JsonSchema, TopicId, UUID } from "./primitive-types";
-import type { SchemaManager } from "./schema-manager";
 
 type TopicName = string;
 
