@@ -1,7 +1,6 @@
 export type Metrics = {
   onCreatePublish: number;
   onCreateSubscribe: number;
-  schema: object | null;
   publish: any[];
   subscribe: any[];
 };
@@ -19,7 +18,6 @@ export function createEventBusMetricPlugin(
     onCreatePublish: 0,
     publish: [],
     subscribe: [],
-    schema: null,
   };
 
   return {
@@ -27,7 +25,6 @@ export function createEventBusMetricPlugin(
       updateStats(topicId, (metrics: Metrics) => {
         return {
           ...metrics,
-          schema,
           onCreateSubscribe: metrics.onCreateSubscribe + 1,
         };
       });
@@ -36,7 +33,6 @@ export function createEventBusMetricPlugin(
       updateStats(topicId, (metrics: Metrics) => {
         return {
           ...metrics,
-          schema,
           onCreatePublish: metrics.onCreatePublish + 1,
         };
       });

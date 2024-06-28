@@ -24,7 +24,6 @@ describe("createEventBusMetricPlugin", () => {
           topic1: {
             onCreateSubscribe: 1,
             onCreatePublish: 0,
-            schema: { type: "number" },
             publish: [],
             subscribe: [],
           },
@@ -39,7 +38,6 @@ describe("createEventBusMetricPlugin", () => {
           topic1: {
             onCreateSubscribe: 1,
             onCreatePublish: 1,
-            schema: { type: "number" },
             publish: [],
             subscribe: [],
           },
@@ -56,14 +54,12 @@ describe("createEventBusMetricPlugin", () => {
           topic1: {
             onCreateSubscribe: 1,
             onCreatePublish: 1,
-            schema: { type: "number" },
             publish: [],
             subscribe: [],
           },
           topic2: {
             onCreateSubscribe: 0,
             onCreatePublish: 1,
-            schema: { type: "string" },
             publish: [],
             subscribe: [],
           },
@@ -78,14 +74,12 @@ describe("createEventBusMetricPlugin", () => {
           topic1: {
             onCreateSubscribe: 1,
             onCreatePublish: 1,
-            schema: { type: "number" },
             publish: [],
             subscribe: [],
           },
           topic2: {
             onCreateSubscribe: 1,
             onCreatePublish: 1,
-            schema: { type: "string" },
             publish: [],
             subscribe: [],
           },
@@ -100,14 +94,12 @@ describe("createEventBusMetricPlugin", () => {
           topic1: {
             onCreateSubscribe: 1,
             onCreatePublish: 1,
-            schema: { type: "number" },
             publish: [1],
             subscribe: [],
           },
           topic2: {
             onCreateSubscribe: 1,
             onCreatePublish: 1,
-            schema: { type: "string" },
             publish: [],
             subscribe: [],
           },
@@ -120,14 +112,12 @@ describe("createEventBusMetricPlugin", () => {
           topic1: {
             onCreateSubscribe: 1,
             onCreatePublish: 1,
-            schema: { type: "number" },
             publish: [1, 2],
             subscribe: [],
           },
           topic2: {
             onCreateSubscribe: 1,
             onCreatePublish: 1,
-            schema: { type: "string" },
             publish: [],
             subscribe: [],
           },
@@ -140,14 +130,12 @@ describe("createEventBusMetricPlugin", () => {
           topic1: {
             onCreateSubscribe: 1,
             onCreatePublish: 1,
-            schema: { type: "number" },
             publish: [1, 2],
             subscribe: [],
           },
           topic2: {
             onCreateSubscribe: 1,
             onCreatePublish: 1,
-            schema: { type: "string" },
             publish: [],
             subscribe: ["Subscribe to topic2"],
           },

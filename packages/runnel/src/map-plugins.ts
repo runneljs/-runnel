@@ -1,17 +1,10 @@
 import { PluginStore } from "./PluginStore";
-import type {
-  JsonSchema,
-  Plugin,
-  PluginScope,
-  TopicId,
-} from "./primitive-types";
+import type { Plugin, PluginScope } from "./primitive-types";
 
 export type PluginStoreMap = Map<PluginScope, PluginStore>;
+export type PluginMap = Map<PluginScope, Plugin[]>;
 
-export function mapPlugins(
-  schemaStore: Map<TopicId, JsonSchema>,
-  pluginMap: Map<PluginScope, Plugin[]>,
-): PluginStoreMap {
+export function mapPlugins(pluginMap: PluginMap): PluginStoreMap {
   const pluginStoreMap = new Map<PluginScope, PluginStore>();
   // Mapping plugins to their respective scopes.
   pluginMap.forEach((scopedPlugins, pluginScope) => {
@@ -19,8 +12,8 @@ export function mapPlugins(
     pluginStoreMap.set(
       pluginScope,
       pluginScope === undefined
-        ? new PluginStore(schemaStore)
-        : pluginScope.pluginStore ?? new PluginStore(schemaStore),
+        ? new PluginStore()
+        : pluginScope.pluginStore ?? new PluginStore(),
     );
 
     // `pluginStore` is a PluginStore instance.

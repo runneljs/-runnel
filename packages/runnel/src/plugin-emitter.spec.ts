@@ -8,14 +8,12 @@ describe("plugin-emitter", () => {
   describe("emitPlugins", () => {
     describe("When no plugins are set", () => {
       let pluginStoreMap: ReturnType<typeof mapPlugins>;
-      let schemaStore: Map<TopicId, JsonSchema>;
       let emitter: ReturnType<typeof createPluginEmitter>;
       let pluginMap = new Map<any, Plugin[]>();
       const scope = {} as RunnelGlobals;
 
       beforeEach(() => {
-        schemaStore = new Map();
-        pluginStoreMap = mapPlugins(schemaStore, pluginMap);
+        pluginStoreMap = mapPlugins(pluginMap);
         emitter = createPluginEmitter(
           createGetSynchedPluginStores(pluginStoreMap, scope),
           scope,
@@ -23,7 +21,6 @@ describe("plugin-emitter", () => {
       });
 
       afterEach(() => {
-        schemaStore.clear();
         scope.pluginScopes = undefined;
       });
 
@@ -61,8 +58,8 @@ describe("plugin-emitter", () => {
         const pluginMap1stBatch = new Map<any, Plugin[]>()
           .set(undefined, [
             {
-              onCreatePublish: (topicId, schema, payload) => {
-                mock1stBatchLocal1(topicId, schema, payload);
+              onCreatePublish: (topicId, payload) => {
+                mock1stBatchLocal1(topicId, payload);
               },
             },
             {
@@ -81,7 +78,7 @@ describe("plugin-emitter", () => {
               },
             },
           ]); // Global scope
-        pluginStoreMap = mapPlugins(schemaStore, pluginMap1stBatch);
+        pluginStoreMap = mapPlugins(pluginMap1stBatch);
         emitter = createPluginEmitter(
           createGetSynchedPluginStores(pluginStoreMap, scope),
           scope,
@@ -94,7 +91,7 @@ describe("plugin-emitter", () => {
             onCreatePublish: mock2ndBatchGlobal1,
           },
         ]);
-        mapPlugins(schemaStore, pluginMap2ndBatch);
+        mapPlugins(pluginMap2ndBatch);
 
         // Call emitter after the 2nd batch is added. So we can test if the 2nd batch is acknowledged by emitter.
         emitter.onCreatePublish("topicId", "payload");
@@ -110,29 +107,17 @@ describe("plugin-emitter", () => {
 
       test("should run a method of local/global plugins", () => {
         expect(mock1stBatchLocal1).toHaveBeenCalledTimes(1);
-        expect(mock1stBatchLocal1).toHaveBeenCalledWith(
-          "topicId",
-          { some: "schema" },
-          "payload",
-        );
+        expect(mock1stBatchLocal1).toHaveBeenCalledWith("topicId", "payload");
 
         expect(mock1stBatchGlobal).toHaveBeenCalledTimes(1);
-        expect(mock1stBatchGlobal).toHaveBeenCalledWith(
-          "topicId",
-          { some: "schema" },
-          "payload",
-        );
+        expect(mock1stBatchGlobal).toHaveBeenCalledWith("topicId", "payload");
 
         expect(mock1stBatchLocal2).toHaveBeenCalledTimes(1);
         expect(mock1stBatchLocal2).toHaveBeenCalledWith("topicId", "payload");
 
         // Additional plugin gets called.
         expect(mock2ndBatchGlobal1).toHaveBeenCalledTimes(1);
-        expect(mock2ndBatchGlobal1).toHaveBeenCalledWith(
-          "topicId",
-          { some: "schema" },
-          "payload",
-        );
+        expect(mock2ndBatchGlobal1).toHaveBeenCalledWith("topicId", "payload");
 
         expect(mock2ndBatchGlobal2).toHaveBeenCalledTimes(1);
         expect(mock2ndBatchGlobal2).toHaveBeenCalledWith("topicId", "payload");

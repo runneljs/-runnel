@@ -3,17 +3,25 @@ import type { JsonSchema, TopicId } from "./primitive-types";
 
 export type DeepEqual = (value: JsonSchema, other: JsonSchema) => boolean;
 
-/**
- * This function is only needed at build time, unless someone wants to create a new topic at runtime.
- */
+export type SchemaManager = {
+  checkSchema: (topicId: TopicId, incomingSchema: JsonSchema) => void;
+  getTopics: () => Array<TopicId>;
+  getSchemaByTopicId: (topicId: TopicId) => JsonSchema | undefined;
+};
+
 export function schemaManager(
   deepEqual: DeepEqual,
   schemaStore: Map<TopicId, JsonSchema>,
-): (topicId: TopicId, incomingSchema: JsonSchema) => void {
-  return function checkSchema(
-    topicId: TopicId,
-    incomingSchema: JsonSchema,
-  ): void {
+): SchemaManager {
+  return {
+    checkSchema,
+    getTopics: () => Array.from(schemaStore.keys()),
+    getSchemaByTopicId: (topicId: TopicId) => {
+      return schemaStore.get(topicId);
+    },
+  };
+
+  function checkSchema(topicId: TopicId, incomingSchema: JsonSchema): void {
     if (schemaStore.has(topicId)) {
       const schema = schemaStore.get(topicId)!;
       if (!deepEqual(incomingSchema, schema)) {
@@ -22,5 +30,5 @@ export function schemaManager(
     } else {
       schemaStore.set(topicId, incomingSchema);
     }
-  };
+  }
 }

@@ -49,11 +49,10 @@ describe("EventBus", () => {
     beforeAll(() => {
       latestStateStore = new Map();
       subscriptionStore = new SubscriptionStore();
-      const checkSchema = schemaManager(deepEqual, new Map());
       _eventBus = eventBus({
         latestStateStore,
         subscriptionStore,
-        checkSchema,
+        schemaManager: schemaManager(deepEqual, new Map()),
         pluginEmitter,
         payloadValidator,
       });
@@ -156,6 +155,21 @@ describe("EventBus", () => {
         });
       });
     });
+
+    describe("getTopics", () => {
+      test("it returns the topics", () => {
+        expect(_eventBus.getTopics()).toEqual(["test", "test2", "test@1"]);
+      });
+    });
+
+    describe("getSchemaByTopicId", () => {
+      test("it returns the schema", () => {
+        expect(_eventBus.getSchemaByTopicId("test")).toEqual(jsonSchema);
+      });
+      test("it returns the schema", () => {
+        expect(_eventBus.getSchemaByTopicId("test@1")).toEqual(jsonSchema);
+      });
+    });
   });
 
   describe("topic", () => {
@@ -165,11 +179,10 @@ describe("EventBus", () => {
     beforeAll(() => {
       latestStateStore = new Map();
       subscriptionStore = new SubscriptionStore();
-      const checkSchema = schemaManager(deepEqual, new Map());
       _eventBus = eventBus({
         latestStateStore,
         subscriptionStore,
-        checkSchema,
+        schemaManager: schemaManager(deepEqual, new Map()),
         pluginEmitter,
         payloadValidator,
       });
@@ -338,18 +351,14 @@ describe("EventBus", () => {
       // .set(global, [metricPlugin()]);
 
       const pluginEmitter = createPluginEmitter(
-        createGetSynchedPluginStores(
-          mapPlugins(schemaStore, pluginMap),
-          global,
-        ),
+        createGetSynchedPluginStores(mapPlugins(pluginMap), global),
         global,
       );
-      const checkSchema = schemaManager(deepEqual, schemaStore);
 
       _eventBus = eventBus({
         latestStateStore,
         subscriptionStore,
-        checkSchema,
+        schemaManager: schemaManager(deepEqual, schemaStore),
         pluginEmitter,
         payloadValidator,
       });
@@ -411,23 +420,6 @@ describe("EventBus", () => {
             subStats: { skywalker: 6 + 1 }, // +1 for the additional subscriber.
           });
           expect(mock).toHaveBeenCalledTimes(1);
-          expect(schemaReceiver).toHaveBeenCalledWith({
-            schema: {
-              type: "object",
-              properties: {
-                name: {
-                  type: "string",
-                },
-                age: {
-                  type: "number",
-                },
-              },
-              required: ["name"],
-              additionalProperties: false,
-              $schema: "http://json-schema.org/draft-07/schema#",
-            },
-          });
-          expect(schemaReceiver).toHaveBeenCalledTimes(1);
         });
       });
     });

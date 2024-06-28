@@ -1,42 +1,23 @@
 import { PluginStore } from "./PluginStore";
 import { mapPlugins } from "./map-plugins";
-import type { Plugin } from "./primitive-types";
+import type { Plugin, PluginScope } from "./primitive-types";
 
 describe("mapPlugins", () => {
   let globalScope: any;
-  let schemaStore: Map<string, object>;
 
   beforeAll(() => {
     globalScope = {};
-  });
-
-  beforeEach(() => {
-    schemaStore = new Map();
   });
 
   describe("When no plugins are set", () => {
     let pluginStoreMap: Map<any, PluginStore>;
 
     beforeEach(() => {
-      pluginStoreMap = mapPlugins(schemaStore, new Map());
+      pluginStoreMap = mapPlugins(new Map<PluginScope, Plugin[]>());
     });
 
-    // Regardless of the schema, it should return the consistent result.
-    describe("When no schemas are set", () => {
-      test("should return an empty pluginStoreMap", () => {
-        expect(pluginStoreMap.size).toBe(0);
-      });
-    });
-
-    describe("When schemas are set", () => {
-      beforeEach(() => {
-        schemaStore = new Map();
-        schemaStore.set("topicId", {});
-      });
-
-      test("should return an empty pluginStoreMap", () => {
-        expect(pluginStoreMap.size).toBe(0);
-      });
+    test("should return an empty pluginStoreMap", () => {
+      expect(pluginStoreMap.size).toBe(0);
     });
   });
 
@@ -44,39 +25,18 @@ describe("mapPlugins", () => {
     let pluginStoreMap: Map<any, PluginStore>;
 
     beforeEach(() => {
-      const pluginMap = new Map().set(undefined, [
+      const pluginMap = new Map<PluginScope, Plugin[]>().set(undefined, [
         createNewPlugin(),
         createNewPlugin(),
       ]);
-      pluginStoreMap = mapPlugins(schemaStore, pluginMap);
+      pluginStoreMap = mapPlugins(pluginMap);
     });
 
-    // Regardless of the schema, it should return the consistent result.
-    describe("When no schemas are set", () => {
-      test("should map local plugins to pluginStoreMap", () => {
-        expect(pluginStoreMap.size).toBe(1);
-        expect(
-          pluginStoreMap.get(undefined) instanceof PluginStore,
-        ).toBeTruthy();
-        expect(pluginStoreMap.get(undefined)!.size()).toBe(2);
-        expect(pluginStoreMap.get(globalScope)).toBeUndefined();
-      });
-    });
-
-    describe("When schemas are set", () => {
-      beforeEach(() => {
-        schemaStore = new Map();
-        schemaStore.set("topicId", {});
-      });
-
-      test("should map local plugins to pluginStoreMap", () => {
-        expect(pluginStoreMap.size).toBe(1);
-        expect(
-          pluginStoreMap.get(undefined) instanceof PluginStore,
-        ).toBeTruthy();
-        expect(pluginStoreMap.get(undefined)!.size()).toBe(2);
-        expect(pluginStoreMap.get(globalScope)).toBeUndefined();
-      });
+    test("should map local plugins to pluginStoreMap", () => {
+      expect(pluginStoreMap.size).toBe(1);
+      expect(pluginStoreMap.get(undefined) instanceof PluginStore).toBeTruthy();
+      expect(pluginStoreMap.get(undefined)!.size()).toBe(2);
+      expect(pluginStoreMap.get(globalScope)).toBeUndefined();
     });
   });
 
@@ -88,7 +48,7 @@ describe("mapPlugins", () => {
         createNewPlugin(),
         createNewPlugin(),
       ]);
-      pluginStoreMap = mapPlugins(schemaStore, pluginMap);
+      pluginStoreMap = mapPlugins(pluginMap);
     });
 
     afterEach(() => {
@@ -96,34 +56,14 @@ describe("mapPlugins", () => {
       globalScope.pluginStore = undefined;
     });
 
-    // Regardless of the schema, it should return the consistent result.
-    describe("When no schemas are set", () => {
-      test("should map global plugins to pluginStoreMap", () => {
-        expect(pluginStoreMap.size).toBe(1);
-        expect(
-          pluginStoreMap.get(globalScope) instanceof PluginStore,
-        ).toBeTruthy();
-        expect(pluginStoreMap.get(globalScope)!.size()).toBe(2);
-        expect(globalScope.pluginStore.size()).toBe(2);
-        expect(pluginStoreMap.get(undefined)).toBeUndefined();
-      });
-    });
-
-    describe("When schemas are set", () => {
-      beforeEach(() => {
-        schemaStore = new Map();
-        schemaStore.set("topicId", {});
-      });
-
-      test("should map global plugins to pluginStoreMap", () => {
-        expect(pluginStoreMap.size).toBe(1);
-        expect(
-          pluginStoreMap.get(globalScope) instanceof PluginStore,
-        ).toBeTruthy();
-        expect(pluginStoreMap.get(globalScope)!.size()).toBe(2);
-        expect(globalScope.pluginStore.size()).toBe(2);
-        expect(pluginStoreMap.get(undefined)).toBeUndefined();
-      });
+    test("should map global plugins to pluginStoreMap", () => {
+      expect(pluginStoreMap.size).toBe(1);
+      expect(
+        pluginStoreMap.get(globalScope) instanceof PluginStore,
+      ).toBeTruthy();
+      expect(pluginStoreMap.get(globalScope)!.size()).toBe(2);
+      expect(globalScope.pluginStore.size()).toBe(2);
+      expect(pluginStoreMap.get(undefined)).toBeUndefined();
     });
   });
 
@@ -143,7 +83,7 @@ describe("mapPlugins", () => {
           createNewPlugin(),
           createNewPlugin(),
         ]);
-      pluginStoreMap = mapPlugins(schemaStore, pluginMap);
+      pluginStoreMap = mapPlugins(pluginMap);
     });
 
     afterEach(() => {
@@ -151,40 +91,15 @@ describe("mapPlugins", () => {
       globalScope.pluginStore = undefined;
     });
 
-    // Regardless of the schema, it should return the consistent result.
-    describe("When no schemas are set", () => {
-      test("should map local and global plugins to pluginStoreMap", () => {
-        expect(pluginStoreMap.size).toBe(2);
-        expect(
-          pluginStoreMap.get(undefined) instanceof PluginStore,
-        ).toBeTruthy();
-        expect(pluginStoreMap.get(undefined)!.size()).toBe(3);
-        expect(
-          pluginStoreMap.get(globalScope) instanceof PluginStore,
-        ).toBeTruthy();
-        expect(pluginStoreMap.get(globalScope)!.size()).toBe(4);
-        expect(globalScope.pluginStore.size()).toBe(4);
-      });
-    });
-
-    describe("When schemas are set", () => {
-      beforeEach(() => {
-        schemaStore = new Map();
-        schemaStore.set("topicId", {});
-      });
-
-      test("should map local and global plugins to pluginStoreMap", () => {
-        expect(pluginStoreMap.size).toBe(2);
-        expect(
-          pluginStoreMap.get(undefined) instanceof PluginStore,
-        ).toBeTruthy();
-        expect(pluginStoreMap.get(undefined)!.size()).toBe(3);
-        expect(
-          pluginStoreMap.get(globalScope) instanceof PluginStore,
-        ).toBeTruthy();
-        expect(pluginStoreMap.get(globalScope)!.size()).toBe(4);
-        expect(globalScope.pluginStore.size()).toBe(4);
-      });
+    test("should map local and global plugins to pluginStoreMap", () => {
+      expect(pluginStoreMap.size).toBe(2);
+      expect(pluginStoreMap.get(undefined) instanceof PluginStore).toBeTruthy();
+      expect(pluginStoreMap.get(undefined)!.size()).toBe(3);
+      expect(
+        pluginStoreMap.get(globalScope) instanceof PluginStore,
+      ).toBeTruthy();
+      expect(pluginStoreMap.get(globalScope)!.size()).toBe(4);
+      expect(globalScope.pluginStore.size()).toBe(4);
     });
   });
 
@@ -196,7 +111,7 @@ describe("mapPlugins", () => {
         createNewPlugin(),
         createNewPlugin(),
       ]);
-      pluginStoreMap = mapPlugins(schemaStore, pluginMap);
+      pluginStoreMap = mapPlugins(pluginMap);
     });
 
     afterEach(() => {
@@ -204,34 +119,14 @@ describe("mapPlugins", () => {
       pluginScope.pluginStore = undefined;
     });
 
-    // Regardless of the schema, it should return the consistent result.
-    describe("When no schemas are set", () => {
-      test("should map local plugins to pluginStoreMap", () => {
-        expect(pluginStoreMap.size).toBe(1);
-        expect(pluginStoreMap.get(undefined)).toBeUndefined();
-        expect(pluginStoreMap.get(globalScope)).toBeUndefined();
-        expect(
-          pluginStoreMap.get(pluginScope) instanceof PluginStore,
-        ).toBeTruthy();
-        expect(pluginStoreMap.get(pluginScope)!.size()).toBe(2);
-      });
-    });
-
-    describe("When schemas are set", () => {
-      beforeEach(() => {
-        schemaStore = new Map();
-        schemaStore.set("topicId", {});
-      });
-
-      test("should map local plugins to pluginStoreMap", () => {
-        expect(pluginStoreMap.size).toBe(1);
-        expect(pluginStoreMap.get(undefined)).toBeUndefined();
-        expect(pluginStoreMap.get(globalScope)).toBeUndefined();
-        expect(
-          pluginStoreMap.get(pluginScope) instanceof PluginStore,
-        ).toBeTruthy();
-        expect(pluginStoreMap.get(pluginScope)!.size()).toBe(2);
-      });
+    test("should map local plugins to pluginStoreMap", () => {
+      expect(pluginStoreMap.size).toBe(1);
+      expect(pluginStoreMap.get(undefined)).toBeUndefined();
+      expect(pluginStoreMap.get(globalScope)).toBeUndefined();
+      expect(
+        pluginStoreMap.get(pluginScope) instanceof PluginStore,
+      ).toBeTruthy();
+      expect(pluginStoreMap.get(pluginScope)!.size()).toBe(2);
     });
   });
 
@@ -240,8 +135,10 @@ describe("mapPlugins", () => {
     const scope = {} as any;
 
     beforeEach(() => {
-      const pluginMap = new Map().set(scope, [createNewPlugin()]);
-      pluginStoreMap = mapPlugins(schemaStore, pluginMap);
+      const pluginMap = new Map<PluginScope, Plugin[]>().set(scope, [
+        createNewPlugin(),
+      ]);
+      pluginStoreMap = mapPlugins(pluginMap);
     });
 
     afterEach(() => {
@@ -257,7 +154,7 @@ describe("mapPlugins", () => {
           createNewPlugin(),
           createNewPlugin(),
         ]);
-        anotherPluginStoreMap = mapPlugins(schemaStore, anotherPluginMap);
+        anotherPluginStoreMap = mapPlugins(anotherPluginMap);
       });
 
       afterEach(() => {

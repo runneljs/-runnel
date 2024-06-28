@@ -33,23 +33,12 @@ describe("App", () => {
       fullName: {
         onCreateSubscribe: 1,
         onCreatePublish: 0,
-        schema: {
-          type: "object",
-          properties: {
-            firstName: { type: "string" },
-            lastName: { type: "string" },
-          },
-          required: ["firstName", "lastName"],
-          additionalProperties: false,
-          $schema: "http://json-schema.org/draft-07/schema#",
-        },
         publish: [],
         subscribe: [],
       },
       count: {
         onCreateSubscribe: 1,
         onCreatePublish: 1,
-        schema: { type: "number" },
         publish: [1],
         subscribe: [1],
       },

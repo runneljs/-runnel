@@ -22,11 +22,9 @@ describe("chainPlugins", () => {
 describe("PluginStore", () => {
   describe("when there are no plugins", () => {
     let pluginStore: PluginStore;
-    let schemeStore: Map<string, object>;
 
     beforeEach(() => {
-      schemeStore = new Map();
-      pluginStore = new PluginStore(schemeStore);
+      pluginStore = new PluginStore();
     });
 
     test("size", () => {
@@ -92,13 +90,10 @@ describe("PluginStore", () => {
     describe("runPluginForEvent", () => {
       let plugin1: Plugin;
       let plugin2: Plugin;
-      let schemaStore: Map<string, object>;
       let pluginStore: PluginStore;
 
       beforeEach(() => {
-        schemaStore = new Map();
-        schemaStore.set("topicId", {});
-        pluginStore = new PluginStore(schemaStore);
+        pluginStore = new PluginStore();
         plugin1 = {
           onCreateSubscribe: vi.fn(),
           onCreateUnsubscribe: vi.fn(),
@@ -120,18 +115,12 @@ describe("PluginStore", () => {
         pluginStore.onCreateSubscribeEvent("topicId");
 
         // plugin1
-        expect(plugin1.onCreateSubscribe).toHaveBeenCalledWith(
-          "topicId",
-          schemaStore.get("topicId"),
-        );
+        expect(plugin1.onCreateSubscribe).toHaveBeenCalledWith("topicId");
         expect(plugin1.onCreateUnsubscribe).not.toHaveBeenCalled();
         expect(plugin1.onUnregisterAllTopics).not.toHaveBeenCalled();
 
         // plugin2
-        expect(plugin2.onCreateSubscribe).toHaveBeenCalledWith(
-          "topicId",
-          schemaStore.get("topicId"),
-        );
+        expect(plugin2.onCreateSubscribe).toHaveBeenCalledWith("topicId");
         expect(plugin2.onCreatePublish).not.toHaveBeenCalled();
       });
 
@@ -140,10 +129,7 @@ describe("PluginStore", () => {
 
         // plugin1
         expect(plugin1.onCreateSubscribe).not.toHaveBeenCalled();
-        expect(plugin1.onCreateUnsubscribe).toHaveBeenCalledWith(
-          "topicId",
-          schemaStore.get("topicId"),
-        );
+        expect(plugin1.onCreateUnsubscribe).toHaveBeenCalledWith("topicId");
         expect(plugin1.onUnregisterAllTopics).not.toHaveBeenCalled();
 
         // plugin2
@@ -163,7 +149,6 @@ describe("PluginStore", () => {
         expect(plugin2.onCreateSubscribe).not.toHaveBeenCalled();
         expect(plugin2.onCreatePublish).toHaveBeenCalledWith(
           "topicId",
-          schemaStore.get("topicId"),
           "payload",
         );
       });

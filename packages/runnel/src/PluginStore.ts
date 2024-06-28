@@ -1,4 +1,4 @@
-import type { JsonSchema, Plugin, TopicId } from "./primitive-types";
+import type { Plugin, TopicId } from "./primitive-types";
 
 const pluginEventNames = [
   "publish",
@@ -12,29 +12,21 @@ const pluginEventNames = [
 type PluginEventFns = {
   publish: (topicId: TopicId, payload: unknown) => unknown;
   subscribe: (topicId: TopicId, payload: unknown) => unknown;
-  onCreatePublish: (
-    topicId: TopicId,
-    schema: JsonSchema,
-    payload: unknown,
-  ) => void;
-  onCreateSubscribe: (topicId: TopicId, schema: JsonSchema) => void;
-  onCreateUnsubscribe: (topicId: TopicId, schema: JsonSchema) => void;
+  onCreatePublish: (topicId: TopicId, payload: unknown) => void;
+  onCreateSubscribe: (topicId: TopicId) => void;
+  onCreateUnsubscribe: (topicId: TopicId) => void;
   onUnregisterAllTopics: () => void;
 };
 
 /**
  * Each plugin scope has its own PluginStore.
- *
- * schemaStore is for exposing the schema of topics through plugins.
  */
 export class PluginStore {
   private plugins: Plugin[] = [];
   private pluginsForEvent: Map<keyof Plugin, PluginEventFns[keyof Plugin][]> =
     new Map(pluginEventNames.map((name) => [name, []]));
 
-  // TODO: schemaStore is only because we want to expose the schema data
-  // through plugins.
-  constructor(private schemaStoreMap: Map<TopicId, JsonSchema>) {}
+  constructor() {}
 
   addPlugin(plugin: Plugin): void {
     this.plugins.push(plugin);
@@ -78,7 +70,7 @@ export class PluginStore {
 
   onCreatePublishEvent(topicId: string, payload: unknown): void {
     this.pluginsForEvent.get("onCreatePublish")!.forEach((pluginEvent) => {
-      pluginEvent(topicId, this.schemaStoreMap.get(topicId!)!, payload);
+      pluginEvent(topicId, payload);
     });
   }
 
@@ -86,7 +78,7 @@ export class PluginStore {
     (this.pluginsForEvent.get(
       "onCreateSubscribe",
     ) as PluginEventFns["onCreateSubscribe"][])!.forEach((pluginEvent) => {
-      pluginEvent(topicId!, this.schemaStoreMap.get(topicId!)!);
+      pluginEvent(topicId!);
     });
   }
 
@@ -94,7 +86,7 @@ export class PluginStore {
     (this.pluginsForEvent.get(
       "onCreateUnsubscribe",
     ) as PluginEventFns["onCreateUnsubscribe"][])!.forEach((pluginEvent) => {
-      pluginEvent(topicId!, this.schemaStoreMap.get(topicId!)!);
+      pluginEvent(topicId!);
     });
   }
 }

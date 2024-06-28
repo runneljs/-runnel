@@ -2,6 +2,7 @@ import type { SubscriptionStore } from "./SubscriptionStore";
 import { PayloadMismatchError, TopicNotFoundError } from "./errors";
 import type { PluginEmitter } from "./plugin-emitter";
 import type { JsonSchema, TopicId, UUID } from "./primitive-types";
+import type { SchemaManager } from "./schema-manager";
 
 type TopicName = string;
 
@@ -9,17 +10,20 @@ export type Validator = (
   jsonSchema: JsonSchema,
 ) => (payload: unknown) => boolean;
 
+type Unsubscribe = () => void;
+export type RegisterTopic = <T>(
+  topicName: TopicName,
+  jsonSchema: JsonSchema,
+  options?: {
+    version?: number;
+  },
+) => {
+  subscribe: (callback: (payload: T) => void) => Unsubscribe;
+  publish: (payload: T) => void;
+};
+
 export type EventBus = {
-  registerTopic: <T>(
-    topicName: TopicName,
-    jsonSchema: JsonSchema,
-    options?: {
-      version?: number;
-    },
-  ) => {
-    subscribe: (callback: (payload: T) => void) => () => void;
-    publish: (payload: T) => void;
-  };
+  registerTopic: RegisterTopic;
   unregisterTopic: (
     topicName: TopicName,
     options?: {
@@ -27,18 +31,20 @@ export type EventBus = {
     },
   ) => void;
   unregisterAllTopics: () => void;
+  getTopics: SchemaManager["getTopics"];
+  getSchemaByTopicId: SchemaManager["getSchemaByTopicId"];
 };
 
 export function eventBus({
   latestStateStore,
   subscriptionStore,
-  checkSchema,
+  schemaManager,
   pluginEmitter,
   payloadValidator,
 }: {
   latestStateStore: Map<TopicId, unknown>;
   subscriptionStore: SubscriptionStore;
-  checkSchema: (topicId: TopicId, incomingSchema: JsonSchema) => void;
+  schemaManager: SchemaManager;
   pluginEmitter: PluginEmitter;
   payloadValidator: Validator;
 }): EventBus {
@@ -46,7 +52,7 @@ export function eventBus({
     registerTopic: createRegisterTopic(
       latestStateStore,
       subscriptionStore,
-      checkSchema,
+      schemaManager.checkSchema,
       pluginEmitter,
       payloadValidator,
     ),
@@ -56,6 +62,8 @@ export function eventBus({
       subscriptionStore,
       pluginEmitter,
     ),
+    getTopics: schemaManager.getTopics,
+    getSchemaByTopicId: schemaManager.getSchemaByTopicId,
   };
 }
 
@@ -65,7 +73,7 @@ function createRegisterTopic(
   checkSchema: (topicId: string, incomingSchema: JsonSchema) => void,
   pluginEmitter: PluginEmitter,
   payloadValidator: Validator,
-) {
+): RegisterTopic {
   return function registerTopic<T>(
     topicName: TopicName,
     jsonSchema: JsonSchema,

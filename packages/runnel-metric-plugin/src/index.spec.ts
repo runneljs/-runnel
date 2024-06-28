@@ -27,7 +27,6 @@ describe("event-bus-metric-plugin", () => {
         topic1: {
           onCreateSubscribe: 1,
           onCreatePublish: 0,
-          schema: { type: "number" },
           publish: [],
           subscribe: [],
         },
@@ -43,7 +42,6 @@ describe("event-bus-metric-plugin", () => {
         topic1: {
           onCreateSubscribe: 0,
           onCreatePublish: 1,
-          schema: { type: "number" },
           publish: [],
           subscribe: [],
         },
