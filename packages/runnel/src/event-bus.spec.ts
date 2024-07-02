@@ -6,8 +6,10 @@ import { mapPlugins } from "./feat-plugin/map-plugins";
 import { createPluginEmitter } from "./feat-plugin/plugin-emitter";
 import { createGetSynchedPluginStores } from "./feat-plugin/sync-plugins";
 import { schemaManager } from "./feat-schema/schema-manager";
+import { createPayloadValidator } from "./payload-validator";
 import type { JsonSchema } from "./primitive-types";
 import type { RunnelGlobals } from "./scope";
+import { buildReceiver, buildSender } from "./topic-registration";
 
 type TestSchema = {
   name: string;
@@ -54,7 +56,12 @@ describe("EventBus", () => {
         subscriptionStore,
         schemaManager: schemaManager(deepEqual, new Map()),
         pluginEmitter,
-        payloadValidator,
+        sender: buildSender(
+          latestStateStore,
+          pluginEmitter,
+          createPayloadValidator(payloadValidator),
+        ),
+        receiver: buildReceiver(latestStateStore, pluginEmitter),
       });
     });
 
@@ -184,7 +191,12 @@ describe("EventBus", () => {
         subscriptionStore,
         schemaManager: schemaManager(deepEqual, new Map()),
         pluginEmitter,
-        payloadValidator,
+        sender: buildSender(
+          latestStateStore,
+          pluginEmitter,
+          createPayloadValidator(payloadValidator),
+        ),
+        receiver: buildReceiver(latestStateStore, pluginEmitter),
       });
     });
 
@@ -360,7 +372,12 @@ describe("EventBus", () => {
         subscriptionStore,
         schemaManager: schemaManager(deepEqual, schemaStore),
         pluginEmitter,
-        payloadValidator,
+        sender: buildSender(
+          latestStateStore,
+          pluginEmitter,
+          createPayloadValidator(payloadValidator),
+        ),
+        receiver: buildReceiver(latestStateStore, pluginEmitter),
       });
     });
 
