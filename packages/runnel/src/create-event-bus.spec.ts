@@ -1,6 +1,6 @@
 import { Validator } from "@cfworker/json-schema";
 import isEqual from "lodash.isequal";
-import { createEventBus, type TopicId } from "./index";
+import { createEventBus } from "./index";
 import type { GlobalType } from "./scope";
 
 function payloadValidator(jsonSchema: object) {
@@ -41,7 +41,6 @@ describe("create-event-bus", () => {
       expect(globalVar.__runnel.latestStateStoreMap?.size).toBe(0);
       expect(globalVar.__runnel.schemaStoreMap).toBeDefined();
       expect(globalVar.__runnel.schemaStoreMap?.size).toBe(0);
-      expect(globalVar.__runnel.pluginStoresObservable).toBeDefined();
     });
   });
 });
@@ -55,6 +54,73 @@ describe("Register two eventbuses. The latter has a plugin.", () => {
   let mockPublish: ReturnType<typeof vi.fn>;
   let mockSubscribe: ReturnType<typeof vi.fn>;
   let subscriber: ReturnType<typeof vi.fn>;
+
+  const metricPlugin = () => {
+    function onSubscribeCreated(e: CustomEvent<{ topicId: string }>) {
+      const { detail } = e;
+      const { topicId } = detail;
+      subStore[topicId] = subStore[topicId] ? subStore[topicId] + 1 : 1;
+    }
+    function onPublishCreated(e: CustomEvent<{ topicId: string }>) {
+      const { detail } = e;
+      const { topicId } = detail;
+      pubStore[topicId] = pubStore[topicId] ? pubStore[topicId] + 1 : 1;
+    }
+    function onPublish(e: CustomEvent<{ topicId: string; payload: unknown }>) {
+      const { detail } = e;
+      const { topicId, payload } = detail;
+      mockPublish(topicId, payload);
+    }
+    function onSubscribe(
+      e: CustomEvent<{ topicId: string; payload: unknown }>,
+    ) {
+      const { detail } = e;
+      const { topicId, payload } = detail;
+      mockSubscribe(topicId, payload);
+    }
+    return {
+      listen: () => {
+        window.addEventListener(
+          "runnel:onsubscribecreated",
+          onSubscribeCreated as EventListener,
+        );
+        window.addEventListener(
+          "runnel:onpublishcreated",
+          onPublishCreated as EventListener,
+        );
+        window.addEventListener("runnel:onpublish", onPublish as EventListener);
+        window.addEventListener(
+          "runnel:onsubscribe",
+          onSubscribe as EventListener,
+        );
+      },
+      unlisten: () => {
+        window.removeEventListener(
+          "runnel:onsubscribecreated",
+          onSubscribeCreated as EventListener,
+        );
+        window.removeEventListener(
+          "runnel:onpublishcreated",
+          onPublishCreated as EventListener,
+        );
+        window.removeEventListener(
+          "runnel:onpublish",
+          onPublish as EventListener,
+        );
+        window.removeEventListener(
+          "runnel:onsubscribe",
+          onSubscribe as EventListener,
+        );
+      },
+    };
+  };
+  beforeAll(() => {
+    metricPlugin().listen();
+  });
+
+  afterAll(() => {
+    metricPlugin().unlisten();
+  });
 
   beforeEach(() => {
     globalVar = {} as GlobalType;
@@ -76,24 +142,6 @@ describe("Register two eventbuses. The latter has a plugin.", () => {
       deepEqual: isEqual,
       payloadValidator,
       globalVar,
-      pluginMap: new Map().set(globalVar, [
-        {
-          onCreatePublish: (topicId: TopicId) => {
-            pubStore[topicId] = pubStore[topicId] ? pubStore[topicId] + 1 : 1;
-          },
-          onCreateSubscribe: (topicId: TopicId) => {
-            subStore[topicId] = subStore[topicId] ? subStore[topicId] + 1 : 1;
-          },
-          publish: (topicId: TopicId, payload: unknown) => {
-            mockPublish(topicId, payload);
-            return `${payload} + 1`; // You could modify the payload here.
-          },
-          subscribe: (topicId: TopicId, payload: unknown) => {
-            mockSubscribe(topicId, payload);
-            return payload;
-          },
-        },
-      ]),
     });
   });
 
@@ -113,7 +161,6 @@ describe("Register two eventbuses. The latter has a plugin.", () => {
     expect(globalVar.__runnel.latestStateStoreMap?.size).toBe(0); // One publish event
     expect(globalVar.__runnel.schemaStoreMap).toBeDefined();
     expect(globalVar.__runnel.schemaStoreMap?.size).toBe(0); // One schema from one topic
-    expect(globalVar.__runnel.pluginStoresObservable).toBeDefined();
   });
 
   describe("executes a publish event with the 2nd eventBus", () => {

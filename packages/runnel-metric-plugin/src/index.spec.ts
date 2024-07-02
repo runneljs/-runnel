@@ -1,16 +1,21 @@
 import deepEqual from "deep-equal";
+import type { DispatchEventName } from "../../runnel/src/dispatch-events";
 import { createPlugin } from "./index";
 
 describe("event-bus-metric-plugin", () => {
   describe("subscribe", () => {
     let callback: ReturnType<typeof vi.fn>;
-    let plugin: ReturnType<typeof createPlugin>["plugin"];
-    let observer: ReturnType<typeof createPlugin>["observer"];
+    const { register, unregister, observer } = createPlugin(deepEqual);
+
+    beforeAll(() => {
+      register();
+    });
+
+    afterAll(() => {
+      unregister();
+    });
 
     beforeEach(() => {
-      let result = createPlugin(deepEqual);
-      plugin = result.plugin;
-      observer = result.observer;
       callback = vi.fn();
     });
 
@@ -20,28 +25,35 @@ describe("event-bus-metric-plugin", () => {
 
     test("should call callback with metrics on subscribe", () => {
       observer.subscribe(callback);
-      plugin.onCreateSubscribe("topic1");
+      dispatchCustomEvent("runnel:onsubscribecreated", { topicId: "topic1" });
       expect(callback).toHaveBeenCalledWith({
         topic1: {
-          onCreateSubscribe: 1,
-          onCreatePublish: 0,
-          publish: [],
-          subscribe: [],
+          onSubscribeCreated: 1,
+          onPublishCreated: 0,
+          onPublish: null,
+          onSubscribe: null,
         },
       });
     });
 
     test("should call callback with metrics on publish", () => {
       observer.subscribe(callback);
-      plugin.onCreatePublish("topic1");
+      dispatchCustomEvent("runnel:onpublishcreated", { topicId: "topic1" });
       expect(callback).toHaveBeenCalledWith({
         topic1: {
-          onCreateSubscribe: 0,
-          onCreatePublish: 1,
-          publish: [],
-          subscribe: [],
+          onSubscribeCreated: 1,
+          onPublishCreated: 1,
+          onPublish: null,
+          onSubscribe: null,
         },
       });
     });
   });
 });
+
+function dispatchCustomEvent(
+  name: DispatchEventName,
+  detail: Record<string, unknown> = {},
+) {
+  dispatchEvent(new CustomEvent(name, { detail }));
+}

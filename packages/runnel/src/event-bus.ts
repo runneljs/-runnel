@@ -1,5 +1,5 @@
 import type { SubscriptionStore } from "./SubscriptionStore";
-import type { PluginEmitter } from "./feat-plugin/plugin-emitter";
+import { dispatchOnSubscribe, dispatchOnUnsubscribe } from "./dispatch-events";
 import type { SchemaManager } from "./feat-schema/schema-manager";
 import type { JsonSchema, TopicId, UUID } from "./primitive-types";
 import { topicNameToId, type TopicName } from "./topic-name-to-id";
@@ -45,28 +45,25 @@ export function eventBus({
   latestStateStore,
   subscriptionStore,
   schemaManager,
-  pluginEmitter,
   sender,
   receiver,
 }: {
   latestStateStore: Map<TopicId, unknown>;
   subscriptionStore: SubscriptionStore;
   schemaManager: SchemaManager;
-  pluginEmitter: PluginEmitter;
   sender: Sender;
   receiver: Receiver;
 }): EventBus {
   return {
     registerTopic: createRegisterTopic(
       createTopicRegistration(schemaManager.checkSchema),
-      createPublish(sender, pluginEmitter),
-      createSubscribe(receiver, pluginEmitter),
+      createPublish(sender),
+      createSubscribe(receiver),
       subscriptionStore,
     ),
     unregisterTopic: createUnregisterTopic(latestStateStore, subscriptionStore),
     unregisterAllTopics: createUnregisterAllTopics(
       latestStateStore,
-      pluginEmitter,
       subscriptionStore,
     ),
     getTopics: schemaManager.getTopics,
@@ -106,10 +103,7 @@ type InitPublish = <T>(
   topicId: TopicId,
   jsonSchema: JsonSchema,
 ) => (payload: T) => void;
-function createPublish(
-  sender: Sender,
-  pluginEmitter: PluginEmitter,
-): InitPublish {
+function createPublish(sender: Sender): InitPublish {
   return function initPublish<T>(
     subscriptionStore: SubscriptionStore,
     topicId: TopicId,
@@ -120,9 +114,9 @@ function createPublish(
         subscriptionStore
           .get(topicId)
           ?.forEach((callback: (payload: T) => void) => {
-            callback(pluginEmitter.subscribe(topicId, payload) as T);
+            callback(payload);
+            dispatchOnSubscribe(topicId, payload);
           });
-        pluginEmitter.onCreatePublish(topicId, payload);
       });
     };
   };
@@ -132,10 +126,7 @@ type InitSubscribe = <T>(
   subscriptionStore: SubscriptionStore,
   topicId: TopicId,
 ) => (callback: (payload: T) => void) => Unsubscribe;
-function createSubscribe(
-  receiver: Receiver,
-  pluginEmitter: PluginEmitter,
-): InitSubscribe {
+function createSubscribe(receiver: Receiver): InitSubscribe {
   return function initSubscribe<T>(
     subscriptionStore: SubscriptionStore,
     topicId: TopicId,
@@ -155,7 +146,7 @@ function createSubscribe(
       const unsubscribe = _subscribe(callback);
       return () => {
         unsubscribe();
-        pluginEmitter.onCreateUnsubscribe(topicId);
+        dispatchOnUnsubscribe(topicId);
       };
     };
   };

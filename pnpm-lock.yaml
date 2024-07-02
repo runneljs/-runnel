@@ -244,6 +244,9 @@ importers:
       "@vitest/coverage-v8":
         specifier: ^1.6.0
         version: 1.6.0(vitest@1.6.0)
+      happy-dom:
+        specifier: ^14.12.3
+        version: 14.12.3
       lodash.isequal:
         specifier: ^4.5.0
         version: 4.5.0
@@ -258,7 +261,7 @@ importers:
         version: 5.3.2
       vitest:
         specifier: ^1.6.0
-        version: 1.6.0
+        version: 1.6.0(happy-dom@14.12.3)
 
   packages/runnel-metric-plugin:
     devDependencies:
@@ -268,15 +271,21 @@ importers:
       deep-equal:
         specifier: ^2.2.3
         version: 2.2.3
+      happy-dom:
+        specifier: ^14.12.3
+        version: 14.12.3
       rimraf:
         specifier: ^5.0.7
         version: 5.0.7
+      runneljs:
+        specifier: workspace:^
+        version: link:../runnel
       vite:
         specifier: ^5.3.1
         version: 5.3.1
       vitest:
         specifier: ^1.6.0
-        version: 1.6.0
+        version: 1.6.0(happy-dom@14.12.3)
 
   packages/runnel-reporter:
     devDependencies:
@@ -294,7 +303,7 @@ importers:
         version: 5.3.1
       vitest:
         specifier: ^1.6.0
-        version: 1.6.0
+        version: 1.6.0(happy-dom@14.12.3)
 
   packages/runnel-validator:
     dependencies:
@@ -313,7 +322,7 @@ importers:
         version: 5.3.1
       vitest:
         specifier: ^1.6.0
-        version: 1.6.0
+        version: 1.6.0(happy-dom@14.12.3)
 
 packages:
   /@ampproject/remapping@2.3.0:
@@ -1954,7 +1963,7 @@ packages:
       std-env: 3.7.0
       strip-literal: 2.1.0
       test-exclude: 6.0.0
-      vitest: 1.6.0
+      vitest: 1.6.0(happy-dom@14.12.3)
     transitivePeerDependencies:
       - supports-color
     dev: true
@@ -5223,64 +5232,6 @@ packages:
       fsevents: 2.3.3
     dev: true
 
-  /vitest@1.6.0:
-    resolution:
-      {
-        integrity: sha512-H5r/dN06swuFnzNFhq/dnz37bPXnq8xB2xB5JOVk8K09rUtoeNN+LHWkoQ0A/i3hvbUKKcCei9KpbxqHMLhLLA==,
-      }
-    engines: { node: ^18.0.0 || >=20.0.0 }
-    hasBin: true
-    peerDependencies:
-      "@edge-runtime/vm": "*"
-      "@types/node": ^18.0.0 || >=20.0.0
-      "@vitest/browser": 1.6.0
-      "@vitest/ui": 1.6.0
-      happy-dom: "*"
-      jsdom: "*"
-    peerDependenciesMeta:
-      "@edge-runtime/vm":
-        optional: true
-      "@types/node":
-        optional: true
-      "@vitest/browser":
-        optional: true
-      "@vitest/ui":
-        optional: true
-      happy-dom:
-        optional: true
-      jsdom:
-        optional: true
-    dependencies:
-      "@vitest/expect": 1.6.0
-      "@vitest/runner": 1.6.0
-      "@vitest/snapshot": 1.6.0
-      "@vitest/spy": 1.6.0
-      "@vitest/utils": 1.6.0
-      acorn-walk: 8.3.3
-      chai: 4.4.1
-      debug: 4.3.5
-      execa: 8.0.1
-      local-pkg: 0.5.0
-      magic-string: 0.30.10
-      pathe: 1.1.2
-      picocolors: 1.0.1
-      std-env: 3.7.0
-      strip-literal: 2.1.0
-      tinybench: 2.8.0
-      tinypool: 0.8.4
-      vite: 5.3.2
-      vite-node: 1.6.0
-      why-is-node-running: 2.2.2
-    transitivePeerDependencies:
-      - less
-      - lightningcss
-      - sass
-      - stylus
-      - sugarss
-      - supports-color
-      - terser
-    dev: true
-
   /vitest@1.6.0(happy-dom@14.12.3):
     resolution:
       {
@@ -5327,7 +5278,7 @@ packages:
       strip-literal: 2.1.0
       tinybench: 2.8.0
       tinypool: 0.8.4
-      vite: 5.3.1
+      vite: 5.3.2
       vite-node: 1.6.0
       why-is-node-running: 2.2.2
     transitivePeerDependencies:

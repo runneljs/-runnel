@@ -31,16 +31,16 @@ describe("App", () => {
   test("expected publish/subscribe events are introduced", () => {
     expect(reportInMemory).toEqual({
       fullName: {
-        onCreateSubscribe: 1,
-        onCreatePublish: 0,
-        publish: [],
-        subscribe: [],
+        onSubscribeCreated: 1,
+        onPublishCreated: 0,
+        onPublish: null,
+        onSubscribe: null,
       },
       count: {
-        onCreateSubscribe: 1,
-        onCreatePublish: 1,
-        publish: [1],
-        subscribe: [1],
+        onSubscribeCreated: 1,
+        onPublishCreated: 1,
+        onPublish: 1,
+        onSubscribe: 1,
       },
     });
   });

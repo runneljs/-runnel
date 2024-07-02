@@ -1,4 +1,9 @@
-import type { PluginEmitter } from "./feat-plugin/plugin-emitter";
+import {
+  dispatchOnPublish,
+  dispatchOnPublishCreated,
+  dispatchOnSubscribe,
+  dispatchOnSubscribeCreated,
+} from "./dispatch-events";
 import type { PayloadValidator } from "./payload-validator";
 import type { JsonSchema, TopicId } from "./primitive-types";
 
@@ -28,7 +33,6 @@ export type Sender = <T>(
 ) => void;
 export function buildSender(
   latestStateStore: Map<TopicId, unknown>,
-  pluginEmitter: PluginEmitter,
   payloadValidator: PayloadValidator,
 ): Sender {
   return function sender<T>(
@@ -38,13 +42,12 @@ export function buildSender(
     callback: (payload: T) => void,
   ): void {
     // Sender Preconditions
-    const payload = pluginEmitter.publish(
-      topicId,
-      payloadValidator(topicId, jsonSchema, _payload),
-    ) as T;
+    const payload = payloadValidator(topicId, jsonSchema, _payload);
+    dispatchOnPublish(topicId, payload);
     // Preserve the latest payload with the topicId.
     // So the newly registered topics can get the latest payload when they subscribe.
     latestStateStore.set(topicId, payload);
+    dispatchOnPublishCreated(topicId);
     return callback(payload);
   };
 }
@@ -56,7 +59,6 @@ export type Receiver = <T, U>(
 ) => U;
 export function buildReceiver(
   latestStateStore: Map<TopicId, unknown>,
-  pluginEmitter: PluginEmitter,
 ): Receiver {
   return function receiver<T, U>(
     topicId: TopicId,
@@ -65,11 +67,10 @@ export function buildReceiver(
   ): U {
     if (latestStateStore.has(topicId)) {
       // As soon as a new subscriber subscribes, it should get the latest payload.
-      subscriber(
-        pluginEmitter.subscribe(topicId, latestStateStore.get(topicId)!) as T,
-      );
+      dispatchOnSubscribe(topicId, latestStateStore.get(topicId));
+      subscriber(latestStateStore.get(topicId) as T);
     }
-    pluginEmitter.onCreateSubscribe(topicId);
+    dispatchOnSubscribeCreated(topicId);
     return callback();
   };
 }

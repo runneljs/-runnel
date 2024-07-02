@@ -6,22 +6,11 @@ import { createEventBus } from "runneljs";
 
 export function setupReporter(currentFileUrl: string) {
   const { setReport, reporter } = createReporter(currentFileUrl);
-  const { plugin, observer } = createPlugin(deepEqual);
+  const { register, observer } = createPlugin(deepEqual);
   const { registerTopic } = createEventBus({
     deepEqual,
     payloadValidator: validator,
-    pluginMap: new Map().set(window, [
-      plugin,
-      {
-        publish: (id: string, payload: unknown) => {
-          console.log(`[${id}] publish ${payload}`);
-          return payload;
-        },
-        onCreatePublish: (id: string) => {
-          console.log(`[${id}] onCreatePublish`);
-        },
-      },
-    ]),
   });
+  register();
   return { setReport, reporter, observer, registerTopic };
 }
