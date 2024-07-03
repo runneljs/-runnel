@@ -1,4 +1,4 @@
-import type { TopicId } from "../primitive-types";
+import type { TopicId } from "../topic-registration";
 
 type UUID = string;
 type Subscriber = (payload: any) => void;

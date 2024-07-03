@@ -1,5 +1,5 @@
 import { PayloadMismatchError } from "./errors";
-import type { JsonSchema, TopicId } from "./primitive-types";
+import type { JsonSchema, TopicId } from "./topic-registration";
 
 export type Validator = (
   jsonSchema: JsonSchema,

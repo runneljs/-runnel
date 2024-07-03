@@ -1,7 +1,7 @@
 import { Validator } from "@cfworker/json-schema";
 import isEqual from "lodash.isequal";
+import type { GlobalType } from "../get-global";
 import { createEventBus } from "../index";
-import type { GlobalType } from "../scope";
 
 function payloadValidator(jsonSchema: object) {
   const validator = new Validator(jsonSchema);

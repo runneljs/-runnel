@@ -2,12 +2,15 @@ import {
   createSchemaManager,
   type DeepEqual,
 } from "../feat-schema/schema-manager";
-import { getGlobal } from "../get-global";
+import { getGlobal, type GlobalType, type RunnelGlobals } from "../get-global";
 import type { Validator } from "../payload-validator";
 import { createPayloadValidator } from "../payload-validator";
-import type { JsonSchema, TopicId } from "../primitive-types";
-import type { GlobalType, RunnelGlobals } from "../scope";
-import { buildReceiver, buildSender } from "../topic-registration";
+import {
+  buildReceiver,
+  buildSender,
+  type JsonSchema,
+  type TopicId,
+} from "../topic-registration";
 import { eventBus, type EventBus } from "./event-bus";
 import { SubscriptionStore } from "./SubscriptionStore";
 

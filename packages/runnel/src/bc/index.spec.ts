@@ -1,6 +1,6 @@
 import { Validator } from "@cfworker/json-schema";
 import deepEqual from "deep-equal";
-import type { GlobalType } from "../scope";
+import type { GlobalType } from "../get-global";
 import {
   mockBroadcastChannel,
   resetMockBroadcastChannel,

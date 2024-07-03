@@ -7,11 +7,10 @@ import {
   type DeepEqual,
   type SchemaManager,
 } from "../feat-schema/schema-manager";
-import { getGlobal } from "../get-global";
+import { getGlobal, type GlobalType, type RunnelGlobals } from "../get-global";
 import { createPayloadValidator, type Validator } from "../payload-validator";
-import type { JsonSchema, TopicId } from "../primitive-types";
-import type { GlobalType, RunnelGlobals } from "../scope";
 import { topicNameToId } from "../topic-name-to-id";
+import type { JsonSchema, TopicId } from "../topic-registration";
 import { buildReceiver, buildSender } from "../topic-registration";
 
 const defaultKeys = {

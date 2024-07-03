@@ -1,4 +1,5 @@
-import type { TopicId } from "./primitive-types";
+import type { TopicId } from "./topic-registration";
+
 export type TopicName = string;
 
 export function topicNameToId(topicName: TopicName, version?: number): TopicId {

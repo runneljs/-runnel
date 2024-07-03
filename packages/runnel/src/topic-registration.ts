@@ -5,7 +5,9 @@ import {
   dispatchOnSubscribeCreated,
 } from "./dispatch-events";
 import type { PayloadValidator } from "./payload-validator";
-import type { JsonSchema, TopicId } from "./primitive-types";
+
+export type TopicId = string;
+export type JsonSchema = object;
 
 export type TopicRegistration = <T>(
   topicId: TopicId,

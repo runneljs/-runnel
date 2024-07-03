@@ -1,4 +1,4 @@
-import type { TopicId } from "./primitive-types";
+import type { TopicId } from "./topic-registration";
 
 export type DispatchEventName =
   | "runnel:onpublish"

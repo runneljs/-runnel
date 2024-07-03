@@ -1,11 +1,12 @@
 import { dispatchOnSubscribe, dispatchOnUnsubscribe } from "../dispatch-events";
 import type { SchemaManager } from "../feat-schema/schema-manager";
-import type { JsonSchema, TopicId } from "../primitive-types";
 import { topicNameToId, type TopicName } from "../topic-name-to-id";
 import {
   createTopicRegistration,
+  type JsonSchema,
   type Receiver,
   type Sender,
+  type TopicId,
   type TopicRegistration,
 } from "../topic-registration";
 import type { SubscriptionStore } from "./SubscriptionStore";
