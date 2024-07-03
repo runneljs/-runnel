@@ -1,6 +1,6 @@
 import { dispatchOnSubscribe, dispatchOnUnsubscribe } from "../dispatch-events";
 import type { SchemaManager } from "../feat-schema/schema-manager";
-import type { JsonSchema, TopicId, UUID } from "../primitive-types";
+import type { JsonSchema, TopicId } from "../primitive-types";
 import { topicNameToId, type TopicName } from "../topic-name-to-id";
 import {
   createTopicRegistration,
@@ -85,9 +85,7 @@ function createRegisterTopic(
     const { version } = options ?? {};
     const topicId = topicNameToId(topicName, version);
     return topicRegistration(topicId, jsonSchema, () => {
-      const subscribers =
-        subscriptionStore.get(topicId) ||
-        new Map<UUID, <T>(payload: T) => void>();
+      const subscribers = subscriptionStore.getOrCreate(topicId);
       subscriptionStore.set(topicId, subscribers);
 
       return {
