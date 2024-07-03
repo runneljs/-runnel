@@ -1,6 +1,6 @@
+import { TopicNotFoundError } from "../errors";
+import { topicNameToId, type TopicName } from "../topic-name-to-id";
 import type { SubscriptionStore } from "./SubscriptionStore";
-import { TopicNotFoundError } from "./errors";
-import { topicNameToId, type TopicName } from "./topic-name-to-id";
 
 export type UnregisterTopic = (
   topicName: TopicName,

@@ -9,7 +9,7 @@ export type SchemaManager = {
   getSchemaByTopicId: (topicId: TopicId) => JsonSchema | undefined;
 };
 
-export function schemaManager(
+export function createSchemaManager(
   deepEqual: DeepEqual,
   schemaStore: Map<TopicId, JsonSchema>,
 ): SchemaManager {

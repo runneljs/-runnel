@@ -1,4 +1,4 @@
-import type { SubscriptionStore } from "./SubscriptionStore";
+import type { SubscriptionStore } from "./eventbus/SubscriptionStore";
 
 export type RunnelGlobals = {
   // Observe when plugins are registered.

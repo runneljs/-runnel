@@ -1,7 +1,7 @@
 import { Validator } from "@cfworker/json-schema";
 import isEqual from "lodash.isequal";
-import { createEventBus } from "./index";
-import type { GlobalType } from "./scope";
+import { createEventBus } from "../index";
+import type { GlobalType } from "../scope";
 
 function payloadValidator(jsonSchema: object) {
   const validator = new Validator(jsonSchema);
@@ -47,10 +47,10 @@ describe("create-event-bus", () => {
 
 describe("Register two eventbuses. The latter has a plugin.", () => {
   let globalVar: GlobalType;
-  let pubStore: any;
-  let subStore: any;
   let eventBus1: ReturnType<typeof createEventBus>;
   let eventBus2: ReturnType<typeof createEventBus>;
+  let pubStore: any;
+  let subStore: any;
   let mockPublish: ReturnType<typeof vi.fn>;
   let mockSubscribe: ReturnType<typeof vi.fn>;
   let subscriber: ReturnType<typeof vi.fn>;

@@ -3,7 +3,7 @@ import type {
   Subscription,
   TopicId,
   UUID,
-} from "./primitive-types";
+} from "../primitive-types";
 
 export class SubscriptionStore extends Map<TopicId, Subscription> {
   // If `subscriber` is not set, it's considered as unsubscribing.

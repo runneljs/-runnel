@@ -12,7 +12,6 @@ export default defineConfig({
         lines: 80,
         functions: 80,
       },
-      reporter: ["cobertura", "html"],
     },
   },
 });

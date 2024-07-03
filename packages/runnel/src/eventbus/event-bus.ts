@@ -1,14 +1,14 @@
-import type { SubscriptionStore } from "./SubscriptionStore";
-import { dispatchOnSubscribe, dispatchOnUnsubscribe } from "./dispatch-events";
-import type { SchemaManager } from "./feat-schema/schema-manager";
-import type { JsonSchema, TopicId, UUID } from "./primitive-types";
-import { topicNameToId, type TopicName } from "./topic-name-to-id";
+import { dispatchOnSubscribe, dispatchOnUnsubscribe } from "../dispatch-events";
+import type { SchemaManager } from "../feat-schema/schema-manager";
+import type { JsonSchema, TopicId, UUID } from "../primitive-types";
+import { topicNameToId, type TopicName } from "../topic-name-to-id";
 import {
   createTopicRegistration,
   type Receiver,
   type Sender,
   type TopicRegistration,
-} from "./topic-registration";
+} from "../topic-registration";
+import type { SubscriptionStore } from "./SubscriptionStore";
 import {
   createUnregisterAllTopics,
   type UnregisterAllTopics,

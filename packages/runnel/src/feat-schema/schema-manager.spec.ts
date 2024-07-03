@@ -1,5 +1,5 @@
 import deepEqual from "deep-equal";
-import { schemaManager } from "./schema-manager";
+import { createSchemaManager } from "./schema-manager";
 
 describe("schemaManager", () => {
   describe("checkSchema", () => {
@@ -7,7 +7,7 @@ describe("schemaManager", () => {
       const schemaStore = new Map();
       schemaStore.set("topicId", { type: "string" });
       expect(() =>
-        schemaManager(deepEqual, schemaStore).checkSchema("topicId", {
+        createSchemaManager(deepEqual, schemaStore).checkSchema("topicId", {
           type: "number",
         }),
       ).toThrow(
@@ -20,7 +20,7 @@ describe("schemaManager", () => {
       schemaStore.set("topicId", { type: "string" });
 
       expect(() => {
-        schemaManager(deepEqual, schemaStore).checkSchema("topicId", {
+        createSchemaManager(deepEqual, schemaStore).checkSchema("topicId", {
           type: "string",
         });
       }).not.toThrow();
@@ -30,7 +30,7 @@ describe("schemaManager", () => {
       const schemaStore = new Map();
 
       expect(() => {
-        schemaManager(deepEqual, schemaStore).checkSchema("topicId", {
+        createSchemaManager(deepEqual, schemaStore).checkSchema("topicId", {
           type: "string",
         });
       }).not.toThrow();
