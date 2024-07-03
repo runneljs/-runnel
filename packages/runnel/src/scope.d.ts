@@ -1,16 +1,16 @@
-import type { SubscriptionStore } from "./SubscriptionStore";
-import type { Observable } from "./observable";
+import type { SubscriptionStore } from "./eventbus/SubscriptionStore";
 
-export type Scope = {
-  pluginScopes?: any[];
-  pluginStoresObservable?: Observable<void>;
+export type RunnelGlobals = {
+  // Observe when plugins are registered.
   subscriptionStore?: SubscriptionStore;
+  // Store schemas so we can validate schema and payload.
   schemaStoreMap?: Map<TopicId, JsonSchema>;
+  // For new subscribers which subscribe to a topic already published.
   latestStateStoreMap?: Map<TopicId, unknown>;
 };
 
-declare global {
-  var __runnel: Scope;
+interface CustomWindow extends Window {
+  __runnel: RunnelGlobals;
 }
-
-type GlobalType = typeof globalThis;
+declare const window: CustomWindow;
+type GlobalType = CustomWindow;

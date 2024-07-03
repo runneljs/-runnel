@@ -1,13 +1,11 @@
 import { Validator } from "@cfworker/json-schema";
 import deepEqual from "deep-equal";
-import { SubscriptionStore } from "./SubscriptionStore";
+import { createSchemaManager } from "../feat-schema/schema-manager";
+import { createPayloadValidator } from "../payload-validator";
+import { metricPlugin } from "../test-utils/metric-plugin";
+import { buildReceiver, buildSender } from "../topic-registration";
 import { eventBus, type EventBus } from "./event-bus";
-import { mapPlugins } from "./map-plugins";
-import { createPluginEmitter } from "./plugin-emitter";
-import type { JsonSchema } from "./primitive-types";
-import { schemaManager } from "./schema-manager";
-import type { Scope } from "./scope";
-import { createGetSynchedPluginStores } from "./sync-plugins";
+import { SubscriptionStore } from "./SubscriptionStore";
 
 type TestSchema = {
   name: string;
@@ -28,12 +26,6 @@ const jsonSchema = {
   $schema: "http://json-schema.org/draft-07/schema#",
 };
 
-const global = {} as Scope;
-const pluginEmitter = createPluginEmitter(
-  createGetSynchedPluginStores(new Map(), global),
-  global,
-);
-
 function payloadValidator(jsonSchema: object) {
   const validator = new Validator(jsonSchema);
   return function (payload: unknown) {
@@ -49,13 +41,15 @@ describe("EventBus", () => {
     beforeAll(() => {
       latestStateStore = new Map();
       subscriptionStore = new SubscriptionStore();
-      const checkSchema = schemaManager(deepEqual, new Map());
       _eventBus = eventBus({
         latestStateStore,
         subscriptionStore,
-        checkSchema,
-        pluginEmitter,
-        payloadValidator,
+        schemaManager: createSchemaManager(deepEqual, new Map()),
+        sender: buildSender(
+          latestStateStore,
+          createPayloadValidator(payloadValidator),
+        ),
+        receiver: buildReceiver(latestStateStore),
       });
     });
 
@@ -156,6 +150,21 @@ describe("EventBus", () => {
         });
       });
     });
+
+    describe("getTopics", () => {
+      test("it returns the topics", () => {
+        expect(_eventBus.getTopics()).toEqual(["test", "test2", "test@1"]);
+      });
+    });
+
+    describe("getSchemaByTopicId", () => {
+      test("it returns the schema", () => {
+        expect(_eventBus.getSchemaByTopicId("test")).toEqual(jsonSchema);
+      });
+      test("it returns the schema", () => {
+        expect(_eventBus.getSchemaByTopicId("test@1")).toEqual(jsonSchema);
+      });
+    });
   });
 
   describe("topic", () => {
@@ -165,13 +174,15 @@ describe("EventBus", () => {
     beforeAll(() => {
       latestStateStore = new Map();
       subscriptionStore = new SubscriptionStore();
-      const checkSchema = schemaManager(deepEqual, new Map());
       _eventBus = eventBus({
         latestStateStore,
         subscriptionStore,
-        checkSchema,
-        pluginEmitter,
-        payloadValidator,
+        schemaManager: createSchemaManager(deepEqual, new Map()),
+        sender: buildSender(
+          latestStateStore,
+          createPayloadValidator(payloadValidator),
+        ),
+        receiver: buildReceiver(latestStateStore),
       });
     });
 
@@ -281,78 +292,32 @@ describe("EventBus", () => {
 
   describe("plugin", () => {
     let mock: ReturnType<typeof vi.fn>;
-    let schemaReceiver: ReturnType<typeof vi.fn>;
+    let plugin: ReturnType<typeof metricPlugin>;
     let latestStateStore: Map<string, unknown>;
     let subscriptionStore: SubscriptionStore;
     let _eventBus: EventBus;
     const schemaStore = new Map();
+
     beforeAll(() => {
       mock = vi.fn();
-      schemaReceiver = vi.fn();
       latestStateStore = new Map();
       subscriptionStore = new SubscriptionStore();
-      const metricPlugin = () => {
-        const subscribeStats: Record<string, number> = {};
-        const publishStats: Record<string, number> = {};
-        const subStats: Record<string, number> = {};
-        const pubStats: Record<string, number> = {};
-        let schema = {};
-
-        return {
-          // when `subscribe` is introduced.
-          onCreateSubscribe: (topicId: string, _schema: JsonSchema) => {
-            schema = _schema;
-            subscribeStats[topicId]
-              ? subscribeStats[topicId]++
-              : (subscribeStats[topicId] = 1);
-          },
-          // when `publish` is introduced.
-          onCreatePublish: (topicId: string) => {
-            publishStats[topicId]
-              ? publishStats[topicId]++
-              : (publishStats[topicId] = 1);
-          },
-          onUnregisterAllTopics: () => {
-            mock({ subscribeStats, publishStats, pubStats, subStats });
-            schemaReceiver({ schema });
-          },
-          // when pub-sub communication happens. On the publish side.
-          publish: (
-            topicId: string,
-            payload: { name: string },
-          ): { name: string } => {
-            pubStats[topicId] ? pubStats[topicId]++ : (pubStats[topicId] = 1);
-            return { ...payload, name: payload.name + "?" };
-          },
-          // when pub-sub communication happens. On the subscribe side.
-          subscribe: (
-            topicId: string,
-            payload: { name: string },
-          ): { name: string } => {
-            subStats[topicId] ? subStats[topicId]++ : (subStats[topicId] = 1);
-            return { ...payload, name: payload.name.replace(/\?$/, "") };
-          },
-        };
-      };
-      const pluginMap = new Map().set(undefined, [metricPlugin()]);
-      // .set(global, [metricPlugin()]);
-
-      const pluginEmitter = createPluginEmitter(
-        createGetSynchedPluginStores(
-          mapPlugins(schemaStore, pluginMap),
-          global,
-        ),
-        global,
-      );
-      const checkSchema = schemaManager(deepEqual, schemaStore);
-
       _eventBus = eventBus({
         latestStateStore,
         subscriptionStore,
-        checkSchema,
-        pluginEmitter,
-        payloadValidator,
+        schemaManager: createSchemaManager(deepEqual, schemaStore),
+        sender: buildSender(
+          latestStateStore,
+          createPayloadValidator(payloadValidator),
+        ),
+        receiver: buildReceiver(latestStateStore),
       });
+      plugin = metricPlugin(mock);
+      plugin.register();
+    });
+
+    afterAll(() => {
+      plugin.unregister();
     });
 
     afterEach(() => {
@@ -411,23 +376,6 @@ describe("EventBus", () => {
             subStats: { skywalker: 6 + 1 }, // +1 for the additional subscriber.
           });
           expect(mock).toHaveBeenCalledTimes(1);
-          expect(schemaReceiver).toHaveBeenCalledWith({
-            schema: {
-              type: "object",
-              properties: {
-                name: {
-                  type: "string",
-                },
-                age: {
-                  type: "number",
-                },
-              },
-              required: ["name"],
-              additionalProperties: false,
-              $schema: "http://json-schema.org/draft-07/schema#",
-            },
-          });
-          expect(schemaReceiver).toHaveBeenCalledTimes(1);
         });
       });
     });
