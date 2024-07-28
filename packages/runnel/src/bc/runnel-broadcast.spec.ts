@@ -1,18 +1,11 @@
-import { Validator } from "@cfworker/json-schema";
 import deepEqual from "deep-equal";
 import type { GlobalType } from "../get-global";
 import {
   mockBroadcastChannel,
   resetMockBroadcastChannel,
 } from "../test-utils/mock-broadcast-channel";
+import { payloadValidator } from "../test-utils/validator";
 import { runnel, type RunnelBroadcastChannel } from "./index";
-
-function payloadValidator(jsonSchema: object) {
-  const validator = new Validator(jsonSchema);
-  return function (payload: unknown) {
-    return validator.validate(payload).valid;
-  };
-}
 
 describe("runnel/bc", () => {
   let globalVar: GlobalType;

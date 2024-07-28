@@ -1,8 +1,8 @@
-import { Validator } from "@cfworker/json-schema";
 import deepEqual from "deep-equal";
 import { createSchemaManager } from "../feat-schema/schema-manager";
 import { createPayloadValidator } from "../payload-validator";
 import { metricPlugin } from "../test-utils/metric-plugin";
+import { payloadValidator } from "../test-utils/validator";
 import { buildReceiver, buildSender } from "../topic-registration";
 import { eventBus, type EventBus } from "./event-bus";
 import { SubscriptionStore } from "./SubscriptionStore";
@@ -25,13 +25,6 @@ const jsonSchema = {
   additionalProperties: false,
   $schema: "http://json-schema.org/draft-07/schema#",
 };
-
-function payloadValidator(jsonSchema: object) {
-  const validator = new Validator(jsonSchema);
-  return function (payload: unknown) {
-    return validator.validate(payload).valid;
-  };
-}
 
 describe("EventBus", () => {
   describe("eventBus", () => {

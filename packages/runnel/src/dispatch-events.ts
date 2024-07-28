@@ -8,24 +8,46 @@ export type DispatchEventName =
   | "runnel:onunsubscribe"
   | "runnel:onunregisteralltopics";
 
+export const onPublishEventName = "runnel:onpublish";
+export type OnPublishEventPayload = {
+  topicId: TopicId;
+  payload: unknown;
+};
 export function dispatchOnPublish(topicId: TopicId, payload: unknown) {
-  dispatch("runnel:onpublish", { topicId, payload });
+  dispatch(onPublishEventName, { topicId, payload });
 }
 
+export const onPublishCreatedEventName = "runnel:onpublishcreated";
+export type OnPublishCreatedEventPayload = {
+  topicId: TopicId;
+};
 export function dispatchOnPublishCreated(topicId: TopicId) {
-  dispatch("runnel:onpublishcreated", { topicId });
+  dispatch(onPublishCreatedEventName, { topicId });
 }
 
+export const onSubscribeEventName = "runnel:onsubscribe";
+export type OnSubscribeEventPayload = {
+  topicId: TopicId;
+  payload: unknown;
+};
 export function dispatchOnSubscribe(topicId: TopicId, payload: unknown) {
-  dispatch("runnel:onsubscribe", { topicId, payload });
+  dispatch(onSubscribeEventName, { topicId, payload });
 }
 
+export const onSubscribeCreatedEventName = "runnel:onsubscribecreated";
+export type OnSubscribeCreatedEventPayload = {
+  topicId: TopicId;
+};
 export function dispatchOnSubscribeCreated(topicId: TopicId) {
-  dispatch("runnel:onsubscribecreated", { topicId });
+  dispatch(onSubscribeCreatedEventName, { topicId });
 }
 
+export const onUnsubscribeEventName = "runnel:onunsubscribe";
+export type OnUnsubscribeEventPayload = {
+  topicId: TopicId;
+};
 export function dispatchOnUnsubscribe(topicId: TopicId) {
-  dispatch("runnel:onunsubscribe", { topicId });
+  dispatch(onUnsubscribeEventName, { topicId });
 }
 
 export function dispatchOnUnregisterAllTopics() {
