@@ -2,6 +2,8 @@ import type { SubscriptionStore } from "./eventbus/SubscriptionStore";
 import type { JsonSchema, TopicId } from "./topic-registration";
 
 export type RunnelGlobals = {
+  // Broadcast Channel name.
+  name?: string;
   // Observe when plugins are registered.
   subscriptionStore?: SubscriptionStore;
   // Store schemas so we can validate schema and payload.

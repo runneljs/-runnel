@@ -3,7 +3,6 @@ import {
   createSchemaManager,
   type DeepEqual,
 } from "../feat-schema/schema-manager";
-import { getGlobal, type GlobalType, type RunnelGlobals } from "../get-global";
 import { createPayloadValidator, type Validator } from "../payload-validator";
 import { topicNameToId, type TopicName } from "../topic-name-to-id";
 import {
@@ -13,6 +12,7 @@ import {
   type JsonSchema,
   type TopicId,
 } from "../topic-registration";
+import { SyncMap } from "./SyncMap";
 
 type Unsubscribe = () => void;
 export type RegisterTopic = <T>(
@@ -35,24 +35,23 @@ export function runnelBC(
   channelName: string,
   deepEqual: DeepEqual,
   validator: Validator,
-  globalVar: GlobalType = getGlobal(),
 ): {
   close: () => void;
   registerTopic: RegisterTopic;
 } {
-  // TODO: Maybe use sessionStorage?
-  const _runnel = (globalVar.__runnel ??= {} as RunnelGlobals);
-  _runnel.schemaStoreMap ??= new Map<TopicId, JsonSchema>();
-  _runnel.latestStateStoreMap ??= new Map<TopicId, unknown>();
-
-  const latestStateStore = _runnel.latestStateStoreMap;
-  const schemaManager = createSchemaManager(deepEqual, _runnel.schemaStoreMap);
+  const schemaStoreMap = new SyncMap<TopicId, JsonSchema>(
+    `${channelName}:runnel:schema`,
+  );
+  const latestStateStoreMap = new SyncMap<TopicId, unknown>(
+    `${channelName}:runnel:latest-state`,
+  );
+  const schemaManager = createSchemaManager(deepEqual, schemaStoreMap);
   const topicRegistration = createTopicRegistration(schemaManager.checkSchema);
   const sender = buildSender(
-    latestStateStore,
+    latestStateStoreMap,
     createPayloadValidator(validator),
   );
-  const receiver = buildReceiver(latestStateStore);
+  const receiver = buildReceiver(latestStateStoreMap);
 
   const broadcastChannel = new BroadcastChannel(channelName);
 

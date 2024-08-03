@@ -6,7 +6,6 @@ import {
   onSubscribeEventName,
   onUnsubscribeEventName,
 } from "../dispatch-events";
-import type { GlobalType } from "../get-global";
 import {
   mockBroadcastChannel,
   resetMockBroadcastChannel,
@@ -32,31 +31,17 @@ const testJsonSchema = {
 
 describe("runnel-bc", () => {
   let runnel: RunnelBC;
-  let globalVar: GlobalType;
   let channelName: string;
 
   beforeAll(() => {
     mockBroadcastChannel();
     channelName = unique("test-channel");
-    globalVar = {} as GlobalType;
-    runnel = runnelBC(channelName, deepEqual, payloadValidator, globalVar);
+    runnel = runnelBC(channelName, deepEqual, payloadValidator);
   });
 
   afterAll(() => {
-    runnel.close();
+    runnel?.close();
     resetMockBroadcastChannel();
-    globalVar = {} as GlobalType;
-  });
-
-  describe("initialization makes global objects available", () => {
-    it("binds global objects", () => {
-      expect(globalVar.__runnel).toBeDefined();
-      expect(globalVar.__runnel.subscriptionStore).not.toBeDefined();
-      expect(globalVar.__runnel.latestStateStoreMap).toBeDefined();
-      expect(globalVar.__runnel.latestStateStoreMap?.size).toBe(0);
-      expect(globalVar.__runnel.schemaStoreMap).toBeDefined();
-      expect(globalVar.__runnel.schemaStoreMap?.size).toBe(0);
-    });
   });
 
   describe("Registering a topic", () => {
@@ -70,9 +55,6 @@ describe("runnel-bc", () => {
       runnel.registerTopic(topicName, testJsonSchema);
     });
 
-    it("registers the topic to the global objects", () => {
-      expect(globalVar.__runnel.schemaStoreMap?.get(topicName)).toBeDefined();
-    });
     it("allows to register a topic with a different version and a different schema", () => {
       runnel.registerTopic(topicName, schema, { version: 2 });
     });
