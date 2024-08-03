@@ -1,6 +1,9 @@
-import { dispatchOnSubscribe, dispatchOnUnsubscribe } from "../dispatch-events";
-import type { SchemaManager } from "../feat-schema/schema-manager";
-import { topicNameToId, type TopicName } from "../topic-name-to-id";
+import {
+  dispatchOnSubscribe,
+  dispatchOnUnsubscribe,
+} from "../bc/dispatch-events";
+import type { SchemaManager } from "../bc/schema-manager";
+import { topicNameToId, type TopicName } from "../bc/topic-name-to-id";
 import {
   createTopicRegistration,
   type JsonSchema,
@@ -8,7 +11,7 @@ import {
   type Sender,
   type TopicId,
   type TopicRegistration,
-} from "../topic-registration";
+} from "../bc/topic-registration";
 import type { SubscriptionStore } from "./SubscriptionStore";
 import {
   createUnregisterAllTopics,

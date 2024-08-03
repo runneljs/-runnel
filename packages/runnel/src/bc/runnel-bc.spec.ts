@@ -1,16 +1,16 @@
 import deepEqual from "deep-equal";
 import {
+  mockBroadcastChannel,
+  resetMockBroadcastChannel,
+} from "../test-utils/mock-broadcast-channel";
+import { payloadValidator } from "../test-utils/validator";
+import {
   onPublishCreatedEventName,
   onPublishEventName,
   onSubscribeCreatedEventName,
   onSubscribeEventName,
   onUnsubscribeEventName,
-} from "../dispatch-events";
-import {
-  mockBroadcastChannel,
-  resetMockBroadcastChannel,
-} from "../test-utils/mock-broadcast-channel";
-import { payloadValidator } from "../test-utils/validator";
+} from "./dispatch-events";
 import { type RegisterTopic, type Runnel, runnel } from "./runnel-bc";
 
 type TestSchema = {

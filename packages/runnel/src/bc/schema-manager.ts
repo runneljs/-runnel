@@ -1,5 +1,5 @@
-import { SchemaMismatchError } from "../errors";
-import type { JsonSchema, TopicId } from "../topic-registration";
+import { SchemaMismatchError } from "./errors";
+import type { JsonSchema, TopicId } from "./topic-registration";
 
 export type DeepEqual = (value: JsonSchema, other: JsonSchema) => boolean;
 

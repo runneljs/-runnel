@@ -1,4 +1,4 @@
-import { dispatchOnUnregisterAllTopics } from "../dispatch-events";
+import { dispatchOnUnregisterAllTopics } from "../bc/dispatch-events";
 import type { SubscriptionStore } from "./SubscriptionStore";
 
 export type UnregisterAllTopics = () => void;

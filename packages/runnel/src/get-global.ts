@@ -1,5 +1,5 @@
+import type { JsonSchema, TopicId } from "./bc/topic-registration";
 import type { SubscriptionStore } from "./eventbus/SubscriptionStore";
-import type { JsonSchema, TopicId } from "./topic-registration";
 
 export type RunnelGlobals = {
   // Broadcast Channel name.

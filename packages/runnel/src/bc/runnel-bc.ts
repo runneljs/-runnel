@@ -1,18 +1,15 @@
-import { dispatchOnUnsubscribe } from "../dispatch-events";
-import {
-  createSchemaManager,
-  type DeepEqual,
-} from "../feat-schema/schema-manager";
-import { createPayloadValidator, type Validator } from "../payload-validator";
-import { topicNameToId, type TopicName } from "../topic-name-to-id";
+import { dispatchOnUnsubscribe } from "./dispatch-events";
+import { createPayloadValidator, type Validator } from "./payload-validator";
+import { createSchemaManager, type DeepEqual } from "./schema-manager";
+import { SyncMap } from "./SyncMap";
+import { topicNameToId, type TopicName } from "./topic-name-to-id";
 import {
   buildReceiver,
   buildSender,
   createTopicRegistration,
   type JsonSchema,
   type TopicId,
-} from "../topic-registration";
-import { SyncMap } from "./SyncMap";
+} from "./topic-registration";
 
 type Unsubscribe = () => void;
 export type RegisterTopic = <T>(

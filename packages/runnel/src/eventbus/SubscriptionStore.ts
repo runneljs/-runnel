@@ -1,4 +1,4 @@
-import type { TopicId } from "../topic-registration";
+import type { TopicId } from "../bc/topic-registration";
 
 type UUID = string;
 type Subscriber = (payload: any) => void;

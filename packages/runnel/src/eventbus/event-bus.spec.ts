@@ -1,9 +1,9 @@
 import deepEqual from "deep-equal";
-import { createSchemaManager } from "../feat-schema/schema-manager";
-import { createPayloadValidator } from "../payload-validator";
+import { createPayloadValidator } from "../bc/payload-validator";
+import { createSchemaManager } from "../bc/schema-manager";
+import { buildReceiver, buildSender } from "../bc/topic-registration";
 import { metricPlugin } from "../test-utils/metric-plugin";
 import { payloadValidator } from "../test-utils/validator";
-import { buildReceiver, buildSender } from "../topic-registration";
 import { eventBus, type EventBus } from "./event-bus";
 import { SubscriptionStore } from "./SubscriptionStore";
 
