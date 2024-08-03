@@ -1,1 +1,1 @@
-export { runnel, type RunnelBroadcastChannel } from "./runnel-broadcast";
+export { runnel, type RegisterTopic, type Runnel } from "./runnel-bc";

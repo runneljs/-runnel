@@ -6,7 +6,7 @@ import {
   mockBroadcastChannel,
   resetMockBroadcastChannel,
 } from "../test-utils/mock-broadcast-channel";
-import { runnel, type RunnelBroadcastChannel } from "./index";
+import { runnel, type RunnelBroadcastChannel } from "./runnel-broadcast";
 
 const jsonSchema = {
   type: "object",

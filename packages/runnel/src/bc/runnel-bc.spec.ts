@@ -11,7 +11,7 @@ import {
   resetMockBroadcastChannel,
 } from "../test-utils/mock-broadcast-channel";
 import { payloadValidator } from "../test-utils/validator";
-import { runnelBC, type RegisterTopic, type RunnelBC } from "./runnel-bc";
+import { type RegisterTopic, type Runnel, runnel } from "./runnel-bc";
 
 type TestSchema = {
   name: string;
@@ -30,17 +30,17 @@ const testJsonSchema = {
 };
 
 describe("runnel-bc", () => {
-  let runnel: RunnelBC;
+  let channel: Runnel;
   let channelName: string;
 
   beforeAll(() => {
     mockBroadcastChannel();
     channelName = unique("test-channel");
-    runnel = runnelBC(channelName, deepEqual, payloadValidator);
+    channel = runnel(channelName, deepEqual, payloadValidator);
   });
 
   afterAll(() => {
-    runnel?.close();
+    channel?.close();
     resetMockBroadcastChannel();
   });
 
@@ -52,15 +52,15 @@ describe("runnel-bc", () => {
     };
     beforeEach(() => {
       topicName = unique("test-topic");
-      runnel.registerTopic(topicName, testJsonSchema);
+      channel.registerTopic(topicName, testJsonSchema);
     });
 
     it("allows to register a topic with a different version and a different schema", () => {
-      runnel.registerTopic(topicName, schema, { version: 2 });
+      channel.registerTopic(topicName, schema, { version: 2 });
     });
     it("does not allow to register a topic with the same version", () => {
       expect(() => {
-        runnel.registerTopic(topicName, schema);
+        channel.registerTopic(topicName, schema);
       }).toThrow();
     });
   });
@@ -72,7 +72,7 @@ describe("runnel-bc", () => {
 
     beforeEach(() => {
       const topicName = unique("test-topic");
-      topic = runnel.registerTopic(topicName, testJsonSchema);
+      topic = channel.registerTopic(topicName, testJsonSchema);
       mockOnPublishCreatedEvent = vi.fn();
       mockOnPublishEvent = vi.fn();
       window.addEventListener(
@@ -116,7 +116,7 @@ describe("runnel-bc", () => {
 
     beforeEach(() => {
       const topicName = unique("test-topic");
-      topic = runnel.registerTopic(topicName, testJsonSchema);
+      topic = channel.registerTopic(topicName, testJsonSchema);
       mockOnSubscribeCreatedEvent = vi.fn();
       mockOnSubscribeEvent = vi.fn();
       window.addEventListener(
@@ -154,7 +154,7 @@ describe("runnel-bc", () => {
 
     beforeEach(() => {
       topicName = unique("test-topic");
-      topic = runnel.registerTopic(topicName, testJsonSchema);
+      topic = channel.registerTopic(topicName, testJsonSchema);
       mockOnUnsubscribeEvent = vi.fn();
       window.addEventListener(onUnsubscribeEventName, mockOnUnsubscribeEvent);
       broadcastChannelEventListener = vi.fn();

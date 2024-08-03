@@ -5,7 +5,7 @@ import {
   resetMockBroadcastChannel,
 } from "../test-utils/mock-broadcast-channel";
 import { payloadValidator } from "../test-utils/validator";
-import { runnel, type RunnelBroadcastChannel } from "./index";
+import { runnel, type RunnelBroadcastChannel } from "./runnel-broadcast";
 
 describe("runnel/bc", () => {
   let globalVar: GlobalType;

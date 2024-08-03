@@ -26,12 +26,12 @@ export type RegisterTopic = <T>(
   publish: (payload: T) => void;
 };
 
-export type RunnelBC = {
+export type Runnel = {
   close: () => void;
   registerTopic: RegisterTopic;
 };
 
-export function runnelBC(
+export function runnel(
   channelName: string,
   deepEqual: DeepEqual,
   validator: Validator,
