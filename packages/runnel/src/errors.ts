@@ -1,4 +1,5 @@
-import type { JsonSchema, TopicId } from "./topic-registration";
+import type { JsonSchema } from "./schema-manager";
+import type { TopicId } from "./topic-name-to-id";
 
 export class PayloadMismatchError extends Error {
   constructor(

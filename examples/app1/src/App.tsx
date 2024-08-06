@@ -1,10 +1,6 @@
 import { useEffect, useState } from "react";
 import deepEqual from "deep-equal";
-import {
-  PayloadMismatchError,
-  SchemaMismatchError,
-  createEventBus,
-} from "runneljs";
+import { PayloadMismatchError, SchemaMismatchError, runnel } from "runneljs";
 import { z } from "zod";
 import { zodToJsonSchema } from "zod-to-json-schema";
 import "./App.css";
@@ -16,10 +12,7 @@ import { validator } from "@runnel/validator";
  * - payloadValidator: App 1 uses `@cfworker/json-schema`. App 2 uses `ajv`.
  * Whichever the eventBus attached to the window object first will be used.
  */
-const { registerTopic } = createEventBus({
-  deepEqual,
-  payloadValidator: validator,
-});
+const { registerTopic } = runnel("event-bus", deepEqual, validator);
 
 /**
  * The lines creating topics below will be identical in both apps.
@@ -38,11 +31,14 @@ try {
   // @ts-expect-error
   countTopic.publish("oops");
 } catch (e) {
+  console.warn("App 1 causes a PayloadMismatchError error");
   console.warn(e);
   const { topicId, jsonSchema, payload } = e as unknown as PayloadMismatchError;
-  console.warn({ topicName: topicId });
-  console.warn({ jsonSchema: JSON.stringify(jsonSchema) });
-  console.warn({ payload: JSON.stringify(payload) });
+  console.warn({
+    topicName: topicId,
+    jsonSchema: JSON.stringify(jsonSchema),
+    payload: JSON.stringify(payload),
+  });
 }
 
 try {
@@ -51,6 +47,7 @@ try {
    */
   registerTopic("oops", { type: "number" });
 } catch (e) {
+  console.warn("App 1 or 2 causes a SchemaMismatchError error");
   console.warn(e);
   const { topicId, jsonSchema, incomingJsonSchema } =
     e as unknown as SchemaMismatchError;

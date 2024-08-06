@@ -1,6 +1,6 @@
 {
   "name": "runneljs",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "type": "module",
   "main": "dist/index.cjs",
   "module": "dist/index.js",
@@ -10,11 +10,6 @@
       "require": "./dist/index.cjs",
       "import": "./dist/index.js",
       "types": "./dist/index.d.ts"
-    },
-    "./bc": {
-      "require": "./dist/bc/index.cjs",
-      "import": "./dist/bc/index.js",
-      "types": "./dist/bc/index.d.ts"
     }
   },
   "scripts": {

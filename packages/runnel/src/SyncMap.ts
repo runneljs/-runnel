@@ -1,11 +1,12 @@
-type MessageType = "set" | "delete" | "clear";
+type MessageType = "request-sync" | "sync" | "set" | "delete" | "clear";
+import { DualBroadcastChannel } from "./DualBroadcastChannel";
 
 export class SyncMap<K, V> extends Map<K, V> {
-  private channel: BroadcastChannel;
+  private channel: DualBroadcastChannel;
 
   constructor(channelName: string) {
     super();
-    this.channel = new BroadcastChannel(channelName);
+    this.channel = new DualBroadcastChannel(channelName);
     this.channel.addEventListener("message", (event) => {
       const { type, key, value } = event.data as {
         type: MessageType;
@@ -24,8 +25,21 @@ export class SyncMap<K, V> extends Map<K, V> {
         case "clear":
           super.clear();
           break;
+        case "request-sync":
+          this.channel.postMessage({
+            type: "sync",
+            data: Array.from(this.entries()),
+          });
+          break;
+        case "sync":
+          event.data.data.forEach(([key, value]: [K, V]) => {
+            super.set(key, value);
+          });
+          break;
       }
     });
+
+    this.channel.exclusivePostMessage({ type: "request-sync" });
   }
 
   set(key: K, value: V): this {

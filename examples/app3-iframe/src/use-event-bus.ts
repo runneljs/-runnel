@@ -5,14 +5,10 @@ import {
 import { validator } from "@runnel/validator";
 import deepEqual from "deep-equal";
 import { useEffect, useMemo, useState } from "react";
-import { createEventBus } from "runneljs";
+import { runnel } from "runneljs";
 
 const { register, observer: metricObserver } = createPlugin(deepEqual);
-const eventBus = createEventBus({
-  deepEqual,
-  payloadValidator: validator,
-  globalVar: window.parent, // Use the parent window as the space.
-});
+const eventBus = runnel("event-bus", deepEqual, validator);
 register();
 
 function useEventBusMetrics() {

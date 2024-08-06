@@ -1,17 +1,15 @@
 import deepEqual from "deep-equal";
 import {
+  onAddEventListenerEventName,
+  onPostMessageEventName,
+  onRemoveEventListenerEventName,
+} from "./dispatch-events";
+import { type RegisterTopic, type Runnel, runnel } from "./runnel";
+import {
   mockBroadcastChannel,
   resetMockBroadcastChannel,
-} from "../test-utils/mock-broadcast-channel";
-import { payloadValidator } from "../test-utils/validator";
-import {
-  onPublishCreatedEventName,
-  onPublishEventName,
-  onSubscribeCreatedEventName,
-  onSubscribeEventName,
-  onUnsubscribeEventName,
-} from "./dispatch-events";
-import { type RegisterTopic, type Runnel, runnel } from "./runnel-bc";
+} from "./test-utils/mock-broadcast-channel";
+import { payloadValidator } from "./test-utils/validator";
 
 type TestSchema = {
   name: string;
@@ -68,33 +66,22 @@ describe("runnel-bc", () => {
   describe("Publishing to a topic", () => {
     let topic: ReturnType<RegisterTopic>;
     let mockOnPublishEvent: ReturnType<typeof vi.fn>;
-    let mockOnPublishCreatedEvent: ReturnType<typeof vi.fn>;
 
     beforeEach(() => {
       const topicName = unique("test-topic");
       topic = channel.registerTopic(topicName, testJsonSchema);
-      mockOnPublishCreatedEvent = vi.fn();
       mockOnPublishEvent = vi.fn();
-      window.addEventListener(
-        onPublishCreatedEventName,
-        mockOnPublishCreatedEvent,
-      );
-      window.addEventListener(onPublishEventName, mockOnPublishEvent);
+      window.addEventListener(onPostMessageEventName, mockOnPublishEvent);
     });
 
     afterEach(() => {
       vi.restoreAllMocks();
-      window.removeEventListener(
-        onPublishCreatedEventName,
-        mockOnPublishCreatedEvent,
-      );
-      window.removeEventListener(onPublishEventName, mockOnPublishEvent);
+      window.removeEventListener(onPostMessageEventName, mockOnPublishEvent);
     });
 
     it("allows to publish to a topic expected by the schema", () => {
-      expect(mockOnPublishCreatedEvent).not.toHaveBeenCalled();
+      expect(mockOnPublishEvent).not.toHaveBeenCalled();
       topic.publish({ name: "test" });
-      expect(mockOnPublishCreatedEvent).toHaveBeenCalled();
       expect(mockOnPublishEvent).toHaveBeenCalled();
     });
 
@@ -112,35 +99,29 @@ describe("runnel-bc", () => {
   describe("Subscribing to a topic", () => {
     let topic: ReturnType<RegisterTopic>;
     let mockOnSubscribeCreatedEvent: ReturnType<typeof vi.fn>;
-    let mockOnSubscribeEvent: ReturnType<typeof vi.fn>;
 
     beforeEach(() => {
       const topicName = unique("test-topic");
       topic = channel.registerTopic(topicName, testJsonSchema);
       mockOnSubscribeCreatedEvent = vi.fn();
-      mockOnSubscribeEvent = vi.fn();
       window.addEventListener(
-        onSubscribeCreatedEventName,
+        onAddEventListenerEventName,
         mockOnSubscribeCreatedEvent,
       );
-      window.addEventListener(onSubscribeEventName, mockOnSubscribeEvent);
     });
 
     afterEach(() => {
       vi.restoreAllMocks();
       window.removeEventListener(
-        onSubscribeCreatedEventName,
+        onAddEventListenerEventName,
         mockOnSubscribeCreatedEvent,
       );
-      window.removeEventListener(onSubscribeEventName, mockOnSubscribeEvent);
     });
 
     it("allows to subscribe to a topic", () => {
-      expect(mockOnSubscribeEvent).not.toHaveBeenCalled();
+      expect(mockOnSubscribeCreatedEvent).not.toHaveBeenCalled();
       topic.subscribe(vi.fn());
       expect(mockOnSubscribeCreatedEvent).toHaveBeenCalled();
-      // Subscriber is created but no message is published yet.
-      expect(mockOnSubscribeEvent).not.toHaveBeenCalled();
     });
   });
 
@@ -156,7 +137,10 @@ describe("runnel-bc", () => {
       topicName = unique("test-topic");
       topic = channel.registerTopic(topicName, testJsonSchema);
       mockOnUnsubscribeEvent = vi.fn();
-      window.addEventListener(onUnsubscribeEventName, mockOnUnsubscribeEvent);
+      window.addEventListener(
+        onRemoveEventListenerEventName,
+        mockOnUnsubscribeEvent,
+      );
       broadcastChannelEventListener = vi.fn();
       subscriber = vi.fn();
       unsubscribe = topic.subscribe(subscriber);
@@ -165,7 +149,7 @@ describe("runnel-bc", () => {
     afterEach(() => {
       vi.restoreAllMocks();
       window.removeEventListener(
-        onUnsubscribeEventName,
+        onRemoveEventListenerEventName,
         mockOnUnsubscribeEvent,
       );
     });

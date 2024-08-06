@@ -1,3 +1,8 @@
+// import MockBroadcastChannel from "./test-utils/MockBroadcastChannel";
+// Object.defineProperty(window, "BroadcastChannel", {
+//   value: MockBroadcastChannel,
+// });
+
 import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import App from "./App";
 import { setupReporter } from "./test-utils/setup-reporter";
@@ -19,11 +24,12 @@ describe("App", () => {
 
   test("counter increments when button is clicked", async () => {
     render(<App />);
-    const button = screen.getByText("count is 0");
+    const button = screen.getByRole("button", { name: /count is 0/i });
+    expect(button).toBeTruthy();
     fireEvent.click(button);
 
     await waitFor(() => {
-      expect(screen.getByText("count is 1")).toBeTruthy();
+      expect(screen.getByRole("button", { name: /count is 1/i })).toBeTruthy();
     });
   });
 
@@ -31,16 +37,31 @@ describe("App", () => {
   test("expected publish/subscribe events are introduced", () => {
     expect(reportInMemory).toEqual({
       fullName: {
-        onSubscribeCreated: 1,
-        onPublishCreated: 0,
-        onPublish: null,
-        onSubscribe: null,
+        onAddEventListener: 1,
+        onRemoveEventListener: 1,
+        schema: {
+          type: "object",
+          properties: {
+            firstName: { type: "string" },
+            lastName: { type: "string" },
+          },
+          required: ["firstName", "lastName"],
+          additionalProperties: false,
+          $schema: "http://json-schema.org/draft-07/schema#",
+        },
+        onCreateTopic: 1,
+        lastPayload: null,
+        onPostMessage: 0,
       },
       count: {
-        onSubscribeCreated: 1,
-        onPublishCreated: 1,
-        onPublish: 1,
-        onSubscribe: 1,
+        schema: {
+          type: "number",
+        },
+        onAddEventListener: 1,
+        onRemoveEventListener: 1,
+        onCreateTopic: 1,
+        lastPayload: 1,
+        onPostMessage: 1,
       },
     });
   });

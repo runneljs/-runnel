@@ -1,4 +1,5 @@
 import deepEqual from "deep-equal";
+import { onAddEventListenerEventName, onPostMessageEventName } from "runneljs";
 import type { DispatchEventName } from "../../runnel/src/dispatch-events";
 import { createPlugin } from "./index";
 
@@ -25,26 +26,33 @@ describe("event-bus-metric-plugin", () => {
 
     test("should call callback with metrics on subscribe", () => {
       observer.subscribe(callback);
-      dispatchCustomEvent("runnel:onsubscribecreated", { topicId: "topic1" });
+      dispatchCustomEvent(onAddEventListenerEventName, { topicId: "topic1" });
       expect(callback).toHaveBeenCalledWith({
         topic1: {
-          onSubscribeCreated: 1,
-          onPublishCreated: 0,
-          onPublish: null,
-          onSubscribe: null,
+          schema: {},
+          onCreateTopic: 0,
+          lastPayload: null,
+          onPostMessage: 0,
+          onAddEventListener: 1,
+          onRemoveEventListener: 0,
         },
       });
     });
 
     test("should call callback with metrics on publish", () => {
       observer.subscribe(callback);
-      dispatchCustomEvent("runnel:onpublishcreated", { topicId: "topic1" });
+      dispatchCustomEvent(onPostMessageEventName, {
+        topicId: "topic1",
+        payload: "Publish to topic1",
+      });
       expect(callback).toHaveBeenCalledWith({
         topic1: {
-          onSubscribeCreated: 1,
-          onPublishCreated: 1,
-          onPublish: null,
-          onSubscribe: null,
+          schema: {},
+          onCreateTopic: 0,
+          lastPayload: "Publish to topic1",
+          onPostMessage: 1,
+          onAddEventListener: 1,
+          onRemoveEventListener: 0,
         },
       });
     });

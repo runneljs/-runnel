@@ -1,8 +1,8 @@
+import { SyncMap } from "./SyncMap"; // Adjust the import path as needed
 import {
   mockBroadcastChannel,
   resetMockBroadcastChannel,
-} from "../test-utils/mock-broadcast-channel";
-import { SyncMap } from "./SyncMap"; // Adjust the import path as needed
+} from "./test-utils/mock-broadcast-channel";
 
 describe("SyncMap", () => {
   const channelName = "test-channel";
