@@ -1,8 +1,3 @@
-// import MockBroadcastChannel from "./test-utils/MockBroadcastChannel";
-// Object.defineProperty(window, "BroadcastChannel", {
-//   value: MockBroadcastChannel,
-// });
-
 import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import App from "./App";
 import { setupReporter } from "./test-utils/setup-reporter";
