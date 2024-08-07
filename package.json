@@ -8,7 +8,6 @@
   "scripts": {
     "format": "prettier --write .",
     "test:packages": "pnpm --filter \"./packages/*\" --parallel run test",
-    "build:packages": "pnpm --filter \"./packages/*\" --parallel run build",
     "build:example": "pnpm --filter \"./examples/*\" --parallel --if-present run build:cp",
     "clean:app-shell": "rimraf ./examples/app-shell/public/*.js",
     "test:app3": "pnpm --filter app3-iframe run test && npm run report",

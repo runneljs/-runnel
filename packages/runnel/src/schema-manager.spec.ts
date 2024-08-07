@@ -36,4 +36,30 @@ describe("schemaManager", () => {
       }).not.toThrow();
     });
   });
+
+  describe("getTopics", () => {
+    test("should return all topics", () => {
+      const schemaStore = new Map();
+      schemaStore.set("topicId", { type: "string" });
+      schemaStore.set("topicId2", { type: "number" });
+
+      expect(createSchemaManager(deepEqual, schemaStore).getTopics()).toEqual([
+        "topicId",
+        "topicId2",
+      ]);
+    });
+  });
+
+  describe("getSchemaByTopicId", () => {
+    test("should return schema by topicId", () => {
+      const schemaStore = new Map();
+      schemaStore.set("topicId", { type: "string" });
+
+      expect(
+        createSchemaManager(deepEqual, schemaStore).getSchemaByTopicId(
+          "topicId",
+        ),
+      ).toEqual({ type: "string" });
+    });
+  });
 });

@@ -1,6 +1,17 @@
 import { vi } from "vitest";
 
-export const metricPlugin = (mock: ReturnType<typeof vi.fn>) => {
+export type MetricPlugin = {
+  register: () => void;
+  unregister: () => void;
+  states: {
+    subscribeStats: Record<string, number>;
+    publishStats: Record<string, number>;
+    subStats: Record<string, number>;
+    pubStats: Record<string, number>;
+  };
+};
+
+export const metricPlugin = (mock: ReturnType<typeof vi.fn>): MetricPlugin => {
   const subscribeStats: Record<string, number> = {};
   const publishStats: Record<string, number> = {};
   const subStats: Record<string, number> = {};
@@ -34,6 +45,12 @@ export const metricPlugin = (mock: ReturnType<typeof vi.fn>) => {
     subStats[topicId] ? subStats[topicId]++ : (subStats[topicId] = 1);
   }
   return {
+    states: {
+      subscribeStats,
+      publishStats,
+      subStats,
+      pubStats,
+    },
     register: () => {
       window.addEventListener(
         "runnel:onsubscribecreated",

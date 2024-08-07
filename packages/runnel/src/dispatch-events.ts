@@ -1,40 +1,59 @@
-import type { TopicId } from "./topic-registration";
+import { getGlobal } from "./get-global";
+import type { JsonSchema } from "./schema-manager";
+import type { TopicId } from "./topic-name-to-id";
 
-export type DispatchEventName =
-  | "runnel:onpublish"
-  | "runnel:onpublishcreated"
-  | "runnel:onsubscribe"
-  | "runnel:onsubscribecreated"
-  | "runnel:onunsubscribe"
-  | "runnel:onunregisteralltopics";
+const globalVariable = getGlobal();
 
-export function dispatchOnPublish(topicId: TopicId, payload: unknown) {
-  dispatch("runnel:onpublish", { topicId, payload });
+export const onCreateTopicEventName = "runnel:on-create-topic";
+export type OnCreateTopicEventDetail = {
+  topicId: TopicId;
+  jsonSchema: JsonSchema;
+};
+export function dispatchOnCreateTopic(
+  topicId: TopicId,
+  jsonSchema: JsonSchema,
+) {
+  dispatch(onCreateTopicEventName, { topicId, jsonSchema });
 }
 
-export function dispatchOnPublishCreated(topicId: TopicId) {
-  dispatch("runnel:onpublishcreated", { topicId });
+export const onPostMessageEventName = "runnel:on-post-message";
+export type OnPostMessageEventDetail = {
+  topicId: TopicId;
+  payload: unknown;
+};
+export function dispatchOnPostMessage(topicId: TopicId, payload: unknown) {
+  dispatch(onPostMessageEventName, { topicId, payload });
 }
 
-export function dispatchOnSubscribe(topicId: TopicId, payload: unknown) {
-  dispatch("runnel:onsubscribe", { topicId, payload });
+export const onAddEventListenerEventName = "runnel:on-add-event-listener";
+export type OnAddEventListenerEventDetail = {
+  topicId: TopicId;
+};
+export function dispatchOnAddEventListener(topicId: TopicId) {
+  dispatch(onAddEventListenerEventName, { topicId });
 }
 
-export function dispatchOnSubscribeCreated(topicId: TopicId) {
-  dispatch("runnel:onsubscribecreated", { topicId });
-}
-
-export function dispatchOnUnsubscribe(topicId: TopicId) {
-  dispatch("runnel:onunsubscribe", { topicId });
-}
-
-export function dispatchOnUnregisterAllTopics() {
-  dispatch("runnel:onunregisteralltopics");
+export const onRemoveEventListenerEventName = "runnel:on-remove-event-listener";
+export type OnRemoveEventListenerEventDetail = {
+  topicId: TopicId;
+};
+export function dispatchOnRemoveEventListener(topicId: TopicId) {
+  dispatch(onRemoveEventListenerEventName, { topicId });
 }
 
 function dispatch(
   eventName: DispatchEventName,
-  detail: Record<string, unknown> = {},
+  detail:
+    | OnCreateTopicEventDetail
+    | OnPostMessageEventDetail
+    | OnAddEventListenerEventDetail
+    | OnRemoveEventListenerEventDetail,
 ) {
-  dispatchEvent(new CustomEvent(eventName, { detail }));
+  globalVariable.dispatchEvent(new CustomEvent(eventName, { detail }));
 }
+
+export type DispatchEventName =
+  | typeof onPostMessageEventName
+  | typeof onAddEventListenerEventName
+  | typeof onRemoveEventListenerEventName
+  | typeof onCreateTopicEventName;

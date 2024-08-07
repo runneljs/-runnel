@@ -1,9 +1,7 @@
-import type { SubscriptionStore } from "./eventbus/SubscriptionStore";
-import type { JsonSchema, TopicId } from "./topic-registration";
+import type { JsonSchema } from "./schema-manager";
+import type { TopicId } from "./topic-name-to-id";
 
 export type RunnelGlobals = {
-  // Observe when plugins are registered.
-  subscriptionStore?: SubscriptionStore;
   // Store schemas so we can validate schema and payload.
   schemaStoreMap?: Map<TopicId, JsonSchema>;
   // For new subscribers which subscribe to a topic already published.
@@ -18,7 +16,7 @@ export type GlobalType = CustomWindow;
 
 export function getGlobal(): GlobalType {
   if (typeof window !== "undefined") {
-    return window as unknown as GlobalType;
+    return (window.top ?? window) as unknown as GlobalType;
   }
   if (typeof global !== "undefined") {
     return global as unknown as GlobalType;

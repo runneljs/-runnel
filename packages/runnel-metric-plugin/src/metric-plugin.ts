@@ -1,9 +1,25 @@
+import {
+  onAddEventListenerEventName,
+  onCreateTopicEventName,
+  onPostMessageEventName,
+  onRemoveEventListenerEventName,
+  type DispatchEventName,
+  type OnAddEventListenerEventDetail,
+  type OnCreateTopicEventDetail,
+  type OnPostMessageEventDetail,
+  type OnRemoveEventListenerEventDetail,
+} from "runneljs";
+
+type JsonSchema = Object;
 export type Metrics = {
-  onPublishCreated: number;
-  onSubscribeCreated: number;
-  onPublish: unknown;
-  onSubscribe: unknown;
+  schema: JsonSchema;
+  onCreateTopic: number;
+  lastPayload: unknown;
+  onPostMessage: number;
+  onAddEventListener: number;
+  onRemoveEventListener: number;
 };
+
 export type MetricsRecord = Record<string, Metrics>;
 export function createEventBusMetricPlugin(
   deepEqual: (a: any, b: any) => boolean,
@@ -16,77 +32,108 @@ export function createEventBusMetricPlugin(
    * Count up subscribe/publish events called by the local event bus.
    */
   const metrics: MetricsRecord = {};
-  const initialTopicMetrics = {
-    onSubscribeCreated: 0,
-    onPublishCreated: 0,
-    onPublish: null,
-    onSubscribe: null,
+  const initialTopicMetrics: Metrics = {
+    schema: {},
+    onCreateTopic: 0,
+    lastPayload: null,
+    onPostMessage: 0,
+    onAddEventListener: 0,
+    onRemoveEventListener: 0,
   };
 
-  function onSubscribeCreated(e: CustomEvent<{ topicId: string }>) {
+  function onRemoveEventListener(
+    e: CustomEvent<OnRemoveEventListenerEventDetail>,
+  ) {
     const { topicId } = e.detail;
     updateStats(topicId, (metrics: Metrics) => {
       return {
         ...metrics,
-        onSubscribeCreated: metrics.onSubscribeCreated + 1,
+        onRemoveEventListener: metrics.onRemoveEventListener + 1,
       };
     });
   }
 
-  function onPublishCreated(e: CustomEvent<{ topicId: string }>) {
+  function onAddEventListener(e: CustomEvent<OnAddEventListenerEventDetail>) {
     const { topicId } = e.detail;
     updateStats(topicId, (metrics: Metrics) => {
       return {
         ...metrics,
-        onPublishCreated: metrics.onPublishCreated + 1,
+        onAddEventListener: metrics.onAddEventListener + 1,
       };
     });
   }
 
-  function onPublish(e: CustomEvent<{ topicId: string; payload: unknown }>) {
+  function onPostMessage(e: CustomEvent<OnPostMessageEventDetail>) {
     const { topicId, payload } = e.detail;
     updateStats(topicId, (metrics: Metrics) => {
       return {
         ...metrics,
-        onPublish: payload ?? null,
+        lastPayload: payload ?? null,
+        onPostMessage: metrics.onPostMessage + 1,
       };
     });
   }
 
-  function onSubscribe(e: CustomEvent<{ topicId: string; payload: unknown }>) {
-    const { topicId, payload } = e.detail;
+  function onCreateTopic(e: CustomEvent<OnCreateTopicEventDetail>) {
+    const { topicId, jsonSchema } = e.detail;
     updateStats(topicId, (metrics: Metrics) => {
       return {
         ...metrics,
-        onSubscribe: payload ?? null,
+        schema: jsonSchema,
+        onCreateTopic: metrics.onCreateTopic + 1,
       };
     });
+  }
+
+  function addRunnelEventListener(
+    eventName: DispatchEventName,
+    eventListener: EventListener,
+  ) {
+    (window.top ?? window).addEventListener(eventName, eventListener);
+  }
+  function removeRunnelEventListener(
+    eventName: DispatchEventName,
+    eventListener: EventListener,
+  ) {
+    (window.top ?? window).removeEventListener(eventName, eventListener);
   }
 
   function register() {
-    addEventListener(
-      "runnel:onsubscribecreated",
-      onSubscribeCreated as EventListener,
+    addRunnelEventListener(
+      onRemoveEventListenerEventName,
+      onRemoveEventListener as EventListener,
     );
-    addEventListener(
-      "runnel:onpublishcreated",
-      onPublishCreated as EventListener,
+    addRunnelEventListener(
+      onAddEventListenerEventName,
+      onAddEventListener as EventListener,
     );
-    addEventListener("runnel:onpublish", onPublish as EventListener);
-    addEventListener("runnel:onsubscribe", onSubscribe as EventListener);
+    addRunnelEventListener(
+      onPostMessageEventName,
+      onPostMessage as EventListener,
+    );
+    addRunnelEventListener(
+      onCreateTopicEventName,
+      onCreateTopic as EventListener,
+    );
   }
 
   function unregister() {
-    removeEventListener(
-      "runnel:onsubscribecreated",
-      onSubscribeCreated as EventListener,
+    removeRunnelEventListener(
+      onRemoveEventListenerEventName,
+      onRemoveEventListener as EventListener,
     );
-    removeEventListener(
-      "runnel:onpublishcreated",
-      onPublishCreated as EventListener,
+    removeRunnelEventListener(
+      onAddEventListenerEventName,
+      onAddEventListener as EventListener,
     );
-    removeEventListener("runnel:onpublish", onPublish as EventListener);
-    removeEventListener("runnel:onsubscribe", onSubscribe as EventListener);
+    removeRunnelEventListener(
+      onPostMessageEventName,
+      onPostMessage as EventListener,
+    );
+    removeRunnelEventListener(
+      onCreateTopicEventName,
+      onCreateTopic as EventListener,
+    );
   }
 
   return { register, unregister };

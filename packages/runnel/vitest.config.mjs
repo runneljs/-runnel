@@ -5,7 +5,13 @@ export default defineConfig({
     globals: true,
     environment: "happy-dom",
     coverage: {
-      exclude: ["build.mjs", "src/errors.ts", "src/get-global.ts"],
+      exclude: [
+        "build.mjs",
+        "src/index.ts",
+        "src/errors.ts",
+        "src/get-global.ts",
+        "src/test-utils",
+      ],
       thresholds: {
         statements: 90,
         branches: 90,

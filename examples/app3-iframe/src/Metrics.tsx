@@ -23,16 +23,16 @@ export function Metrics() {
         <thead>
           <tr>
             <th>Topic ID</th>
-            <th>published</th>
-            <th>subscribed</th>
+            <th>published (times)</th>
+            <th>subscribed (times)</th>
           </tr>
         </thead>
         <tbody>
           {Object.keys(metrics).map((topicId) => (
             <tr key={topicId}>
               <td>{topicId}</td>
-              <td>{metrics[topicId].onCreatePublish}</td>
-              <td>{metrics[topicId].onCreateSubscribe}</td>
+              <td>{metrics[topicId].onPostMessage}</td>
+              <td>{metrics[topicId].onAddEventListener}</td>
             </tr>
           ))}
         </tbody>

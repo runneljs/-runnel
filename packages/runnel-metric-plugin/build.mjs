@@ -8,7 +8,7 @@ import { readFile } from "fs/promises";
     entryPoints: ["./src/index.ts"],
     bundle: true,
     minify: true,
-    sourcemap: true,
+    sourcemap: false,
     external: Object.keys(json.dependencies ?? []),
   };
 

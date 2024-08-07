@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import isEqual from "lodash.isequal";
-import { SchemaMismatchError, createEventBus } from "runneljs";
+import { SchemaMismatchError, runnel } from "runneljs";
 import { z } from "zod";
 import { zodToJsonSchema } from "zod-to-json-schema";
 import Ajv from "ajv";
@@ -17,10 +17,7 @@ function payloadValidator(jsonSchema: object) {
  * - payloadValidator: App 1 uses `@cfworker/json-schema`. App 2 uses `ajv`.
  * Whichever the eventBus attached to the window object first will be used.
  */
-const { registerTopic } = createEventBus({
-  deepEqual: isEqual,
-  payloadValidator,
-});
+const { registerTopic } = runnel("event-bus", isEqual, payloadValidator);
 
 /**
  * The lines creating topics below will be identical in both apps.
@@ -37,6 +34,7 @@ try {
    */
   registerTopic("oops", { type: "string" });
 } catch (e) {
+  console.warn("App 1 or 2 causes a SchemaMismatchError error");
   console.warn(e);
   const { topicId, jsonSchema, incomingJsonSchema } =
     e as unknown as SchemaMismatchError;
