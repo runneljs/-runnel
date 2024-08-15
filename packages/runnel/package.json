@@ -22,8 +22,10 @@
   },
   "devDependencies": {
     "@cfworker/json-schema": "^1.12.8",
+    "@types/deep-equal": "^1.0.4",
     "@types/lodash.isequal": "^4.5.8",
     "@vitest/coverage-v8": "^1.6.0",
+    "deep-equal": "^2.2.3",
     "fast-glob": "^3.3.2",
     "happy-dom": "^14.12.3",
     "lodash.isequal": "^4.5.0",

@@ -1,6 +1,5 @@
 import { build } from "esbuild";
 import { readFile } from "fs/promises";
-import { platform } from "os";
 
 (async function () {
   const mod = await readFile("./package.json", "utf8");
