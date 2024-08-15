@@ -13,7 +13,7 @@
     "test:app3": "pnpm --filter app3-iframe run test && npm run report",
     "run:example": "pnpm --filter app-shell run dev",
     "build:app-shell": "cd ./examples/app-shell && npm run build",
-    "pre-deploy:example": "npm run build:packages && npm run build:example && npm run build:app-shell",
+    "pre-deploy:example": "npm run build:example && npm run build:app-shell",
     "deploy:example": "wrangler pages deploy examples/app-shell/dist",
     "test:all": "pnpm --parallel --if-present run test",
     "prepare": "husky"
