@@ -1,63 +1,32 @@
 import { useEffect, useState } from "react";
-import isEqual from "lodash.isequal";
-import { SchemaMismatchError, runnel } from "runneljs";
-import { z } from "zod";
-import { zodToJsonSchema } from "zod-to-json-schema";
-import Ajv from "ajv";
+import { runnel } from "runneljs";
 import "./App.css";
 
-const ajv = new Ajv();
-function payloadValidator(jsonSchema: object) {
-  return ajv.compile(jsonSchema);
-}
+type Schemas = {
+  count: number;
+  fullName: {
+    firstName: string;
+    lastName: string;
+  };
+};
 
-/**
- * The parameters `deepEqual` and `payloadValidator` are replaceable.
- * - deepEqual: App 1 uses `deep-equal`. App 2 uses `lodash.isequal`.
- * - payloadValidator: App 1 uses `@cfworker/json-schema`. App 2 uses `ajv`.
- * Whichever the eventBus attached to the window object first will be used.
- */
-const { registerTopic } = runnel("event-bus", isEqual, payloadValidator);
+const { registerTopic } = runnel<Schemas>();
 
 /**
  * The lines creating topics below will be identical in both apps.
  * It looks redundant, but because micro-frontend apps should be independent,
  * they should not share the same codebase.
  */
-const countTopic = registerTopic<number>("count", {
-  type: "number",
-});
+const countTopic = registerTopic("count");
 
-try {
-  /**
-   * Intentionally registering a topic with an incorrect schema.
-   */
-  registerTopic("oops", { type: "string" });
-} catch (e) {
-  console.warn("App 1 or 2 causes a SchemaMismatchError error");
-  console.warn(e);
-  const { topicId, jsonSchema, incomingJsonSchema } =
-    e as unknown as SchemaMismatchError;
-  console.warn({ topicName: topicId });
-  console.warn({ jsonSchema: JSON.stringify(jsonSchema) });
-  console.warn({ incomingJsonSchema: JSON.stringify(incomingJsonSchema) });
-}
-
-const fullNameSchema = z.object({
-  firstName: z.string(),
-  lastName: z.string(),
-});
-type FullNameSchema = z.infer<typeof fullNameSchema>;
-const fullNameTopic = registerTopic<FullNameSchema>(
-  "fullName",
-  zodToJsonSchema(fullNameSchema),
-);
+const fullNameTopic = registerTopic("fullName");
 
 function App() {
   const [fullName, setFullName] = useState({
     firstName: "Luke",
     lastName: "Skywalker",
   });
+
   const [count, setCount] = useState(0);
   useEffect(() => {
     const unsubscribe = countTopic.subscribe((payload) => {

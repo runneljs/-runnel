@@ -4,7 +4,6 @@ export default defineConfig({
   test: {
     globals: true,
     environment: "happy-dom",
-    setupFiles: ["src/test-utils/setup.ts"],
     coverage: {
       include: ["src/**/*.ts", "src/**/*.tsx"],
       thresholds: {
