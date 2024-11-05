@@ -1,43 +1,22 @@
-import { useEffect, useState } from "react";
-import { runnel } from "runneljs";
+import { useState } from "react";
 import "./App.css";
-
-type Schemas = {
-  count: number;
-  fullName: {
-    firstName: string;
-    lastName: string;
-  };
-};
-
-const { registerTopic } = runnel<Schemas>();
-
-/**
- * The lines creating topics below will be identical in both apps.
- * It looks redundant, but because micro-frontend apps should be independent,
- * they should not share the same codebase.
- */
-const countTopic = registerTopic("count");
-
-const fullNameTopic = registerTopic("fullName");
+import { useTopicSubscription } from "./use-topic-subscription";
 
 function App() {
-  const [fullName, setFullName] = useState({
-    firstName: "Luke",
-    lastName: "Skywalker",
-  });
+  const { state: fullName, topic: fullNameTopic } = useTopicSubscription(
+    "fullName",
+    {
+      firstName: "Luke",
+      lastName: "Skywalker",
+    },
+  );
+  const [localFullName, setLocalFullName] = useState(fullName);
 
-  const [count, setCount] = useState(0);
-  useEffect(() => {
-    const unsubscribe = countTopic.subscribe((payload) => {
-      setCount(payload);
-    });
-    return () => unsubscribe();
-  }, []);
+  const { state: count } = useTopicSubscription("count", 0);
 
   const buttonOnClick = (e: React.FormEvent<HTMLButtonElement>) => {
     e.preventDefault();
-    fullNameTopic.publish(fullName);
+    fullNameTopic.publish(localFullName);
   };
 
   return (
@@ -49,9 +28,9 @@ function App() {
           <h2>Tell me your name.</h2>
           <input
             style={{ display: "block" }}
-            value={fullName.firstName}
+            value={localFullName.firstName}
             onChange={(e) =>
-              setFullName((fullName) => ({
+              setLocalFullName((fullName) => ({
                 ...fullName,
                 firstName: e.target.value,
               }))
@@ -59,9 +38,9 @@ function App() {
           />
           <input
             style={{ display: "block" }}
-            value={fullName.lastName}
+            value={localFullName.lastName}
             onChange={(e) =>
-              setFullName((fullName) => ({
+              setLocalFullName((fullName) => ({
                 ...fullName,
                 lastName: e.target.value,
               }))
@@ -72,7 +51,7 @@ function App() {
           </button>
         </form>
         <p>
-          My name is {fullName.firstName} {fullName.lastName}.
+          My name is {localFullName.firstName} {localFullName.lastName}.
         </p>
       </div>
     </>

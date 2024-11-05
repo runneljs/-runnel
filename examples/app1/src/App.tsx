@@ -1,36 +1,12 @@
-import { useEffect, useState } from "react";
-import { runnel } from "runneljs";
 import "./App.css";
-
-type Schemas = {
-  count: number;
-  fullName: {
-    firstName: string;
-    lastName: string;
-  };
-};
-
-const { registerTopic } = runnel<Schemas>();
-const countTopic = registerTopic("count");
-const fullNameTopic = registerTopic("fullName");
+import { useTopicSubscription } from "./use-topic-subscription";
 
 function App() {
-  const [count, setCount] = useState<Schemas["count"]>(0);
-  useEffect(() => {
-    const unsubscribe = countTopic.subscribe(setCount);
-    return () => unsubscribe();
-  }, []);
-
-  const [fullName, setFullName] = useState<Schemas["fullName"]>({
+  const { state: fullName } = useTopicSubscription("fullName", {
     firstName: "",
     lastName: "",
   });
-  useEffect(() => {
-    const unsubscribe = fullNameTopic.subscribe((payload) => {
-      setFullName(payload);
-    });
-    return () => unsubscribe();
-  }, []);
+  const { state: count, topic: countTopic } = useTopicSubscription("count", 0);
 
   const clickHandler = () => {
     countTopic.publish(count + 1);
