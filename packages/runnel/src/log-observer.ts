@@ -18,7 +18,7 @@ type Log = {
   detail: CustomEventDetail<string, unknown>;
 };
 
-export function createLogObserver(logger: (log: Log) => void) {
+export function createLogObserver(logger: (log: Log) => void): () => void {
   const globalVar = getGlobal();
   const listeners: [InternalLogEventNames, (event: Event) => void][] = [
     [InternalLogEventNames.onCreateTopic, onCreateListener],

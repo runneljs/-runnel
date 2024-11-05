@@ -3,7 +3,16 @@ import { createLogger } from "./logger";
 
 type TopicId = string;
 
-export function runnel<S>() {
+type Runnel<S> = {
+  registerTopic: <T extends keyof S & string>(
+    topicId: T,
+  ) => {
+    subscribe: (subscriber: (payload: S[T]) => void) => void;
+    publish: (payload: S[T]) => void;
+  };
+};
+
+export function runnel<S>(): Runnel<S> {
   const globalVar = getGlobal();
   globalVar.__runnel ??= {};
   const latestMap = (globalVar.__runnel.latestStateStoreMap ??= new Map<
