@@ -13,19 +13,13 @@
     "test": "vitest run"
   },
   "dependencies": {
-    "@runnel/metric-plugin": "workspace:*",
-    "@runnel/validator": "workspace:*",
-    "deep-equal": "^2.2.3",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
-    "runneljs": "workspace:*",
-    "zod": "^3.22.4",
-    "zod-to-json-schema": "^3.22.4"
+    "runneljs": "workspace:*"
   },
   "devDependencies": {
     "@runnel/reporter": "workspace:*",
     "@testing-library/react": "^14.2.1",
-    "@types/deep-equal": "^1.0.4",
     "@types/react": "^18.2.56",
     "@types/react-dom": "^18.2.19",
     "@typescript-eslint/eslint-plugin": "^7.0.2",

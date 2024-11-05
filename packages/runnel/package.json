@@ -1,6 +1,6 @@
 {
   "name": "runneljs",
-  "version": "0.3.0",
+  "version": "0.4.0",
   "type": "module",
   "main": "dist/index.cjs",
   "module": "dist/index.js",
@@ -10,6 +10,11 @@
       "require": "./dist/index.cjs",
       "import": "./dist/index.js",
       "types": "./dist/index.d.ts"
+    },
+    "./log-observer": {
+      "require": "./src/log-observer.cjs",
+      "import": "./src/log-observer.js",
+      "types": "./src/log-observer.d.ts"
     }
   },
   "scripts": {

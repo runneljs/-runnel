@@ -1,8 +1,6 @@
 import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import App from "./App";
-import { setupReporter } from "./test-utils/setup-reporter";
-
-const { registerTopic } = setupReporter(`file://${__filename}`);
+import { registerTopic } from "./use-topic-subscription";
 
 describe("App", () => {
   describe("On the first click", () => {
@@ -10,7 +8,7 @@ describe("App", () => {
 
     beforeEach(() => {
       vitestMock = vi.fn();
-      const countTopic = registerTopic<number>("count", { type: "number" });
+      const countTopic = registerTopic("count");
       countTopic.subscribe(vitestMock);
     });
 
@@ -37,7 +35,7 @@ describe("App", () => {
 
     beforeEach(() => {
       vitestMock = vi.fn();
-      const countTopic = registerTopic<number>("count", { type: "number" });
+      const countTopic = registerTopic("count");
       countTopic.subscribe(vitestMock);
     });
 

@@ -2,7 +2,7 @@ import { defineConfig } from "vite";
 import fg from "fast-glob";
 
 // https://github.com/vitejs/vite/discussions/1736#discussioncomment-5126923
-const entryPoints = ["src/index.ts", "src/bc/index.ts"];
+const entryPoints = ["src/index.ts", "src/log-observer.ts"];
 const files = fg.sync(entryPoints, { absolute: true });
 const entities = files.map((file) => {
   const [key] = file.match(/(?<=src\/).*$/) || [];
