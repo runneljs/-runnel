@@ -31,7 +31,7 @@
     "eslint-plugin-react-refresh": "^0.4.5",
     "happy-dom": "^14.12.3",
     "typescript": "^5.2.2",
-    "vite": "^5.1.4",
+    "vite": "^5.4.10",
     "vite-plugin-css-injected-by-js": "^3.4.0",
     "vitest": "^1.6.0"
   }
