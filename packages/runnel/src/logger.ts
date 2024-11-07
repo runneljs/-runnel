@@ -8,9 +8,8 @@ export const enum LogEventNames {
 }
 
 export function createLogger<S>(topicId: keyof S) {
-  // T as TopicId, P as Payload, S as Schemas
+  // T as TopicId, S as Schemas
   type T = keyof S;
-  type P = S[T];
   const dispatch = getGlobal().dispatchEvent;
   function onCreateTopic() {
     dispatch(
@@ -26,10 +25,10 @@ export function createLogger<S>(topicId: keyof S) {
       }),
     );
   }
-  function onPostMessage(payload: P) {
+  function onPostMessage() {
     dispatch(
-      new CustomEvent<{ topicId: T; payload: P }>(LogEventNames.onPostMessage, {
-        detail: { topicId, payload },
+      new CustomEvent<{ topicId: T }>(LogEventNames.onPostMessage, {
+        detail: { topicId },
       }),
     );
   }

@@ -49,7 +49,6 @@ describe("runnel", () => {
         name: "onPostMessage",
         detail: {
           topicId: "str",
-          payload: "test - this is a string",
         },
       });
     });
@@ -81,7 +80,7 @@ describe("runnel", () => {
           });
           expect(logs.at(-1)).toEqual({
             name: "onPostMessage",
-            detail: { topicId: "str", payload: "test - this is a string" },
+            detail: { topicId: "str" },
           });
         });
       });
@@ -156,7 +155,6 @@ describe("runnel", () => {
             name: "onPostMessage",
             detail: {
               topicId: "arr",
-              payload: ["test", "this", "is", "an", "array"],
             },
           });
         });

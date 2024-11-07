@@ -2,12 +2,13 @@ import { getGlobal } from "./get-global";
 import { createLogger } from "./logger";
 
 type TopicId = string;
+type Unsubscribe = () => void;
 
 type Runnel<S> = {
   registerTopic: <T extends keyof S & string>(
     topicId: T,
   ) => {
-    subscribe: (subscriber: (payload: S[T]) => void) => void;
+    subscribe: (subscriber: (payload: S[T]) => void) => Unsubscribe;
     publish: (payload: S[T]) => void;
   };
 };
@@ -27,7 +28,7 @@ export function runnel<S>(): Runnel<S> {
 
     type P = S[T];
     return {
-      subscribe: (subscriber: (payload: P) => void) => {
+      subscribe: (subscriber: (payload: P) => void): Unsubscribe => {
         const eventListener = (event: Event) => {
           const { detail } = event as CustomEvent;
           subscriber(detail);
@@ -39,7 +40,7 @@ export function runnel<S>(): Runnel<S> {
         if (latestPayload) {
           // As soon as a new subscriber is added, the subscriber should receive the latest payload.
           subscriber(latestPayload);
-          logger.onPostMessage(latestPayload);
+          logger.onPostMessage();
         }
 
         return function unsubscribe() {
@@ -51,7 +52,7 @@ export function runnel<S>(): Runnel<S> {
         globalVar.dispatchEvent(
           new CustomEvent(eventName(topicId), { detail: payload }),
         );
-        logger.onPostMessage(payload);
+        logger.onPostMessage();
         // Preserve the latest payload with the topicId.
         // So the newly registered topics can get the latest payload when they subscribe.
         latestMap.set(topicId, payload);
