@@ -1,3 +1,9 @@
+/**
+ * This file is used to get the global object.
+ * It is used to store the latest state store map. Newly attached subscribers will receive the latest payload of the topic.
+ * @module
+ */
+
 export type RunnelGlobals = {
   // For new subscribers which subscribe to a topic already published.
   latestStateStoreMap?: Map<string, unknown>;

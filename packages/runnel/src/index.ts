@@ -1,3 +1,8 @@
+/**
+ * This file is the entry file of the runnel.
+ * @module
+ */
+
 import { getGlobal } from "./get-global";
 import { createLogger } from "./logger";
 
@@ -13,6 +18,42 @@ type Runnel<S> = {
   };
 };
 
+/**
+ * Create a runnel instance. Please provide the schemas of the topics to type the payload.
+ * @returns A runnel instance composed of `registerTopic`.
+ *
+ * @example
+ * ```ts
+ * type Schemas = {
+ *   str: string;
+ *   num: number;
+ *   foobar: {
+ *     foo: string;
+ *     bar: string;
+ *   };
+ * }
+ * const runnel = runnel<Schemas>();
+ *
+ * const strTopic = runnel.registerTopic("str");
+ * strTopic.publish("test - this is a string");
+ * strTopic.subscribe((payload) => {
+ *   typeof payload === "string"; // true
+ * });
+ *
+ * const numTopic = runnel.registerTopic("num");
+ * numTopic.publish(123);
+ * numTopic.subscribe((payload) => {
+ *   typeof payload === "number"; // true
+ * });
+ *
+ * const foobarTopic = runnel.registerTopic("foobar");
+ * foobarTopic.publish({ foo: "some foo", bar: "some bar" });
+ * foobarTopic.subscribe((payload) => {
+ *   typeof payload.foo === "string"; // true
+ *   typeof payload.bar === "string"; // true
+ * });
+ * ```
+ */
 export function runnel<S>(): Runnel<S> {
   const globalVar = getGlobal();
   globalVar.__runnel ??= {};

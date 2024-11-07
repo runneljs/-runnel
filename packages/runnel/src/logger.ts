@@ -1,3 +1,9 @@
+/**
+ * This file is used to create a logger for the runnel.
+ * It can be used to observe the log events.
+ * @module
+ */
+
 import { getGlobal } from "./get-global";
 
 export const enum LogEventNames {
